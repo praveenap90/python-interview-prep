@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Role Skills — Interactive Prep</title>
+<style>
+  :root {
+    --paper: #f4f1e9;
+    --paper-dim: #ebe6d9;
+    --card-bg: #ffffff;
+    --ink: #211f1a;
+    --ink-soft: #55503f;
+    --pine: #24463a;
+    --pine-deep: #163026;
+    --pine-tint: #e7efe9;
+    --ochre: #b5731f;
+    --ochre-tint: #f6e9d8;
+    --rule: #d8d0bd;
+    --good: #2f7a4f;
+    --good-tint: #e3f3e8;
+    --bad: #a83a3a;
+    --bad-tint: #f8e6e6;
+    --shadow: 0 8px 24px rgba(22, 48, 38, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+  }
+
+  .mono { font-family: "Courier New", ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+  a { color: inherit; }
+
+  /* ---- Sticky nav ---- */
+
+  nav.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--pine-deep);
+    border-bottom: 3px solid var(--ochre);
+  }
+
+  nav.topnav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .nav-brand {
+    color: var(--paper);
+    font-size: 15px;
+    font-family: "Courier New", ui-monospace, monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links { display: flex; gap: 22px; flex-wrap: wrap; }
+
+  .nav-links a {
+    color: #d9e2da;
+    text-decoration: none;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-links a:hover { color: var(--paper); border-color: var(--ochre); }
+
+  /* ---- Hero ---- */
+
+  header.hero {
+    background: var(--pine-deep);
+    color: var(--paper);
+    padding: 56px 0 48px;
+  }
+
+  .catalog-tag {
+    font-size: 13px;
+    color: #c9d6c9;
+    margin: 0 0 16px;
+    font-family: "Courier New", ui-monospace, monospace;
+  }
+
+  h1.title { font-size: 38px; line-height: 1.18; margin: 0 0 16px; font-weight: 500; max-width: 16ch; }
+
+  .hero-desc { font-size: 17px; line-height: 1.6; color: #dfe6df; max-width: 58ch; margin: 0 0 28px; }
+
+  .hero-links { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 34px; }
+
+  .btn {
+    display: inline-block;
+    padding: 11px 20px;
+    text-decoration: none;
+    font-size: 15px;
+    border: 1px solid var(--paper);
+    color: var(--paper);
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .btn.solid { background: var(--ochre); border-color: var(--ochre); color: #221604; }
+  .btn:hover { background: var(--paper); color: var(--pine-deep); }
+  .btn.solid:hover { background: #d78d34; color: #221604; }
+
+  .stat-row { display: flex; gap: 34px; flex-wrap: wrap; }
+
+  .stat b { display: block; font-size: 26px; color: var(--paper); }
+  .stat span { font-size: 13px; color: #b9c7bb; font-family: "Courier New", ui-monospace, monospace; }
+
+  /* ---- Sections ---- */
+
+  section { padding: 52px 0; border-bottom: 1px solid var(--rule); }
+  section:last-of-type { border-bottom: none; }
+
+  .section-label { font-family: "Courier New", ui-monospace, monospace; font-size: 13px; color: var(--ochre); margin: 0 0 8px; }
+  h2 { font-size: 26px; font-weight: 500; margin: 0 0 12px; color: var(--pine-deep); }
+  section > .wrap > p.lead { line-height: 1.7; color: var(--ink-soft); max-width: 68ch; margin: 0 0 28px; }
+
+  /* ---- Module cards ---- */
+
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+
+  .module-card {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px;
+    cursor: pointer;
+    text-align: left;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .module-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--ochre); }
+
+  .module-icon { font-size: 30px; }
+
+  .module-card h3 { margin: 0; font-size: 19px; color: var(--pine-deep); }
+
+  .module-tagline { font-size: 13px; color: var(--ochre); font-family: "Courier New", ui-monospace, monospace; margin: -6px 0 0; }
+
+  .module-card p.desc { font-size: 14.5px; line-height: 1.5; color: var(--ink-soft); margin: 0; }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+  .chip {
+    font-size: 12px;
+    padding: 3px 9px;
+    background: var(--pine-tint);
+    color: var(--pine-deep);
+    border-radius: 20px;
+    font-family: "Courier New", ui-monospace, monospace;
+  }
+
+  .card-cta { font-size: 13px; color: var(--pine); margin-top: 4px; }
+
+  /* ---- Modal ---- */
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(22, 48, 38, 0.55);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--paper);
+    max-width: 760px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: var(--pine-deep);
+    color: var(--paper);
+    padding: 24px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .modal-header .mh-tag { font-size: 12px; color: #b9c7bb; font-family: "Courier New", ui-monospace, monospace; margin-bottom: 6px; }
+  .modal-header h3 { margin: 0; font-size: 24px; font-weight: 500; }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--paper);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+  }
+
+  .modal-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 12px 20px 0;
+    background: var(--paper-dim);
+    border-bottom: 1px solid var(--rule);
+    flex-wrap: wrap;
+  }
+
+  .modal-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-family: "Courier New", ui-monospace, monospace;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+
+  .modal-tab-btn.active { color: var(--pine-deep); border-bottom-color: var(--ochre); font-weight: 700; }
+
+  .modal-body { padding: 26px 28px 32px; max-height: 55vh; overflow-y: auto; }
+
+  .modal-body h4 { color: var(--pine-deep); font-size: 16px; margin: 18px 0 8px; }
+  .modal-body h4:first-child { margin-top: 0; }
+  .modal-body p, .modal-body li { line-height: 1.65; color: var(--ink-soft); font-size: 15px; }
+  .modal-body ul { padding-left: 20px; margin: 8px 0; }
+  .modal-body code { background: var(--pine-tint); padding: 1px 5px; border-radius: 3px; font-size: 13.5px; }
+  .modal-body pre {
+    background: var(--pine-deep);
+    color: #eef1e2;
+    padding: 16px 18px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .tip-list li { margin-bottom: 8px; }
+
+  /* ---- Quiz ---- */
+
+  .quiz-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+
+  .filter-chip {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: "Courier New", ui-monospace, monospace;
+    color: var(--ink-soft);
+  }
+
+  .filter-chip.active { background: var(--pine-deep); color: var(--paper); border-color: var(--pine-deep); }
+
+  .quiz-box {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 28px;
+  }
+
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-family: "Courier New", ui-monospace, monospace;
+    margin-bottom: 18px;
+  }
+
+  .quiz-question { font-size: 18px; color: var(--pine-deep); margin: 0 0 20px; line-height: 1.5; }
+
+  .quiz-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--paper-dim);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 13px 16px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .quiz-option:hover { border-color: var(--pine); }
+  .quiz-option.correct { background: var(--good-tint); border-color: var(--good); color: #17492c; }
+  .quiz-option.incorrect { background: var(--bad-tint); border-color: var(--bad); color: #6b1f1f; }
+  .quiz-option[disabled] { cursor: default; }
+
+  .quiz-explain {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--pine-tint);
+    border-left: 3px solid var(--pine);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    display: none;
+  }
+
+  .quiz-explain.show { display: block; }
+
+  .quiz-nav { display: flex; justify-content: space-between; margin-top: 22px; }
+
+  .quiz-nav-btns { display: flex; gap: 10px; }
+
+  .btn-pine {
+    background: var(--pine);
+    color: var(--paper);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-pine:hover { background: var(--pine-deep); }
+  .btn-pine[disabled] { opacity: 0.4; cursor: default; }
+
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--ink-soft);
+  }
+
+  /* ---- Cheat sheet ---- */
+
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+
+  .cheat-card { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; }
+  .cheat-card h4 { margin: 0 0 12px; color: var(--pine-deep); font-size: 15px; }
+  .cheat-card ul { margin: 0; padding-left: 18px; }
+  .cheat-card li { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 4px; }
+  .cheat-card table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .cheat-card th, .cheat-card td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--rule); color: var(--ink-soft); }
+  .cheat-card th { color: var(--pine-deep); font-weight: 600; }
+
+  /* ---- Flashcards ---- */
+
+  .flash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+  .flash-card {
+    perspective: 1200px;
+    height: 190px;
+    cursor: pointer;
+  }
+
+  .flash-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+
+  .flash-card.flipped .flash-inner { transform: rotateY(180deg); }
+
+  .flash-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-y: auto;
+    font-size: 13.5px;
+    line-height: 1.5;
+    border: 1px solid var(--rule);
+  }
+
+  .flash-front { background: var(--card-bg); color: var(--ink); display: flex; flex-direction: column; }
+  .flash-front .fc-cat { font-family: "Courier New", ui-monospace, monospace; font-size: 11px; color: var(--ochre); margin-bottom: 8px; }
+  .flash-front .fc-q { font-weight: 600; color: var(--pine-deep); }
+  .flash-front .fc-hint { margin-top: auto; font-size: 11px; color: #9a9480; font-family: "Courier New", ui-monospace, monospace; }
+
+  .flash-back {
+    background: var(--pine-deep);
+    color: #eef1e2;
+    transform: rotateY(180deg);
+  }
+
+  footer { padding: 36px 0 56px; }
+  footer p { font-size: 14px; color: var(--ink-soft); }
+
+  @media (max-width: 640px) {
+    h1.title { font-size: 28px; }
+    .stat-row { gap: 20px; }
+    .modal-body { max-height: 60vh; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <span class="nav-brand">▸ Data Role Skills Prep</span>
+    <div class="nav-links">
+      <a href="#modules">Modules</a>
+      <a href="#quiz">Practice Quiz</a>
+      <a href="#cheatsheet">Cheat Sheet</a>
+      <a href="#flashcards">Flash Cards</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="catalog-tag">personal project · interactive study portfolio</p>
+    <h1 class="title">Data Role Skills — Interactive Prep</h1>
+    <p class="hero-desc">
+      The day-to-day workflow skills data engineer and data analyst interviews actually
+      probe — tooling, Python fundamentals, EDA, pre-processing, and feature engineering —
+      as clickable modules, a scored quiz, and flip flashcards.
+    </p>
+    <div class="hero-links">
+      <a class="btn solid" href="#quiz">▶ Start Practice Quiz</a>
+      <a class="btn" href="#modules">Explore Modules →</a>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><b>5</b><span>MODULES</span></div>
+      <div class="stat"><b id="stat-flashcards">0</b><span>FLASH CARDS</span></div>
+      <div class="stat"><b id="stat-quiz">0</b><span>QUIZ QUESTIONS</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="modules">
+  <div class="wrap">
+    <p class="section-label">▸ five modules</p>
+    <h2>Click a module to explore</h2>
+    <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
+    <div class="module-grid" id="module-grid"></div>
+  </div>
+</section>
+
+<section id="quiz">
+  <div class="wrap">
+    <p class="section-label">▸ practice questions</p>
+    <h2>Test Your Knowledge</h2>
+    <p class="lead">15 questions across all 5 modules. Filter by category and track your score as you go.</p>
+    <div class="quiz-filters" id="quiz-filters"></div>
+    <div class="quiz-box" id="quiz-box"></div>
+  </div>
+</section>
+
+<section id="cheatsheet">
+  <div class="wrap">
+    <p class="section-label">▸ quick reference</p>
+    <h2>Cheat Sheet</h2>
+    <p class="lead">Last-minute scan reference — commands, checklists, and decision tables. For deeper self-testing, use Flash Cards below.</p>
+    <div class="cheat-grid">
+
+      <div class="cheat-card">
+        <h4>🖥️ VSCode &amp; Environment Commands</h4>
+        <pre class="mono" style="background:var(--pine-deep);color:#eef1e2;padding:12px 14px;border-radius:4px;font-size:12.5px;line-height:1.6;overflow-x:auto;">python -m venv venv
+source venv/bin/activate   # mac/linux
+venv\Scripts\activate      # windows
+pip freeze &gt; requirements.txt
+pip install -r requirements.txt</pre>
+        <ul style="margin-top:10px;">
+          <li>Cmd/Ctrl+Shift+P → "Python: Select Interpreter"</li>
+          <li>Never commit <code>venv/</code> — add to <code>.gitignore</code></li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <h4>🔍 EDA Checklist</h4>
+        <ul>
+          <li>Shape &amp; dtypes: <code>df.shape</code>, <code>df.dtypes</code></li>
+          <li>Missing: <code>df.isnull().mean()</code></li>
+          <li>Duplicates: <code>df.duplicated().sum()</code></li>
+          <li>Univariate: <code>df.describe()</code>, <code>value_counts()</code></li>
+          <li>Bivariate: <code>groupby()</code>, <code>corr()</code></li>
+          <li>Outliers: IQR bounds or z-score</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <h4>🧹 Missing Value Strategy</h4>
+        <table>
+          <tr><th>Column type</th><th>Typical fix</th></tr>
+          <tr><td>Numeric</td><td>Median fill</td></tr>
+          <tr><td>Categorical</td><td>Explicit "unknown" label</td></tr>
+          <tr><td>Primary key</td><td>Drop the row</td></tr>
+          <tr><td>High missing %</td><td>Consider dropping column</td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-card">
+        <h4>🧬 Encoding Decision Guide</h4>
+        <table>
+          <tr><th>Situation</th><th>Method</th></tr>
+          <tr><td>Low cardinality, no order</td><td>One-hot</td></tr>
+          <tr><td>Has real order</td><td>Ordinal / label</td></tr>
+          <tr><td>High cardinality</td><td>Frequency / target encode</td></tr>
+          <tr><td>Continuous → groups</td><td>Binning (<code>pd.cut</code>)</td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>⚠️ Common Interview Traps</h4>
+        <table>
+          <tr><th>Scenario</th><th>Correct instinct</th></tr>
+          <tr><td>"ModuleNotFoundError" despite package installed</td><td>Check the selected interpreter, not the package</td></tr>
+          <tr><td>Fill value computed on train+test combined</td><td>Data leakage — fit only on train</td></tr>
+          <tr><td>Mean looks "off" for a skewed column</td><td>Check the median instead</td></tr>
+          <tr><td>One-hot encoding a column with 5,000 categories</td><td>Use frequency/target encoding instead</td></tr>
+          <tr><td>A model "works great" using a feature from the future</td><td>Suspect feature leakage</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="flashcards">
+  <div class="wrap">
+    <p class="section-label">▸ active recall</p>
+    <h2>Flash Cards</h2>
+    <p class="lead">Click a card to flip it. Filter by module and focus on the ones you get wrong.</p>
+    <div class="quiz-filters" id="flash-filters"></div>
+    <div class="flash-grid" id="flash-grid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Part of the Python Interview Prep repo's Data Role Skills track — built for data engineer &amp; data analyst interview prep.</p>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="mh-tag" id="modal-tag"></div>
+        <h3 id="modal-title"></h3>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-tabs" id="modal-tabs"></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+
+const MODULES = [
+  {
+    id: "vscode",
+    icon: "🖥️",
+    title: "VSCode & Tooling",
+    tagline: "environment setup & debugging",
+    desc: "Virtual environments, interpreter selection, debugging, and moving a notebook prototype to production.",
+    tags: ["venv", "requirements.txt", "debugging", "Jupyter"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>VSCode becomes a lightweight IDE for Python once configured — interpreter selection, linting, debugging, and Jupyter notebooks all live in one window.</p>
+        <h4>Why it matters</h4>
+        <p>VSCode questions are really a proxy for whether you understand <strong>environment management and reproducibility</strong> — the gap between "works on my machine" and "works in production."</p>
+        <h4>Uses</h4>
+        <ul>
+          <li>Interpreter/environment control — isolate dependencies per project</li>
+          <li>Integrated debugging instead of scattered <code>print()</code> statements</li>
+          <li>Jupyter notebooks with the same debugging tools as scripts</li>
+          <li>Linting/formatting to catch issues before running code</li>
+        </ul>`,
+      workflow: `
+        <h4>Workflow</h4>
+        <ul>
+          <li>Create project folder → create &amp; activate a virtual environment</li>
+          <li>Select that environment as the VSCode interpreter</li>
+          <li>Install only what's needed; freeze into <code>requirements.txt</code></li>
+          <li>Lint/format on save; commit code, not the environment</li>
+          <li>Refactor validated notebook logic into scripts before shipping</li>
+        </ul>
+        <h4>Step-by-step setup</h4>
+        <pre>python -m venv venv
+source venv/bin/activate
+code .
+# Cmd/Ctrl+Shift+P -> "Python: Select Interpreter" -> ./venv
+pip install pandas numpy scikit-learn
+pip freeze &gt; requirements.txt</pre>`,
+      concepts: `
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Virtual environment</strong> — isolated Python + packages, scoped to one project</li>
+          <li><strong>Interpreter selection</strong> — which Python VSCode actually runs your code with</li>
+          <li><strong><code>requirements.txt</code></strong> — a manifest to recreate the same environment elsewhere</li>
+          <li><strong>Linting vs. formatting</strong> — catching bugs vs. enforcing style</li>
+          <li><strong>Notebook execution model</strong> — cells run in whatever order you run them, not necessarily top-to-bottom</li>
+        </ul>`,
+      example: `
+        <h4>Real-world example</h4>
+        <p>A churn-prediction model is built entirely in a notebook with cells run out of order during experimentation. Before deployment: extract the real logic into functions under <code>src/</code>, pin exact dependency versions, and expose a <code>predict()</code> call — the notebook stays as documentation, not the deployed artifact.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Not selecting the right interpreter — silent "works in terminal, not in VSCode" bugs</li>
+          <li>Installing packages globally instead of into a project-scoped venv</li>
+          <li>Committing <code>venv/</code> to Git — large, platform-specific, fully reproducible from <code>requirements.txt</code> instead</li>
+          <li>No <code>requirements.txt</code> — the project can't be reliably reproduced</li>
+          <li>Treating a notebook as the final deliverable instead of refactoring into clean scripts</li>
+        </ul>`
+    }
+  },
+  {
+    id: "fundamentals",
+    icon: "🐍",
+    title: "Python Fundamentals",
+    tagline: "core Python for data work",
+    desc: "Data types, control flow, functions, comprehensions, and file I/O the way data roles actually use them.",
+    tags: ["comprehensions", "functions", "file I/O", "exceptions"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>The practical layer beneath every pipeline step: looping over records, transforming values, writing reusable functions, and choosing the right built-in data structure.</p>
+        <h4>Why it matters</h4>
+        <p>Interviews rarely ask abstract CS-theory questions for data roles — they test whether you can read and manipulate data cleanly, since every pipeline step is fundamentally a data transformation.</p>`,
+      workflow: `
+        <h4>Workflow</h4>
+        <ul>
+          <li>Understand the input data's shape and types before writing logic</li>
+          <li>Write small, single-purpose, independently testable functions</li>
+          <li>Favor comprehensions/built-ins for shaping data</li>
+          <li>Handle errors explicitly — decide what happens on bad data</li>
+        </ul>
+        <h4>Example: cleaning a list of records</h4>
+        <pre>def clean_age(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+cleaned = [
+    {"name": r["name"].strip().title(), "age": clean_age(r["age"])}
+    for r in records
+]</pre>`,
+      concepts: `
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Mutability</strong> — lists/dicts pass by reference; strings/tuples/ints don't</li>
+          <li><strong>Comprehensions</strong> — concise, often faster alternative to manual loops</li>
+          <li><strong>Exception handling</strong> — catch specific types, never a bare <code>except:</code></li>
+          <li><strong><code>*args</code>/<code>**kwargs</code></strong> — variable positional/keyword arguments</li>
+          <li><strong>File I/O</strong> — always use <code>with open(...) as f:</code></li>
+        </ul>`,
+      example: `
+        <h4>Real-world example</h4>
+        <p>A vendor's daily CSV export has inconsistent column names and date formats week to week. A small script normalizes column names, tries multiple date formats with fallback parsing, and logs (rather than silently drops) rows that fail — all Fundamentals-level Python, exactly what shows up constantly in DA/DE roles.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Mutable default arguments (<code>def f(x, acc=[])</code>) — created once, shared across every call</li>
+          <li>Verbose manual loops where a comprehension or built-in is clearer</li>
+          <li>Bare <code>except:</code> silently hiding real bugs</li>
+          <li>Hardcoding paths/credentials instead of variables or config</li>
+          <li>Not validating input shape/type before processing</li>
+        </ul>`
+    }
+  },
+  {
+    id: "eda",
+    icon: "🔍",
+    title: "EDA",
+    tagline: "exploratory data analysis",
+    desc: "Structure checks, missing data, distributions, correlations, and outlier detection before trusting a dataset.",
+    tags: ["pandas", "distributions", "correlation", "outliers"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>Investigating a dataset's structure, quality, and patterns before drawing conclusions or building on top of it.</p>
+        <h4>Why it matters</h4>
+        <p>Catches data quality issues early, informs downstream cleaning/features, and builds trust in an analysis — "I checked for X, Y, Z" beats "the numbers looked fine."</p>`,
+      workflow: `
+        <h4>Workflow</h4>
+        <ul>
+          <li>Understand the data's origin and expected shape</li>
+          <li>Check structure &amp; integrity — shape, dtypes, duplicates, missing rates</li>
+          <li>Univariate analysis — distribution of each important column</li>
+          <li>Bivariate/multivariate — relationships between variables</li>
+          <li>Outlier &amp; anomaly check, then summarize findings</li>
+        </ul>
+        <h4>Step-by-step (pandas)</h4>
+        <pre>print(df.shape); print(df.dtypes)
+print(df.isnull().mean() * 100)
+print(df.duplicated(subset=["order_id"]).sum())
+print(df.describe())
+print(df.groupby("region")["revenue"].mean())</pre>`,
+      concepts: `
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Mean vs. median</strong> — median is robust to outliers/skew, mean is not</li>
+          <li><strong>MCAR / MAR / MNAR</strong> — different mechanisms behind missing data</li>
+          <li><strong>Correlation ≠ causation</strong> — a hypothesis to investigate, not a conclusion</li>
+          <li><strong>Outlier detection</strong> — IQR bounds, z-score thresholds, domain bounds</li>
+        </ul>`,
+      example: `
+        <h4>Real-world example</h4>
+        <p>An analyst investigates a 15% average-order-value drop. Proper EDA finds it's concentrated in one region, traces it to a batch of $0 test orders mixed into production data, and recomputes AOV excluding them — the "drop" mostly disappears. The real story was a data quality issue, not a business trend.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Jumping to charts before checking basic integrity (row counts, duplicate keys, null rates)</li>
+          <li>Treating all missing values the same regardless of mechanism</li>
+          <li>Not checking dtypes — a numeric column stored as a comma-formatted string</li>
+          <li>Drawing conclusions from one chart without checking robustness</li>
+          <li>Not documenting findings for the next person (or future you)</li>
+        </ul>`
+    }
+  },
+  {
+    id: "preprocessing",
+    icon: "🧹",
+    title: "Pre-processing",
+    tagline: "cleaning data for use",
+    desc: "Missing values, duplicates, type fixes, and leakage-safe transformations after EDA finds the problems.",
+    tags: ["imputation", "duplicates", "leakage", "type coercion"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>The corrective step after EDA — fixing missing values, duplicates, inconsistent types, and structural issues in a documented, repeatable way.</p>
+        <h4>Why it matters</h4>
+        <p>Most real-world data isn't analysis-ready by default. Garbage in, garbage out — every downstream analysis or model is only as reliable as the cleaning decisions made here.</p>`,
+      workflow: `
+        <h4>Workflow</h4>
+        <ul>
+          <li>Start from EDA findings, not guesswork</li>
+          <li>Handle missing values per column — drop, impute, or flag</li>
+          <li>Handle duplicates by a meaningful business key</li>
+          <li>Fix data types; handle conversion failures explicitly</li>
+          <li>Standardize formats; validate row counts before/after</li>
+        </ul>
+        <h4>Step-by-step (pandas)</h4>
+        <pre>df["age"] = pd.to_numeric(df["age"], errors="coerce")
+df = df.drop_duplicates(subset=["customer_id"], keep="last")
+df["age"] = df["age"].fillna(df["age"].median())
+df["region"] = df["region"].fillna("unknown").str.strip().str.title()</pre>`,
+      concepts: `
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Data leakage</strong> — fitting a fill/scale value on data that should be unseen</li>
+          <li><strong>Duplicate definitions</strong> — exact-row vs. duplicate business key</li>
+          <li><strong>Type coercion failure mode</strong> — <code>errors="coerce"</code> silently makes <code>NaN</code></li>
+          <li><strong>Idempotency</strong> — same input should always produce the same output</li>
+        </ul>`,
+      example: `
+        <h4>Real-world example</h4>
+        <p>A nightly pipeline ingests order data from three regional systems with different date/currency/status formats. Pre-processing parses each region's format explicitly, standardizes status codes to one vocabulary, and quarantines (rather than crashes on) rows that fail — often 70%+ of the real engineering effort in a pipeline.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Dropping all rows with any missing value without checking the cost</li>
+          <li>Filling with a single default (like 0) that distorts the column's statistics</li>
+          <li>Computing fill/scale stats on the full dataset instead of train only — leakage</li>
+          <li>Silently coercing type errors without checking how many became <code>NaN</code></li>
+          <li>Not tracking which rows were modified/dropped — impossible to audit later</li>
+        </ul>`
+    }
+  },
+  {
+    id: "feature-engineering",
+    icon: "🧬",
+    title: "Feature Engineering",
+    tagline: "deriving signal from data",
+    desc: "Date/ratio/aggregation features, encoding, binning — and avoiding leakage while doing it.",
+    tags: ["encoding", "aggregation", "leakage", "binning"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>Creating new variables from clean data to make patterns more accessible — to a model, or to a person reading a report.</p>
+        <h4>Why it matters</h4>
+        <p>Raw columns rarely capture what matters directly. Well-constructed features often matter more than the choice of model algorithm, and they're where domain knowledge gets translated into something usable.</p>`,
+      workflow: `
+        <h4>Workflow</h4>
+        <ul>
+          <li>Start from a clear question the feature should help answer</li>
+          <li>Derive from cleaned data: date parts, ratios, aggregations, encodings</li>
+          <li>Check each feature's distribution and relationship to the target</li>
+          <li>Watch for leakage — would this be known at prediction time?</li>
+          <li>Scale/encode appropriately for the downstream method</li>
+        </ul>
+        <h4>Step-by-step (pandas)</h4>
+        <pre>df["order_dow"] = df["order_date"].dt.day_name()
+cat_avg = df.groupby("category")["price"].transform("mean")
+df["price_vs_category_avg"] = df["price"] / cat_avg
+df = pd.get_dummies(df, columns=["category"])</pre>`,
+      concepts: `
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Feature leakage</strong> — the single most damaging mistake in this module</li>
+          <li><strong>Encoding methods</strong> — one-hot (low cardinality), ordinal (real order), target/frequency (high cardinality)</li>
+          <li><strong>Scaling</strong> — matters for distance/gradient-based models, not tree-based ones</li>
+          <li><strong>Aggregation features</strong> — powerful but leakage-prone if not time-aware</li>
+        </ul>`,
+      example: `
+        <h4>Real-world example</h4>
+        <p>A churn dashboard turns raw <code>signup_date</code>/<code>last_login_date</code>/event logs into <code>days_since_last_login</code>, <code>login_frequency_last_30_days</code>, <code>tenure_months</code>, and an engagement trend — only after this engineering do the variables actually correlate with churn risk in an interpretable way.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Using information not actually available at prediction time (leakage)</li>
+          <li>One-hot encoding a high-cardinality column — dimensionality explosion</li>
+          <li>Not scaling for distance/gradient-based downstream methods</li>
+          <li>Many redundant/correlated features without checking multicollinearity</li>
+          <li>Over-engineering speculative features without validating any of them help</li>
+        </ul>`
+    }
+  }
+];
+
+const FLASHCARDS = [
+  { cat: "vscode", q: "What is VSCode?", a: "A free, extensible code editor from Microsoft that becomes a lightweight IDE for Python/data science once configured with the right interpreter, extensions, linting, and debugging tools." },
+  { cat: "vscode", q: "Why should each project have its own virtual environment?", a: "To isolate dependencies per project so one project's upgrade doesn't silently break another's, and so the project is reproducible elsewhere." },
+  { cat: "vscode", q: "Why is Python interpreter selection important in VSCode?", a: "The terminal, debugger, linter, and IntelliSense all run against whichever interpreter is selected — the wrong one causes ModuleNotFoundError even when the package IS installed, just elsewhere." },
+  { cat: "vscode", q: "What is a virtual environment?", a: "An isolated Python installation with its own site-packages, so packages for one project don't affect the global install or other projects." },
+  { cat: "vscode", q: "How would you troubleshoot code that works locally but fails in production?", a: "Compare dependency versions, Python version, environment variables/config/secrets, hardcoded local paths, and OS-level differences between the two environments." },
+  { cat: "vscode", q: "How would you move a VSCode notebook prototype into production?", a: "Extract validated logic into functions under src/, remove exploratory cells, add tests, pin dependencies in requirements.txt, and expose the logic via a script/API/pipeline job — not the notebook itself." },
+  { cat: "vscode", q: 'Pandas is installed but VSCode gives "ModuleNotFoundError." What would you check?', a: "Which interpreter VSCode currently has selected — pandas is very likely installed in a different environment than the one VSCode is running against." },
+  { cat: "vscode", q: "What is requirements.txt used for?", a: "A manifest of a project's dependencies (often pinned versions) so anyone can recreate the exact same environment with pip install -r requirements.txt." },
+  { cat: "vscode", q: "Why should venv/ not usually be committed to GitHub?", a: "It's large, platform-specific, and fully reproducible from requirements.txt — committing it bloats the repo and can break on a different OS." },
+
+  { cat: "fundamentals", q: "Difference between a list and a tuple?", a: "Both are ordered; lists are mutable, tuples are immutable. Use a tuple for fixed data — it can also be a dict key or set member." },
+  { cat: "fundamentals", q: "Difference between == and is?", a: "== compares values; is compares object identity. Use == for value comparisons, reserve is for identity checks like x is None." },
+  { cat: "fundamentals", q: "Why can modifying a list inside a function affect the caller's copy?", a: "Lists are mutable and passed by reference — the function receives a reference to the same object." },
+  { cat: "fundamentals", q: "Why prefer a list comprehension over a manual loop?", a: "Often more readable and slightly faster than an equivalent loop with repeated .append() calls." },
+  { cat: "fundamentals", q: "When use a dict instead of two parallel lists?", a: "When you need fast O(1) average lookup by key rather than an O(n) linear scan." },
+  { cat: "fundamentals", q: "Why is a bare except: bad practice?", a: "It catches every exception, including ones you didn't anticipate, silently hiding real bugs. Catch specific types instead." },
+  { cat: "fundamentals", q: "What do *args and **kwargs mean?", a: "*args collects extra positional args into a tuple; **kwargs collects extra keyword args into a dict." },
+  { cat: "fundamentals", q: "How would you safely convert mixed values to integers without crashing?", a: "Wrap the conversion in try/except (TypeError, ValueError), returning None on failure and separately tracking which rows failed." },
+  { cat: "fundamentals", q: "Why use a context manager (with open(...) as f:) over manual open/close?", a: "It guarantees the file is closed even if an exception occurs — manual close() gets skipped if an error happens first." },
+
+  { cat: "eda", q: "What is EDA and why do it first?", a: "Investigating a dataset's structure, quality, and patterns before drawing conclusions — catches quality issues and informs cleaning/features before anything is built on top of it." },
+  { cat: "eda", q: "When does mean vs. median matter most?", a: "For a skewed distribution, the mean is pulled by outliers while the median stays a more representative 'typical' value." },
+  { cat: "eda", q: "How would you detect outliers in a numeric column?", a: "IQR method (outside Q1-1.5*IQR to Q3+1.5*IQR), z-score thresholds, or domain-specific bounds." },
+  { cat: "eda", q: "Why check for duplicate rows before analysis?", a: "Duplicates silently inflate counts, sums, and averages, leading to wrong conclusions." },
+  { cat: "eda", q: "What does a high correlation tell you — and not tell you?", a: "The variables tend to move together; it does NOT prove one causes the other — a hypothesis, not a conclusion." },
+  { cat: "eda", q: "A numeric column reads in as an object/string dtype — what would you check?", a: "Thousands separators, currency symbols, mixed text values, or whitespace — inspect unique values before converting." },
+  { cat: "eda", q: "What's the difference between MCAR, MAR, and MNAR?", a: "MCAR: missingness unrelated to any data. MAR: related to another observed variable. MNAR: related to the missing value itself." },
+  { cat: "eda", q: "When use a box plot instead of a histogram?", a: "Box plots are better for comparing distributions across categories; histograms are better for one distribution's detailed shape." },
+  { cat: "eda", q: "You find a pattern that seems to explain a business question — what next?", a: "Check robustness across subsets and rule out a data-quality explanation before reporting it as a genuine finding." },
+
+  { cat: "preprocessing", q: "Difference between EDA and pre-processing?", a: "EDA is diagnostic (finds issues); pre-processing is corrective (fixes them) in a documented, repeatable way." },
+  { cat: "preprocessing", q: "When drop rows with missing values vs. impute them?", a: "Drop when missing rate is very low or the field is essential and unrecoverable; impute when dropping would lose significant data and a reasonable estimate exists." },
+  { cat: "preprocessing", q: "What is data leakage in pre-processing?", a: "Using information from data that should be unseen (e.g. the test set) to compute a fill value or scaling parameter." },
+  { cat: "preprocessing", q: "Why might drop_duplicates() on full rows miss real duplicates?", a: "Two rows can represent the same entity with slightly different formatting — dedupe on a business key after standardizing formatting instead." },
+  { cat: "preprocessing", q: "A date column fails to parse for some rows — how handle it?", a: "Use errors='coerce' to get NaT instead of crashing, then inspect which rows became NaT — often reveals a second date format mixed in." },
+  { cat: "preprocessing", q: "What does idempotent mean for a pre-processing step, and why does it matter?", a: "Running it twice on the same input gives the same output — important for pipelines that might retry or rerun." },
+  { cat: "preprocessing", q: "How decide whether to cap, remove, or keep an outlier?", a: "Determine if it's a data error (fix/remove) or a genuine extreme case (often keep or cap, since it may carry real signal)." },
+  { cat: "preprocessing", q: "Why standardize categorical text before analysis?", a: "Without it, 'California', 'california ', and 'CALIFORNIA' are treated as three distinct categories, fragmenting counts." },
+
+  { cat: "feature-engineering", q: "What is feature engineering vs. pre-processing?", a: "Pre-processing cleans existing data; feature engineering creates new variables from that cleaned data to better capture patterns." },
+  { cat: "feature-engineering", q: "What is feature leakage and why dangerous?", a: "Using info not actually available at prediction time — makes a model look accurate in development while being useless or wrong once deployed." },
+  { cat: "feature-engineering", q: "One-hot vs. label encoding — when use each?", a: "One-hot for unordered categories with manageable cardinality; label/ordinal only when categories have a genuine order." },
+  { cat: "feature-engineering", q: "Why can one-hot encoding be a problem with high cardinality?", a: "It creates one column per unique category — thousands of categories means thousands of sparse columns; consider frequency/target encoding instead." },
+  { cat: "feature-engineering", q: "Why does feature scaling matter for some models but not others?", a: "Distance/gradient-based models (k-NN, linear/logistic regression) are sensitive to magnitude; tree-based models split per-feature independently, so scale doesn't matter." },
+  { cat: "feature-engineering", q: "How create an aggregation feature without leaking future info?", a: "Compute it using only data available up to that row's point in time — e.g. a cumulative/rolling average after sorting by date." },
+  { cat: "feature-engineering", q: "What is an interaction feature?", a: "A feature combining two or more existing features (e.g. price × quantity) when their combined effect matters more than either alone." },
+  { cat: "feature-engineering", q: "Is more features always better?", a: "No — redundant or noisy features can hurt interpretability and sometimes performance, and add ongoing pipeline cost. Each feature should be validated." }
+];
+
+const QUIZ = [
+  { cat: "vscode", q: "Why should each project have its own virtual environment?", options: ["To make code run faster", "To isolate dependencies so projects don't conflict", "It's required by Python syntax", "To reduce file size"], correct: 1, explain: "Isolation is the whole point — different projects often need different (sometimes conflicting) package versions." },
+  { cat: "vscode", q: "Pandas is installed, but VSCode gives ModuleNotFoundError. Most likely cause?", options: ["Pandas is corrupted", "VSCode is using a different interpreter than the one pandas is installed in", "The CSV file is missing", "Pandas needs to be reinstalled globally"], correct: 1, explain: "Check Cmd/Ctrl+Shift+P → 'Python: Select Interpreter' — pandas is almost always installed in a different environment than the selected one." },
+  { cat: "vscode", q: "Why shouldn't venv/ be committed to GitHub?", options: ["GitHub blocks folders named venv", "It's large, platform-specific, and fully reproducible from requirements.txt", "It contains secret API keys by default", "Git cannot track binary files"], correct: 1, explain: "requirements.txt is what makes the environment portable — the venv folder itself doesn't need to travel with the code." },
+
+  { cat: "fundamentals", q: "What's the risk of a mutable default argument like def f(x, acc=[])?", options: ["It causes a syntax error", "The default list is shared across all calls since it's created once", "It runs slower than immutable defaults", "It cannot store more than 10 items"], correct: 1, explain: "Default arguments are evaluated once at function definition time, not per call — the classic mutable-default bug." },
+  { cat: "fundamentals", q: "Why prefer collections.deque over list for queue operations?", options: ["deque is immutable", "list.pop(0) is O(n) while deque.popleft() is O(1)", "deque supports negative indexing better", "list cannot store dictionaries"], correct: 1, explain: "Removing from the front of a list requires shifting every remaining element — O(n). deque avoids that." },
+  { cat: "fundamentals", q: "What does a bare except: clause risk?", options: ["It only catches syntax errors", "It silently catches every exception, hiding real bugs", "It automatically retries the operation", "It logs errors to a file automatically"], correct: 1, explain: "Catch specific exception types so you only handle what you actually expect and understand." },
+
+  { cat: "eda", q: "Why might the mean be a misleading summary statistic?", options: ["It's always equal to the median", "It's sensitive to outliers/skew", "It can't be computed for numeric data", "It ignores duplicate rows"], correct: 1, explain: "For a skewed distribution, the mean gets pulled toward extreme values while the median stays representative." },
+  { cat: "eda", q: "What does a high correlation between two variables tell you?", options: ["One variable definitely causes the other", "They tend to move together, but causation isn't proven", "The data has no missing values", "The variables are identical"], correct: 1, explain: "Correlation is a hypothesis to investigate further, never a conclusion on its own." },
+  { cat: "eda", q: "Which method flags outliers using the IQR rule?", options: ["Values outside mean ± 1 std", "Values outside Q1 - 1.5×IQR to Q3 + 1.5×IQR", "Values above the median", "Values equal to zero"], correct: 1, explain: "The 1.5×IQR rule is the standard box-plot-style outlier bound." },
+
+  { cat: "preprocessing", q: "What is data leakage in pre-processing?", options: ["Losing rows during a merge", "Using information from data that should be unseen (e.g. test set) to compute a transformation", "A database connection timing out", "Storing data in the wrong file format"], correct: 1, explain: "Fitting a fill value, scaler, or encoding on the full dataset (including test data) leaks information across the split." },
+  { cat: "preprocessing", q: "Why might drop_duplicates() on full rows miss real duplicates?", options: ["It only works on numeric columns", "Same entities can have slightly different formatting that doesn't match exactly", "It automatically removes all rows", "It requires a primary key column"], correct: 1, explain: "Deduplicating on a standardized business key is usually more reliable than an exact full-row match." },
+  { cat: "preprocessing", q: "What does errors='coerce' do in pd.to_numeric()?", options: ["Raises an error immediately", "Converts unparseable values to NaN instead of crashing", "Forces all values to strings", "Deletes the column"], correct: 1, explain: "Always check the resulting null count afterward — don't assume the conversion 'just worked.'" },
+
+  { cat: "feature-engineering", q: "What is feature leakage?", options: ["A feature with too many missing values", "Using information in a feature that wouldn't actually be available at prediction time", "A feature that's highly correlated with another feature", "A feature stored in the wrong data type"], correct: 1, explain: "The single most damaging feature engineering mistake — it inflates development metrics while being useless in production." },
+  { cat: "feature-engineering", q: "When does one-hot encoding become a problem?", options: ["When the categorical column has very few unique values", "When the categorical column has very high cardinality", "When the column is already numeric", "When there are no missing values"], correct: 1, explain: "Thousands of categories means thousands of sparse columns — consider frequency or target encoding instead." },
+  { cat: "feature-engineering", q: "Why don't tree-based models generally need feature scaling?", options: ["They automatically scale features internally", "They split on thresholds per feature independently, so scale doesn't affect splits", "They only work with categorical data", "They round all values to integers"], correct: 1, explain: "Distance- and gradient-based models are scale-sensitive; tree splits are not." }
+];
+
+document.getElementById("stat-flashcards").textContent = FLASHCARDS.length;
+document.getElementById("stat-quiz").textContent = QUIZ.length;
+
+/* ===================== MODULE CARDS + MODAL ===================== */
+
+const moduleGrid = document.getElementById("module-grid");
+MODULES.forEach(m => {
+  const card = document.createElement("button");
+  card.className = "module-card";
+  card.innerHTML = `
+    <span class="module-icon">${m.icon}</span>
+    <h3>${m.title}</h3>
+    <p class="module-tagline">${m.tagline}</p>
+    <p class="desc">${m.desc}</p>
+    <div class="chip-row">${m.tags.map(t => `<span class="chip">${t}</span>`).join("")}</div>
+    <span class="card-cta">▸ Click to explore →</span>
+  `;
+  card.addEventListener("click", () => openModal(m));
+  moduleGrid.appendChild(card);
+});
+
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", tips: "Exam Tips" };
+
+const overlay = document.getElementById("modal-overlay");
+const modalTag = document.getElementById("modal-tag");
+const modalTitle = document.getElementById("modal-title");
+const modalTabs = document.getElementById("modal-tabs");
+const modalBody = document.getElementById("modal-body");
+
+function openModal(m) {
+  modalTag.textContent = "DATA ROLE SKILLS · " + m.title.toUpperCase();
+  modalTitle.textContent = m.icon + " " + m.title;
+  modalTabs.innerHTML = "";
+  Object.keys(m.tabs).forEach((key, i) => {
+    const btn = document.createElement("button");
+    btn.className = "modal-tab-btn" + (i === 0 ? " active" : "");
+    btn.textContent = TAB_LABELS[key] || key;
+    btn.addEventListener("click", () => {
+      modalTabs.querySelectorAll(".modal-tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      modalBody.innerHTML = m.tabs[key];
+    });
+    modalTabs.appendChild(btn);
+  });
+  modalBody.innerHTML = m.tabs[Object.keys(m.tabs)[0]];
+  overlay.classList.add("open");
+}
+
+document.getElementById("modal-close").addEventListener("click", () => overlay.classList.remove("open"));
+overlay.addEventListener("click", e => { if (e.target === overlay) overlay.classList.remove("open"); });
+
+/* ===================== QUIZ ===================== */
+
+let quizFilter = "all";
+let quizOrder = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = 0;
+let quizSelected = null;
+
+const quizFiltersEl = document.getElementById("quiz-filters");
+const quizCats = ["all", ...MODULES.map(m => m.id)];
+quizCats.forEach(cat => {
+  const chip = document.createElement("button");
+  chip.className = "filter-chip" + (cat === "all" ? " active" : "");
+  chip.textContent = cat === "all" ? "All Questions" : MODULES.find(m => m.id === cat).title;
+  chip.dataset.cat = cat;
+  chip.addEventListener("click", () => {
+    quizFiltersEl.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    quizFilter = cat;
+    resetQuiz();
+  });
+  quizFiltersEl.appendChild(chip);
+});
+
+function buildQuizOrder() {
+  quizOrder = QUIZ.map((q, i) => i).filter(i => quizFilter === "all" || QUIZ[i].cat === quizFilter);
+}
+
+function resetQuiz() {
+  buildQuizOrder();
+  quizIndex = 0;
+  quizScore = 0;
+  quizAnswered = 0;
+  quizSelected = null;
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const box = document.getElementById("quiz-box");
+  if (quizOrder.length === 0) { box.innerHTML = "<p>No questions in this category.</p>"; return; }
+  const q = QUIZ[quizOrder[quizIndex]];
+  box.innerHTML = `
+    <div class="quiz-meta">
+      <span>Question ${quizIndex + 1} of ${quizOrder.length}</span>
+      <span>Score: ${quizScore}/${quizAnswered}</span>
+    </div>
+    <p class="quiz-question">${q.q}</p>
+    <div id="quiz-options"></div>
+    <div class="quiz-explain" id="quiz-explain">${q.explain}</div>
+    <div class="quiz-nav">
+      <button class="btn-ghost" id="quiz-restart">↩ Try Again</button>
+      <div class="quiz-nav-btns">
+        <button class="btn-ghost" id="quiz-prev" ${quizIndex === 0 ? "disabled" : ""}>← Prev</button>
+        <button class="btn-pine" id="quiz-next" ${quizIndex === quizOrder.length - 1 ? "disabled" : ""}>Next →</button>
+      </div>
+    </div>
+  `;
+  const optWrap = document.getElementById("quiz-options");
+  q.options.forEach((opt, i) => {
+    const b = document.createElement("button");
+    b.className = "quiz-option";
+    b.textContent = opt;
+    b.addEventListener("click", () => selectAnswer(i));
+    optWrap.appendChild(b);
+  });
+  document.getElementById("quiz-prev").addEventListener("click", () => { quizIndex--; renderQuiz(); });
+  document.getElementById("quiz-next").addEventListener("click", () => { quizIndex++; renderQuiz(); });
+  document.getElementById("quiz-restart").addEventListener("click", resetQuiz);
+}
+
+function selectAnswer(i) {
+  const q = QUIZ[quizOrder[quizIndex]];
+  const opts = document.querySelectorAll(".quiz-option");
+  if (opts[0].disabled) return; // already answered
+  opts.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.correct) b.classList.add("correct");
+    else if (idx === i) b.classList.add("incorrect");
+  });
+  document.getElementById("quiz-explain").classList.add("show");
+  quizAnswered++;
+  if (i === q.correct) quizScore++;
+  document.querySelector(".quiz-meta span:last-child").textContent = `Score: ${quizScore}/${quizAnswered}`;
+}
+
+resetQuiz();
+
+/* ===================== FLASHCARDS ===================== */
+
+let flashFilter = "all";
+const flashFiltersEl = document.getElementById("flash-filters");
+quizCats.forEach(cat => {
+  const chip = document.createElement("button");
+  chip.className = "filter-chip" + (cat === "all" ? " active" : "");
+  chip.textContent = cat === "all" ? "All Cards" : MODULES.find(m => m.id === cat).title;
+  chip.dataset.cat = cat;
+  chip.addEventListener("click", () => {
+    flashFiltersEl.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    flashFilter = cat;
+    renderFlashcards();
+  });
+  flashFiltersEl.appendChild(chip);
+});
+
+function renderFlashcards() {
+  const grid = document.getElementById("flash-grid");
+  grid.innerHTML = "";
+  const cards = FLASHCARDS.filter(c => flashFilter === "all" || c.cat === flashFilter);
+  cards.forEach(c => {
+    const modTitle = MODULES.find(m => m.id === c.cat).title;
+    const card = document.createElement("div");
+    card.className = "flash-card";
+    card.innerHTML = `
+      <div class="flash-inner">
+        <div class="flash-face flash-front">
+          <div class="fc-cat">${modTitle.toUpperCase()}</div>
+          <div class="fc-q">${c.q}</div>
+          <div class="fc-hint">Click to flip ↻</div>
+        </div>
+        <div class="flash-face flash-back">${c.a}</div>
+      </div>
+    `;
+    card.addEventListener("click", () => card.classList.toggle("flipped"));
+    grid.appendChild(card);
+  });
+}
+
+renderFlashcards();
+</script>
+
+</body>
+</html>
