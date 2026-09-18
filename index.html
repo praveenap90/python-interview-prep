@@ -658,7 +658,24 @@ pip freeze &gt; requirements.txt</pre>`,
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>A churn-prediction model is built entirely in a notebook with cells run out of order during experimentation. Before deployment: extract the real logic into functions under <code>src/</code>, pin exact dependency versions, and expose a <code>predict()</code> call — the notebook stays as documentation, not the deployed artifact.</p>`,
+        <p>A churn-prediction model is built entirely in a notebook with cells run out of order during experimentation. Before deployment: extract the real logic into functions under <code>src/</code>, pin exact dependency versions, and expose a <code>predict()</code> call — the notebook stays as documentation, not the deployed artifact.</p>
+        <h4>Notebook logic, extracted into a callable function</h4>
+        <pre>\# src/model.py — the production-ready extraction of the notebook logic
+import joblib
+import pandas as pd
+
+_model = joblib.load("models/churn_model.pkl")
+
+def predict(customer_features: dict) -&gt; float:
+    """Return churn probability for one customer's feature dict."""
+    row = pd.DataFrame([customer_features])
+    proba = _model.predict_proba(row)[0][1]
+    return float(proba)
+
+\# Usage (would be called from an API endpoint, not a notebook cell):
+\# predict({"tenure_months": 4, "monthly_charges": 89.5, "support_tickets": 3})
+\# -&gt; 0.71</pre>
+        <p><strong>Why this matters:</strong> nothing here depends on cell execution order, global notebook state, or manual "run all cells" steps — it's a plain importable function with a defined input/output contract, which is what a production system (an API, a scheduled job) actually needs to call.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -713,7 +730,33 @@ cleaned = [
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>A vendor's daily CSV export has inconsistent column names and date formats week to week. A small script normalizes column names, tries multiple date formats with fallback parsing, and logs (rather than silently drops) rows that fail — all Fundamentals-level Python, exactly what shows up constantly in DA/DE roles.</p>`,
+        <p>A vendor's daily CSV export has inconsistent column names and date formats week to week. A small script normalizes column names, tries multiple date formats with fallback parsing, and logs (rather than silently drops) rows that fail — all Fundamentals-level Python, exactly what shows up constantly in DA/DE roles.</p>
+        <h4>The actual cleaning script</h4>
+        <pre>from datetime import datetime
+
+DATE_FORMATS = ["%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y"]
+
+def parse_date(value):
+    for fmt in DATE_FORMATS:
+        try:
+            return datetime.strptime(value, fmt).date()
+        except (ValueError, TypeError):
+            continue
+    return None  # none of the known formats matched
+
+def clean_row(row):
+    row = {k.lower().replace(" ", "_"): v for k, v in row.items()}
+    row["order_date"] = parse_date(row.get("order_date"))
+    return row
+
+raw_rows = [{"Order Date": "2024-01-05"}, {"Order Date": "01/06/2024"}, {"Order Date": "not a date"}]
+cleaned, failed = [], []
+for r in raw_rows:
+    c = clean_row(r)
+    (failed if c["order_date"] is None else cleaned).append(c)
+
+print(f"Cleaned: {len(cleaned)}, Failed to parse: {len(failed)}")</pre>
+        <p><strong>Why this matters:</strong> the failed rows are tracked, not silently dropped — that distinction is exactly what interviewers are checking for when they ask "how would you clean this data."</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -763,7 +806,28 @@ print(df.groupby("region")["revenue"].mean())</pre>`,
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>An analyst investigates a 15% average-order-value drop. Proper EDA finds it's concentrated in one region, traces it to a batch of $0 test orders mixed into production data, and recomputes AOV excluding them — the "drop" mostly disappears. The real story was a data quality issue, not a business trend.</p>`,
+        <p>An analyst investigates a 15% average-order-value drop. Proper EDA finds it's concentrated in one region, traces it to a batch of $0 test orders mixed into production data, and recomputes AOV excluding them — the "drop" mostly disappears. The real story was a data quality issue, not a business trend.</p>
+        <h4>The investigation, in pandas</h4>
+        <pre>import pandas as pd
+
+df = pd.read_csv("orders.csv")
+
+\# 1. The headline number
+overall_aov = df["order_value"].mean()
+print(f"Overall AOV: {overall_aov:.2f}")
+
+\# 2. Break it down by region -- is the drop uniform?
+by_region = df.groupby("region")["order_value"].mean().sort_values()
+print(by_region)  \# one region is dragging the average down
+
+\# 3. Investigate that region for anomalies
+suspect = df[df["region"] == by_region.index[0]]
+print(suspect["order_value"].value_counts().head())  \# reveals a spike of $0 orders
+
+\# 4. Recompute excluding the likely test data
+clean_aov = df[df["order_value"] &gt; 0]["order_value"].mean()
+print(f"AOV excluding $0 orders: {clean_aov:.2f}")</pre>
+        <p><strong>Why this matters:</strong> the fix isn't a chart, it's a sequence of increasingly specific groupby/filter checks — that's the actual EDA skill being tested, not just knowing <code>pandas</code> syntax.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -812,7 +876,42 @@ df["region"] = df["region"].fillna("unknown").str.strip().str.title()</pre>`,
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>A nightly pipeline ingests order data from three regional systems with different date/currency/status formats. Pre-processing parses each region's format explicitly, standardizes status codes to one vocabulary, and quarantines (rather than crashes on) rows that fail — often 70%+ of the real engineering effort in a pipeline.</p>`,
+        <p>A nightly pipeline ingests order data from three regional systems with different date/currency/status formats. Pre-processing parses each region's format explicitly, standardizes status codes to one vocabulary, and quarantines (rather than crashes on) rows that fail — often 70%+ of the real engineering effort in a pipeline.</p>
+        <h4>Standardizing three regional formats</h4>
+        <pre>import re
+
+STATUS_MAP = {"COMPLETE": "completed", "C": "completed", "1": "completed",
+              "PENDING": "pending", "P": "pending", "0": "pending"}
+
+def clean_currency(value):
+    """Strip $ and commas, return float -- or None if unparseable."""
+    if value is None:
+        return None
+    stripped = re.sub(r"[$,]", "", str(value))
+    try:
+        return float(stripped)
+    except ValueError:
+        return None
+
+def normalize_status(value):
+    return STATUS_MAP.get(str(value).strip().upper())
+
+rows = [
+    {"amount": "$1,200.00", "status": "COMPLETE"},
+    {"amount": "1200", "status": "C"},
+    {"amount": "bad-value", "status": "9"},
+]
+
+clean, quarantined = [], []
+for r in rows:
+    amt, status = clean_currency(r["amount"]), normalize_status(r["status"])
+    (quarantined if amt is None or status is None else clean).append(
+        {"amount": amt, "status": status}
+    )
+
+print("Clean:", clean)
+print("Quarantined:", quarantined)</pre>
+        <p><strong>Why this matters:</strong> the pipeline keeps running even when a row is malformed — bad rows get set aside for review instead of crashing the whole nightly job.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -861,7 +960,32 @@ df = pd.get_dummies(df, columns=["category"])</pre>`,
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>A churn dashboard turns raw <code>signup_date</code>/<code>last_login_date</code>/event logs into <code>days_since_last_login</code>, <code>login_frequency_last_30_days</code>, <code>tenure_months</code>, and an engagement trend — only after this engineering do the variables actually correlate with churn risk in an interpretable way.</p>`,
+        <p>A churn dashboard turns raw <code>signup_date</code>/<code>last_login_date</code>/event logs into <code>days_since_last_login</code>, <code>login_frequency_last_30_days</code>, <code>tenure_months</code>, and an engagement trend — only after this engineering do the variables actually correlate with churn risk in an interpretable way.</p>
+        <h4>Building the churn features</h4>
+        <pre>import pandas as pd
+
+df = pd.read_csv("customers.csv", parse_dates=["signup_date", "last_login_date"])
+today = pd.Timestamp("2026-09-17")
+
+\# Recency
+df["days_since_last_login"] = (today - df["last_login_date"]).dt.days
+
+\# Tenure
+df["tenure_months"] = ((today - df["signup_date"]).dt.days / 30).round(1)
+
+\# Engagement trend: last 30 days vs. the 30 days before that
+logins = pd.read_csv("login_events.csv", parse_dates=["login_date"])
+last_30 = logins[logins["login_date"] &gt; today - pd.Timedelta(days=30)]
+prior_30 = logins[(logins["login_date"] &lt;= today - pd.Timedelta(days=30)) &
+                   (logins["login_date"] &gt; today - pd.Timedelta(days=60))]
+
+recent_counts = last_30.groupby("customer_id").size()
+prior_counts = prior_30.groupby("customer_id").size()
+df["engagement_trend"] = (
+    df["customer_id"].map(recent_counts).fillna(0) -
+    df["customer_id"].map(prior_counts).fillna(0)
+)</pre>
+        <p><strong>Why this matters:</strong> <code>engagement_trend</code> captures <em>direction</em> of change, not just a current snapshot — that's the kind of derived signal raw timestamps alone can't express.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -916,7 +1040,30 @@ else:
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>A product team runs an A/B test on a new checkout flow. Before trusting the "8% lift in conversion," a data scientist checks: was the sample size large enough to detect an effect this size (power analysis)? Is the result significant at the pre-registered threshold, not after peeking at the data multiple times? Are there confounds (e.g. the test ran only on weekdays)? Only after these checks does the lift get reported as real.</p>`,
+        <p>A product team runs an A/B test on a new checkout flow. Before trusting the "8% lift in conversion," a data scientist checks: was the sample size large enough to detect an effect this size (power analysis)? Is the result significant at the pre-registered threshold, not after peeking at the data multiple times? Are there confounds (e.g. the test ran only on weekdays)? Only after these checks does the lift get reported as real.</p>
+        <h4>Testing the checkout A/B result</h4>
+        <pre>import numpy as np
+from scipy import stats
+
+\# Conversion counts and sample sizes for control (A) and treatment (B)
+conversions_a, n_a = 412, 5000   \# 8.24%
+conversions_b, n_b = 448, 5000   \# 8.96%
+
+\# Two-proportion z-test
+p_a, p_b = conversions_a / n_a, conversions_b / n_b
+p_pool = (conversions_a + conversions_b) / (n_a + n_b)
+se = np.sqrt(p_pool * (1 - p_pool) * (1 / n_a + 1 / n_b))
+z = (p_b - p_a) / se
+p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+
+print(f"Conversion lift: {(p_b - p_a) / p_a:.1%}")
+print(f"z = {z:.2f}, p-value = {p_value:.4f}")
+
+if p_value &lt; 0.05:
+    print("Statistically significant at alpha = 0.05")
+else:
+    print("Not statistically significant -- could plausibly be noise")</pre>
+        <p><strong>Why this matters:</strong> the raw "8% lift" number means nothing on its own — the z-test converts it into "is this difference bigger than we'd expect from random variation alone," which is the actual question a stakeholder is asking.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -968,7 +1115,25 @@ print(f"F1: {scores.mean():.3f} +/- {scores.std():.3f}")</pre>`,
         </ul>`,
       example: `
         <h4>Real-world example</h4>
-        <p>A data scientist builds a fraud detection model on a dataset where only 0.5% of transactions are fraudulent. A model that predicts "not fraud" every time gets 99.5% accuracy — useless. Instead, they use precision/recall and F1 (or precision-recall AUC), apply class weighting or resampling, and validate with stratified k-fold so each fold preserves the rare-class ratio.</p>`,
+        <p>A data scientist builds a fraud detection model on a dataset where only 0.5% of transactions are fraudulent. A model that predicts "not fraud" every time gets 99.5% accuracy — useless. Instead, they use precision/recall and F1 (or precision-recall AUC), apply class weighting or resampling, and validate with stratified k-fold so each fold preserves the rare-class ratio.</p>
+        <h4>Evaluating the fraud model correctly</h4>
+        <pre>from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+\# class_weight="balanced" compensates for the 0.5% positive rate
+model = RandomForestClassifier(class_weight="balanced", random_state=42)
+
+\# Stratified folds keep the same fraud ratio in every fold
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+f1_scores = cross_val_score(model, X_train, y_train, cv=skf, scoring="f1")
+print(f"F1 across folds: {f1_scores.mean():.3f} +/- {f1_scores.std():.3f}")
+
+\# Accuracy alone would look great and hide the real story --
+\# check precision/recall/F1 on a held-out test set instead
+model.fit(X_train, y_train)
+print(classification_report(y_test, model.predict(X_test), target_names=["not_fraud", "fraud"]))</pre>
+        <p><strong>Why this matters:</strong> <code>StratifiedKFold</code> and <code>class_weight="balanced"</code> are the two concrete levers that fix the exact failure mode described above — without them, both training and evaluation quietly ignore the minority class.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -1002,6 +1167,8 @@ const FLASHCARDS = [
   { cat: "fundamentals", q: "What do *args and **kwargs mean?", a: "*args collects extra positional args into a tuple; **kwargs collects extra keyword args into a dict." },
   { cat: "fundamentals", q: "How would you safely convert mixed values to integers without crashing?", a: "Wrap the conversion in try/except (TypeError, ValueError), returning None on failure and separately tracking which rows failed." },
   { cat: "fundamentals", q: "Why use a context manager (with open(...) as f:) over manual open/close?", a: "It guarantees the file is closed even if an exception occurs — manual close() gets skipped if an error happens first." },
+  { cat: "fundamentals", q: "What's the difference between a function (def) and a lambda?", a: "A def function is named, reusable, can hold multiple statements, a docstring, and complex logic. A lambda is an anonymous, single-expression function with no statements — good for short, throwaway logic passed inline, e.g. sorted(data, key=lambda x: x['age'])." },
+  { cat: "fundamentals", q: "Why can't plain Python lists handle large-scale data analysis well?", a: "Lists store each element as a separate, untyped Python object with per-object overhead, and operations require explicit Python-level loops (slow, no vectorization). Tools like NumPy arrays/pandas store data in contiguous, homogeneously-typed memory and run operations in vectorized C code — far faster and more memory-efficient at scale." },
 
   { cat: "eda", q: "What is EDA and why do it first?", a: "Investigating a dataset's structure, quality, and patterns before drawing conclusions — catches quality issues and informs cleaning/features before anything is built on top of it." },
   { cat: "eda", q: "When does mean vs. median matter most?", a: "For a skewed distribution, the mean is pulled by outliers while the median stays a more representative 'typical' value." },
@@ -1058,6 +1225,8 @@ const QUIZ = [
   { cat: "fundamentals", q: "What's the risk of a mutable default argument like def f(x, acc=[])?", options: ["It causes a syntax error", "The default list is shared across all calls since it's created once", "It runs slower than immutable defaults", "It cannot store more than 10 items"], correct: 1, explain: "Default arguments are evaluated once at function definition time, not per call — the classic mutable-default bug." },
   { cat: "fundamentals", q: "Why prefer collections.deque over list for queue operations?", options: ["deque is immutable", "list.pop(0) is O(n) while deque.popleft() is O(1)", "deque supports negative indexing better", "list cannot store dictionaries"], correct: 1, explain: "Removing from the front of a list requires shifting every remaining element — O(n). deque avoids that." },
   { cat: "fundamentals", q: "What does a bare except: clause risk?", options: ["It only catches syntax errors", "It silently catches every exception, hiding real bugs", "It automatically retries the operation", "It logs errors to a file automatically"], correct: 1, explain: "Catch specific exception types so you only handle what you actually expect and understand." },
+  { cat: "fundamentals", q: "What's the key limitation of a lambda compared to a def function?", options: ["Lambdas run slower than def functions", "Lambdas can only contain a single expression, no statements or multi-line logic", "Lambdas cannot take arguments", "Lambdas can't be passed to other functions"], correct: 1, explain: "A lambda is restricted to one expression — it can't hold loops, multiple statements, or a docstring the way a def function can." },
+  { cat: "fundamentals", q: "Why do NumPy arrays outperform plain Python lists for large numeric datasets?", options: ["NumPy arrays are unordered, which is faster", "NumPy stores data in contiguous, typed memory and runs operations in vectorized C code instead of Python-level loops", "Lists cannot store numbers", "NumPy arrays use less RAM per element by compressing data automatically"], correct: 1, explain: "Vectorized, typed, contiguous storage is what makes NumPy/pandas dramatically faster than looping over a Python list element by element." },
 
   { cat: "eda", q: "Why might the mean be a misleading summary statistic?", options: ["It's always equal to the median", "It's sensitive to outliers/skew", "It can't be computed for numeric data", "It ignores duplicate rows"], correct: 1, explain: "For a skewed distribution, the mean gets pulled toward extreme values while the median stays representative." },
   { cat: "eda", q: "What does a high correlation between two variables tell you?", options: ["One variable definitely causes the other", "They tend to move together, but causation isn't proven", "The data has no missing values", "The variables are identical"], correct: 1, explain: "Correlation is a hypothesis to investigate further, never a conclusion on its own." },
