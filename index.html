@@ -254,6 +254,9 @@
   .modal-body p, .modal-body li { line-height: 1.65; color: var(--ink-soft); font-size: 15px; }
   .modal-body ul { padding-left: 20px; margin: 8px 0; }
   .modal-body code { background: var(--pine-tint); padding: 1px 5px; border-radius: 3px; font-size: 13.5px; }
+  .modal-body table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 13px; }
+  .modal-body th, .modal-body td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .modal-body th { color: var(--pine-deep); font-weight: 600; }
   .modal-body pre {
     background: var(--pine-deep);
     color: #eef1e2;
@@ -472,7 +475,7 @@
       <a class="btn" href="#modules">Explore Modules →</a>
     </div>
     <div class="stat-row">
-      <div class="stat"><b>7</b><span>MODULES</span></div>
+      <div class="stat"><b>8</b><span>MODULES</span></div>
       <div class="stat"><b id="stat-flashcards">0</b><span>FLASH CARDS</span></div>
       <div class="stat"><b id="stat-quiz">0</b><span>QUIZ QUESTIONS</span></div>
     </div>
@@ -481,7 +484,7 @@
 
 <section id="modules">
   <div class="wrap">
-    <p class="section-label">▸ seven modules</p>
+    <p class="section-label">▸ eight modules</p>
     <h2>Click a module to explore</h2>
     <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
     <div class="module-grid" id="module-grid"></div>
@@ -617,6 +620,28 @@ pip install -r requirements.txt</pre>
           <tr><td>22</td><td>COALESCE — first non-null value</td><td><code>df['address'].fillna('No Address')</code></td><td><code>select coalesce(address, 'No Address') from employees</code></td></tr>
           <tr><td>23</td><td>NULLIF — NULL if two values are equal</td><td><code>df['col1'].replace(0, np.nan)</code></td><td><code>select nullif(col1, 0) from t1</code></td></tr>
           <tr><td>24</td><td>CAST — convert one data type to another</td><td><code>df['col1'].astype(str)</code></td><td><code>select cast(col1 as varchar) from t1</code></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🐼 Pandas Filtering Quick Reference</h4>
+        <div style="max-height: 380px; overflow-y: auto;">
+        <table>
+          <tr><th>Need</th><th>Syntax</th></tr>
+          <tr><td>Single value, by position / label</td><td><code>df.iat[0,1]</code> / <code>df.at[0,'col']</code> (fastest)</td></tr>
+          <tr><td>Position slice (end-exclusive)</td><td><code>df.iloc[0:3, 0:2]</code></td></tr>
+          <tr><td>Label slice (end-inclusive) / boolean mask</td><td><code>df.loc[0:3, ['A','B']]</code> / <code>df.loc[df['col']&gt;10]</code></td></tr>
+          <tr><td>Multiple columns</td><td><code>df[['col1','col2']]</code> — double brackets</td></tr>
+          <tr><td>Multiple row conditions</td><td><code>df[(df['a']&gt;5) &amp; (df['b']&lt;10)]</code> — never <code>and</code>/<code>or</code></td></tr>
+          <tr><td>SQL-like filter</td><td><code>df.query("a &gt; 5 and b &lt; 10")</code></td></tr>
+          <tr><td>Value in a list</td><td><code>df[df['col'].isin([...])]</code> (<code>~</code> for NOT in)</td></tr>
+          <tr><td>Missing / present</td><td><code>df[df['col'].isna()]</code> / <code>.notna()</code></td></tr>
+          <tr><td>Text pattern (case-insensitive)</td><td><code>df[df['col'].str.contains('x', case=False)]</code></td></tr>
+          <tr><td>Date part</td><td><code>df[df['date'].dt.month == 3]</code></td></tr>
+          <tr><td>Date range</td><td><code>df[df['date'].between('2023-01-01','2023-12-31')]</code></td></tr>
+          <tr><td>Top / bottom N</td><td><code>df.nlargest(5,'col')</code> / <code>df.nsmallest(5,'col')</code></td></tr>
+          <tr><td>Numeric range</td><td><code>df['col'].between(50, 100)</code></td></tr>
         </table>
         </div>
       </div>
@@ -1192,6 +1217,95 @@ print(classification_report(y_test, model.predict(X_test), target_names=["not_fr
           <li>Chasing a marginal metric improvement while ignoring model interpretability requirements</li>
         </ul>`
     }
+  },
+  {
+    id: "pandas-filtering",
+    icon: "🐼",
+    title: "Pandas Indexing & Filtering",
+    tagline: "loc, iloc, filtering, string/date ops",
+    desc: "Selecting rows/columns with loc/iloc/iat/at, and filtering by condition, string pattern, date range, and null/boolean logic.",
+    tags: ["loc/iloc", "boolean masks", "query()", "str/dt accessors"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p><code>iloc</code>/<code>loc</code>/<code>iat</code>/<code>at</code> for selecting rows and columns, plus boolean masking, <code>.query()</code>, and the <code>str</code>/<code>dt</code> accessors for filtering by condition, text pattern, or date.</p>
+        <h4>Why it matters</h4>
+        <p>"Get me the right subset of this DataFrame" is the single most common operation in any data role, which is exactly why interviewers probe it specifically — the <code>loc</code> vs. <code>iloc</code> distinction and multi-condition filtering syntax are easy places to trip up under pressure.</p>
+        <table>
+          <tr><th>Method</th><th>Indexing type</th><th>Scalar only?</th><th>Example</th></tr>
+          <tr><td><code>iloc</code></td><td>Integer position</td><td>No — slices too</td><td><code>df.iloc[0, 1]</code></td></tr>
+          <tr><td><code>loc</code></td><td>Label-based</td><td>No — slices, boolean masks too</td><td><code>df.loc[0, 'col1']</code></td></tr>
+          <tr><td><code>iat</code></td><td>Integer position</td><td>Yes — fastest for one value</td><td><code>df.iat[0, 1]</code></td></tr>
+          <tr><td><code>at</code></td><td>Label-based</td><td>Yes — fastest for one value</td><td><code>df.at[0, 'col1']</code></td></tr>
+        </table>`,
+      workflow: `
+        <h4>Decision workflow</h4>
+        <ul>
+          <li>Need <strong>one</strong> value, know the exact position/label → <code>iat</code>/<code>at</code> (fastest)</li>
+          <li>Need a <strong>slice</strong> by position → <code>iloc</code> (end-exclusive, like NumPy)</li>
+          <li>Need a slice by <strong>label</strong>, or a <strong>boolean mask</strong> → <code>loc</code> (end-inclusive)</li>
+          <li>Need <strong>multiple conditions</strong> → boolean mask with <code>&amp;</code>/<code>|</code> (each condition in parens) or <code>.query()</code> for SQL-like readability</li>
+        </ul>
+        <h4>Step-by-step</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({
+    'A': [10, 20, 30], 'B': [40, 50, 60], 'C': [70, 80, 90]
+}, index=[100, 101, 102])
+
+df.iloc[0, 1]                      \# 40 -- position
+df.loc[100, 'B']                    \# 40 -- label
+df.iat[1, 2]                         \# 80 -- fast scalar by position
+df.at[101, 'C']                      \# 80 -- fast scalar by label
+df.loc[df['A'] > 10]                  \# boolean mask -- loc only, not iloc</pre>`,
+      concepts: `
+        <h4>Filtering toolkit</h4>
+        <table>
+          <tr><th>Need</th><th>Method</th></tr>
+          <tr><td>Multiple conditions</td><td><code>df[(cond1) &amp; (cond2)]</code> or <code>df.query('cond1 and cond2')</code></td></tr>
+          <tr><td>Value in a list</td><td><code>df[df['col'].isin([...])]</code> (<code>~</code> for NOT in)</td></tr>
+          <tr><td>Missing / present values</td><td><code>df[df['col'].isna()]</code> / <code>.notna()</code></td></tr>
+          <tr><td>Text pattern</td><td><code>df[df['col'].str.contains('x', case=False)]</code></td></tr>
+          <tr><td>Date part</td><td><code>df[df['date'].dt.month == 3]</code></td></tr>
+          <tr><td>Top/bottom N</td><td><code>df.nlargest(5, 'col')</code> / <code>nsmallest(5, 'col')</code></td></tr>
+          <tr><td>Numeric range</td><td><code>df[df['col'].between(50, 100)]</code></td></tr>
+        </table>
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong><code>iloc</code> is end-exclusive, <code>loc</code> is end-inclusive</strong> for slices — the single most-tested distinction</li>
+          <li><strong>Boolean masks need <code>&amp;</code>/<code>|</code></strong>, never Python's <code>and</code>/<code>or</code> — those don't work element-wise on a Series</li>
+          <li><strong>Double brackets</strong> for multi-column selection — <code>df[['a','b']]</code> returns a DataFrame, <code>df['a','b']</code> raises an error</li>
+          <li><strong><code>.query()</code></strong> reads like SQL and avoids repeated <code>df['col']</code> references, at the cost of being slightly less flexible for dynamic column names</li>
+        </ul>`,
+      example: `
+        <h4>Real-world example: multi-condition filter, two ways</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({
+    'Name': ['Alice','Bob','Charlie','David'],
+    'Age': [25,30,35,40],
+    'Dept': ['HR','IT','Sales','IT'],
+    'Salary': [50000,60000,70000,80000]
+})
+
+\# Boolean mask -- each condition in its own parentheses, joined with &
+result = df[(df['Age'] > 28) & (df['Dept'] == 'IT')]
+
+\# Same logic with .query() -- reads closer to SQL
+result = df.query("Age > 28 and Dept == 'IT'")
+
+print(result)</pre>
+        <p><strong>Why this matters:</strong> both return the identical rows — the choice is about readability. <code>.query()</code> tends to win when there are many conditions; boolean masks win when column names are stored in variables (query() needs extra syntax for that).</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Using <code>and</code>/<code>or</code> instead of <code>&amp;</code>/<code>|</code> in a boolean mask — raises a <code>ValueError</code> on any Series longer than one element</li>
+          <li>Forgetting parentheses around each condition — Python's operator precedence parses <code>&amp;</code> before comparisons, breaking the expression</li>
+          <li>Using single brackets for multi-column selection: <code>df['a','b']</code> instead of <code>df[['a','b']]</code></li>
+          <li>Filtering a date column before converting it with <code>pd.to_datetime()</code> — string comparison silently gives wrong results</li>
+          <li>Chained indexing (<code>df[df.col>5]['col2'] = x</code>) — triggers <code>SettingWithCopyWarning</code> and may silently fail to update the original DataFrame; use <code>.loc[mask, 'col2'] = x</code> instead</li>
+        </ul>`
+    }
   }
 ];
 
@@ -1613,7 +1727,44 @@ euclidean_dist = np.sqrt(((p - q) ** 2).sum())
 euclidean_dist = np.linalg.norm(p - q)
 print(euclidean_dist)</pre>
 <div class="fb-explain">This is the same distance metric behind k-NN and k-means — smaller values mean the two vectors are more similar. It only makes sense when features are on comparable scales (see Feature Engineering's note on scaling).</div>` },
-  { cat: "ml-modeling", q: "If you split your data into train/test sets, is it still possible to overfit your model?", a: "Yes — a train/test split only measures overfitting, it doesn't prevent it. If you repeatedly tune hyperparameters based on test-set performance, you effectively leak test-set information back into your modeling choices. That's why hyperparameter tuning uses a separate validation set or cross-validation, keeping the test set touched only once, at the very end, for a final unbiased estimate." }
+  { cat: "ml-modeling", q: "If you split your data into train/test sets, is it still possible to overfit your model?", a: "Yes — a train/test split only measures overfitting, it doesn't prevent it. If you repeatedly tune hyperparameters based on test-set performance, you effectively leak test-set information back into your modeling choices. That's why hyperparameter tuning uses a separate validation set or cross-validation, keeping the test set touched only once, at the very end, for a final unbiased estimate." },
+
+  { cat: "pandas-filtering", q: "What's the difference between iloc and loc?", a: `<code>iloc</code> selects by integer position (like NumPy, end-exclusive for slices); <code>loc</code> selects by label (end-inclusive for slices) and also accepts boolean masks.
+<pre>df.iloc[0, 1]        \# position -&gt; row 0, col 1
+df.loc[100, 'B']      \# label -&gt; index label 100, column 'B'
+df.iloc[0:2]           \# rows 0-1 (2 excluded)
+df.loc[100:101]        \# rows with labels 100 AND 101 (inclusive)</pre>` },
+  { cat: "pandas-filtering", q: "What's the difference between iat/at and iloc/loc?", a: `<code>iat</code>/<code>at</code> are scalar-only (a single value), and faster than <code>iloc</code>/<code>loc</code> for that one-value case since they skip the extra overhead of supporting slices and boolean masks.
+<pre>df.iat[1, 2]     \# fast scalar by position
+df.at[101, 'C']   \# fast scalar by label
+\# iloc/loc also work for a single value, just slower for that specific case</pre>` },
+  { cat: "pandas-filtering", q: "Why does df['col1','col2'] fail, while df[['col1','col2']] works?", a: `A single pair of brackets with a comma is interpreted as one tuple label, not two column names — pandas looks for a column literally named <code>('col1','col2')</code> and raises a <code>KeyError</code>. Double brackets pass an actual list of column names, which pandas resolves correctly.
+<pre>df[['col1', 'col2']]   \# correct -- returns a DataFrame with both columns</pre>` },
+  { cat: "pandas-filtering", q: "How do you filter rows on multiple conditions in pandas?", a: `Wrap each condition in parentheses and join with <code>&amp;</code> (AND) or <code>|</code> (OR) — never Python's <code>and</code>/<code>or</code>, which don't work element-wise on a Series.
+<pre>df[(df['Age'] &gt; 30) &amp; (df['Salary'] &lt; 80000)]</pre>
+<div class="fb-explain">Parentheses are required around each condition because <code>&amp;</code> has higher operator precedence than comparison operators in Python — without them, the expression parses incorrectly.</div>` },
+  { cat: "pandas-filtering", q: "How do you filter rows where a column's value is in a list?", a: `Use <code>.isin()</code>; prefix with <code>~</code> to invert it (NOT in the list).
+<pre>df[df['Dept'].isin(['HR', 'Sales'])]
+df[~df['Dept'].isin(['HR', 'Sales'])]   \# everything EXCEPT those</pre>` },
+  { cat: "pandas-filtering", q: "How do you filter a DataFrame using SQL-like syntax?", a: `<code>.query()</code> lets you write the condition as a string, similar to a SQL WHERE clause.
+<pre>df.query('Age &gt; 30 and Salary &gt; 60000')
+\# equivalent to: df[(df['Age'] &gt; 30) & (df['Salary'] &gt; 60000)]</pre>
+<div class="fb-explain">query() reads more like SQL and avoids repeating df['col'] for every condition, but boolean masks are more flexible when column names come from a variable.</div>` },
+  { cat: "pandas-filtering", q: "How do you filter rows by a date range?", a: `Parse the column with <code>pd.to_datetime()</code> first, then compare directly or use <code>.between()</code>.
+<pre>df['Date'] = pd.to_datetime(df['Date'])
+df[(df['Date'] &gt;= '2023-01-01') & (df['Date'] &lt;= '2023-12-31')]
+\# or, more concisely:
+df[df['Date'].between('2023-01-01', '2023-12-31')]</pre>
+<div class="fb-explain">Filtering by date BEFORE converting the column to datetime does a string comparison instead — it can silently return wrong results without raising an error.</div>` },
+  { cat: "pandas-filtering", q: "How do you select the top N rows by a column's value?", a: `Use <code>.nlargest()</code> / <code>.nsmallest()</code> — clearer and often faster than sorting the whole DataFrame just to slice the head.
+<pre>df.nlargest(5, 'Salary')     \# top 5 by salary
+df.nsmallest(3, 'Age')         \# bottom 3 by age</pre>` },
+  { cat: "pandas-filtering", q: "How do you find rows with a missing value in ANY of several columns?", a: `<pre>df[df[['col1', 'col2']].isna().any(axis=1)]</pre>
+<div class="fb-explain"><code>axis=1</code> checks across columns for each row. Swap <code>.any()</code> for <code>.all()</code> to instead find rows where EVERY listed column is null.</div>` },
+  { cat: "pandas-filtering", q: "How do you filter a string column case-insensitively?", a: `Pass <code>case=False</code> to <code>str.contains()</code>, or normalize case explicitly before comparing.
+<pre>df[df['Name'].str.contains('alice', case=False)]
+\# or:
+df[df['City'].str.lower() == 'boston']</pre>` }
 ];
 
 const QUIZ = [
@@ -1645,7 +1796,11 @@ const QUIZ = [
 
   { cat: "ml-modeling", q: "Why is accuracy often a poor metric for fraud detection?", options: ["Accuracy can't be computed for classification problems", "A model predicting 'not fraud' every time can score very high accuracy while being useless", "Accuracy is only valid for regression tasks", "Fraud detection doesn't use metrics"], correct: 1, explain: "On a dataset that's 99.5% non-fraud, always predicting 'not fraud' gets 99.5% accuracy despite catching zero fraud." },
   { cat: "ml-modeling", q: "A model has 98% training accuracy but 61% validation accuracy. What's happening?", options: ["Underfitting", "Overfitting", "The validation set is corrupted", "This is normal and expected"], correct: 1, explain: "A large gap between training and validation performance is the classic signature of overfitting — the model memorized training data instead of learning generalizable patterns." },
-  { cat: "ml-modeling", q: "What's a common cause of data leakage in cross-validation?", options: ["Using too many folds", "Fitting a scaler/transformation on the full dataset before splitting into folds", "Using a random seed", "Training for too many epochs"], correct: 1, explain: "Any transformation that learns from data (scaling, imputation, encoding) should be fit inside each fold, not on the full dataset beforehand." }
+  { cat: "ml-modeling", q: "What's a common cause of data leakage in cross-validation?", options: ["Using too many folds", "Fitting a scaler/transformation on the full dataset before splitting into folds", "Using a random seed", "Training for too many epochs"], correct: 1, explain: "Any transformation that learns from data (scaling, imputation, encoding) should be fit inside each fold, not on the full dataset beforehand." },
+
+  { cat: "pandas-filtering", q: "Which is true about iloc vs. loc slicing?", options: ["Both are end-inclusive", "Both are end-exclusive", "iloc is end-exclusive, loc is end-inclusive", "iloc is end-inclusive, loc is end-exclusive"], correct: 2, explain: "iloc behaves like standard Python/NumPy slicing (end-exclusive); loc, being label-based, includes the end label." },
+  { cat: "pandas-filtering", q: "What happens if you write df[(df['a']>5) and (df['b']<10)] instead of using &?", options: ["It works exactly the same as &", "It raises a ValueError about ambiguous truth value", "It silently returns an empty DataFrame", "It only applies the first condition"], correct: 1, explain: "Python's and/or call bool() on each side, but a Series with more than one element has an ambiguous truth value — pandas raises a ValueError instead of guessing." },
+  { cat: "pandas-filtering", q: "Why might df[df['col']>5]['col2'] = 100 fail to update the original DataFrame?", options: ["The syntax is invalid and won't run at all", "It's chained indexing — it may operate on a copy, triggering SettingWithCopyWarning", "You must always use .query() for assignment", "Column 'col2' must be numeric first"], correct: 1, explain: "df[mask] can return a copy rather than a view, so the second assignment may modify that copy instead of the original. Use .loc[mask, 'col2'] = 100 instead." }
 ];
 
 document.getElementById("stat-flashcards").textContent = FLASHCARDS.length;
