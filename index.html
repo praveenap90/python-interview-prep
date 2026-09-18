@@ -1955,6 +1955,212 @@ with sqlite3.connect("app.db") as conn:
   { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "How do you calculate the sum of all numbers from 25 to 75, inclusive?", a: `<pre>total = sum(range(25, 76))   \# stop is exclusive, so 76 includes 75
 print(total)   \# 2550</pre>
 <div class="fb-explain"><code>sum(range(...))</code> is the idiomatic, efficient way — no manual loop or accumulator variable needed. The easy mistake: <code>range()</code>'s stop is exclusive, so reaching 75 inclusive requires <code>range(25, 76)</code>, not <code>range(25, 75)</code>.</div>` },
+  { cat: "fundamentals", sub: "Strings", q: "How do you count digits, letters, and spaces in a string using regular expressions?", a: `<code>re.findall()</code> returns every match of a pattern — its length is the count.
+<pre>import re
+
+text = "Hello World 123!"
+
+digits = len(re.findall(r'\\d', text))
+letters = len(re.findall(r'[a-zA-Z]', text))
+spaces = len(re.findall(r'\\s', text))
+
+print(f"Digits: {digits}, Letters: {letters}, Spaces: {spaces}")
+\# Digits: 3, Letters: 10, Spaces: 2</pre>
+<div class="fb-explain"><code>\\d</code> matches digit characters, <code>[a-zA-Z]</code> matches letters, <code>\\s</code> matches whitespace — each is a self-contained pattern you can reuse for other character-class counting tasks.</div>` },
+  { cat: "fundamentals", sub: "Data Structures & Types", q: "How would you implement a binary tree in Python?", a: `A <code>Node</code> class holding a value plus left/right children, and a tree class with an <code>insert</code> method that recurses left or right based on comparison.
+<pre>class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+class BinaryTree:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, value):
+        if self.root is None:
+            self.root = Node(value)
+        else:
+            self._insert(self.root, value)
+
+    def _insert(self, node, value):
+        if value &lt; node.value:
+            if node.left is None:
+                node.left = Node(value)
+            else:
+                self._insert(node.left, value)
+        else:
+            if node.right is None:
+                node.right = Node(value)
+            else:
+                self._insert(node.right, value)
+
+    def inorder(self, node, result=None):
+        if result is None:
+            result = []
+        if node:
+            self.inorder(node.left, result)
+            result.append(node.value)
+            self.inorder(node.right, result)
+        return result
+
+tree = BinaryTree()
+for v in [5, 3, 8, 1, 4]:
+    tree.insert(v)
+print(tree.inorder(tree.root))   \# [1, 3, 4, 5, 8] -- sorted order for a BST</pre>` },
+  { cat: "fundamentals", sub: "OOP Basics", q: "What makes Python object-oriented, and what are the key OOP features?", a: `Python is object-oriented because everything (even functions and classes) is itself an object, and it supports the four OOP pillars:
+<ul style="margin:6px 0 0 18px; padding:0;"><li><strong>Encapsulation</strong> — bundling data and behavior inside a class</li><li><strong>Inheritance</strong> — a class can inherit from a parent class</li><li><strong>Polymorphism</strong> — the same method call behaves differently depending on the object</li><li><strong>Abstraction</strong> — hiding implementation details behind a simple interface</li></ul>
+<pre>class Animal:
+    def speak(self):
+        raise NotImplementedError
+
+class Dog(Animal):            \# Inheritance
+    def speak(self):           \# Polymorphism -- overrides the parent
+        return "Woof"
+
+class Cat(Animal):
+    def speak(self):
+        return "Meow"
+
+for animal in [Dog(), Cat()]:
+    print(animal.speak())       \# Woof, Meow -- same call, different behavior</pre>` },
+  { cat: "fundamentals", sub: "Strings", q: "How do you count the number of vowels in a word?", a: `<pre>def count_vowels(word):
+    return sum(1 for ch in word.lower() if ch in "aeiou")
+
+print(count_vowels("Engineering"))   \# 5</pre>` },
+  { cat: "fundamentals", sub: "Strings", q: "How do you count the number of consonants in a word?", a: `<pre>def count_consonants(word):
+    return sum(1 for ch in word.lower() if ch.isalpha() and ch not in "aeiou")
+
+print(count_consonants("Engineering"))   \# 6</pre>
+<div class="fb-explain"><code>ch.isalpha()</code> excludes spaces/punctuation from the count, so only actual letters that aren't vowels get counted.</div>` },
+  { cat: "fundamentals", sub: "Data Structures & Types", q: "How does Floyd's Cycle Detection Algorithm (tortoise and hare) detect a loop in a linked list?", a: `Two pointers move through the list at different speeds — <code>slow</code> one step at a time, <code>fast</code> two steps. If there's a cycle, <code>fast</code> eventually laps <code>slow</code> and they meet at the same node; if there's no cycle, <code>fast</code> reaches the end (<code>None</code>) first.
+<pre>def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False</pre>
+<div class="fb-explain">O(n) time, O(1) space — no extra memory needed, unlike a set-based "have I visited this node before" approach which costs O(n) space.</div>` },
+  { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "How do you access elements from the end of a sequence without manually calculating the position?", a: `Use negative indexing — <code>-1</code> is the last element, counting backward from there.
+<pre>lst = [10, 20, 30, 40, 50]
+
+print(lst[-1])      \# 50 -- last element
+print(lst[-2])       \# 40 -- second-to-last
+print(lst[-3:])       \# [30, 40, 50] -- last three elements
+
+s = "Python"
+print(s[-1])            \# 'n'</pre>
+<div class="fb-explain">Works identically on any sequence type — lists, tuples, and strings — so you never need to compute <code>len(seq) - n</code> manually.</div>` },
+  { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "How do you work with binary, octal, and hexadecimal numbers in Python?", a: `Literal prefixes let you write numbers directly in a base; <code>bin()</code>/<code>oct()</code>/<code>hex()</code> convert an int TO a string in that base, and <code>int(str, base)</code> converts a string FROM a given base back to a decimal int.
+<pre>\# Input / literals
+b = 0b1010     \# binary literal -&gt; 10
+o = 0o12        \# octal literal -&gt; 10
+h = 0xA          \# hex literal -&gt; 10
+
+\# Conversion FROM int
+print(bin(10))     \# '0b1010'
+print(oct(10))      \# '0o12'
+print(hex(10))       \# '0xa'
+
+\# Conversion TO int, from a string in a given base
+print(int('1010', 2))    \# 10
+print(int('12', 8))       \# 10
+print(int('A', 16))        \# 10</pre>` },
+  { cat: "fundamentals", sub: "Data Structures & Types", q: "What is the bytes() function used for, and how does it relate to serialization, binary data, and encoding?", a: `<code>bytes</code> is Python's immutable type for raw byte data — distinct from <code>str</code> (text). You need it whenever data leaves Python's text world: writing binary files, sending data over a network, hashing, or working with any protocol/format defined in terms of raw bytes rather than characters.
+<pre>\# 1. From an iterable of integers (0-255)
+b1 = bytes([72, 101, 108, 108, 111])
+print(b1)              \# b'Hello'
+
+\# 2. From a string, via encoding -- the most common use
+b2 = "Hello".encode("utf-8")   \# equivalent: bytes("Hello", "utf-8")
+print(b2)                \# b'Hello'
+print(b2.decode("utf-8"))  \# 'Hello' -- back to a str
+
+\# 3. A zero-filled buffer of a given size -- useful for binary I/O/protocols
+b3 = bytes(5)
+print(b3)                 \# b'\\x00\\x00\\x00\\x00\\x00'
+
+\# 4. bytes is immutable; bytearray is its mutable equivalent
+ba = bytearray(b1)
+ba[0] = 74                  \# can modify in place
+print(bytes(ba))             \# b'Jello'
+
+\# 5. Cryptographic functions require bytes input, not str
+import hashlib
+digest = hashlib.sha256(b"Hello").hexdigest()</pre>
+<div class="fb-explain">The most common source of confusion: Python 3 keeps <code>str</code> (text) and <code>bytes</code> (raw data) strictly separate — you must explicitly <code>.encode()</code> a string to bytes and <code>.decode()</code> bytes back to a string. Mixing the two without converting raises a <code>TypeError</code>.</div>` },
+  { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "How do you print a string's characters one by one until you hit the letter 't'?", a: `<code>break</code> exits the loop the moment the condition is met — the 't' itself is never printed, only characters strictly before it.
+<pre>s = "Interesting"
+for ch in s:
+    if ch == 't':
+        break
+    print(ch, end='')
+\# Output: In</pre>` },
+  { cat: "fundamentals", sub: "Strings", q: "How do you toggle (invert) the case of every character in a string?", a: `Use <code>str.swapcase()</code> — uppercase becomes lowercase and vice versa; non-alphabetic characters pass through unchanged.
+<pre>s = "Hello World"
+result = s.swapcase()
+print(result)   \# 'hELLO wORLD'</pre>` },
+  { cat: "fundamentals", sub: "Functions & Scope", q: "Why aren't all nested functions closures? What's the distinction?", a: `A nested function is simply a function defined inside another function — that alone doesn't make it a closure. It only becomes a closure if it actually references a variable from the enclosing scope AND is returned/used outside that scope, "closing over" that variable so it persists after the outer function has finished running.
+<pre>def outer_no_closure():
+    def inner():
+        return "just a nested function"
+    return inner()      \# called immediately -- doesn't need to capture anything
+
+def outer_closure(x):
+    def inner():
+        return x * 2       \# references 'x' from the enclosing scope
+    return inner             \# returned WITHOUT calling -- inner must remember x
+
+f = outer_closure(5)
+print(f())   \# 10 -- 'x' is remembered even though outer_closure already returned</pre>
+<div class="fb-explain"><code>outer_no_closure</code>'s inner function never reaches outside itself, so it's just a nested function. <code>outer_closure</code>'s inner function captures <code>x</code> and outlives the call that created it — that's a true closure.</div>` },
+  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "How do you download and save an image from a URL using Python?", a: `<pre>import requests
+
+url = "https://example.com/image.jpg"
+response = requests.get(url)
+response.raise_for_status()   \# raise an error if the download failed
+
+with open("image.jpg", "wb") as f:
+    f.write(response.content)</pre>
+<div class="fb-explain">Images are binary data, so the file must be opened in binary write mode (<code>"wb"</code>) and <code>response.content</code> (raw bytes) written directly — not <code>response.text</code>, which is for text content and would corrupt binary data.</div>` },
+  { cat: "fundamentals", sub: "Strings", q: "How do you remove all whitespace characters from a string, not just leading/trailing?", a: `<pre>s = "H e l l o   W o r l d"
+no_spaces = "".join(s.split())
+print(no_spaces)   \# "HelloWorld"
+
+\# or, for literal space characters specifically:
+s2 = s.replace(" ", "")</pre>
+<div class="fb-explain"><code>"".join(s.split())</code> removes ALL whitespace (spaces, tabs, newlines) anywhere in the string; <code>.replace(" ", "")</code> only removes literal space characters, missing tabs/newlines.</div>` },
+  { cat: "fundamentals", sub: "Data Structures & Types", q: "How do you retrieve all the keys in a Python dictionary?", a: `<pre>d = {"name": "Alice", "age": 30}
+print(list(d.keys()))   \# ['name', 'age']
+
+\# or simply -- iterating a dict directly yields its keys:
+print(list(d))            \# same result</pre>` },
+  { cat: "fundamentals", sub: "Data Structures & Types", q: "How do you combine multiple iterables element-wise into pairs or tuples?", a: `Use <code>zip()</code>.
+<pre>names = ["Alice", "Bob", "Charlie"]
+ages = [25, 30, 35]
+
+pairs = list(zip(names, ages))
+print(pairs)   \# [('Alice', 25), ('Bob', 30), ('Charlie', 35)]</pre>
+<div class="fb-explain"><code>zip()</code> stops at the shortest iterable if lengths differ — use <code>itertools.zip_longest()</code> if you need to pad the shorter ones instead of silently truncating.</div>` },
+  { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "How do you build a pyramid pattern of asterisks in Python?", a: `<pre>rows = 5
+for i in range(1, rows + 1):
+    print(" " * (rows - i) + "*" * (2 * i - 1))</pre>
+<div class="fb-explain">Leading spaces shrink while the asterisk count grows by 2 each row (odd numbers: 1, 3, 5, 7, 9) — that combination is what centers the triangle.</div>` },
+  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "You have an 8GB file. How do you read and process it without running out of memory?", a: `Iterate the file line-by-line (or in fixed-size chunks) instead of loading it all at once — both keep memory usage constant regardless of file size.
+<pre>\# Line by line -- constant memory regardless of file size
+with open("huge_file.txt") as f:
+    for line in f:
+        process(line)
+
+\# Or in fixed-size chunks, for non-line-oriented data
+with open("huge_file.bin", "rb") as f:
+    while chunk := f.read(1024 * 1024):   \# 1MB at a time
+        process(chunk)</pre>
+<div class="fb-explain"><code>f.read()</code> with no argument, or <code>f.readlines()</code>, tries to load the ENTIRE file into memory at once — for an 8GB file that will likely crash the process or thrash the machine.</div>` },
+  { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "What are the key differences between Python 2 and Python 3?", a: `<ul style="margin:6px 0 0 18px; padding:0;"><li><code>print</code> is a function in Python 3 (<code>print(x)</code>); it was a statement in Python 2 (<code>print x</code>)</li><li>Division: <code>/</code> is true division in Python 3 (<code>5/2 = 2.5</code>); Python 2 did integer floor division for ints (<code>5/2 = 2</code>)</li><li><code>range()</code> is lazy in Python 3; Python 2's <code>range()</code> built a full list, with <code>xrange()</code> as the lazy version</li><li>Strings are Unicode by default in Python 3; Python 2 defaulted to ASCII byte strings, with a separate <code>unicode</code> type</li><li>Python 2 reached end-of-life in 2020 — Python 3 is the only actively maintained version today</li></ul>` },
 
   { cat: "eda", q: "What is EDA and why do it first?", a: "Investigating a dataset's structure, quality, and patterns before drawing conclusions — catches quality issues and informs cleaning/features before anything is built on top of it." },
   { cat: "eda", q: "When does mean vs. median matter most?", a: "For a skewed distribution, the mean is pulled by outliers while the median stays a more representative 'typical' value." },
@@ -2135,6 +2341,25 @@ const QUIZ = [
   { cat: "fundamentals", q: "What does a bare except: clause risk?", options: ["It only catches syntax errors", "It silently catches every exception, hiding real bugs", "It automatically retries the operation", "It logs errors to a file automatically"], correct: 1, explain: "Catch specific exception types so you only handle what you actually expect and understand." },
   { cat: "fundamentals", q: "What's the key limitation of a lambda compared to a def function?", options: ["Lambdas run slower than def functions", "Lambdas can only contain a single expression, no statements or multi-line logic", "Lambdas cannot take arguments", "Lambdas can't be passed to other functions"], correct: 1, explain: "A lambda is restricted to one expression — it can't hold loops, multiple statements, or a docstring the way a def function can." },
   { cat: "fundamentals", q: "Why do NumPy arrays outperform plain Python lists for large numeric datasets?", options: ["NumPy arrays are unordered, which is faster", "NumPy stores data in contiguous, typed memory and runs operations in vectorized C code instead of Python-level loops", "Lists cannot store numbers", "NumPy arrays use less RAM per element by compressing data automatically"], correct: 1, explain: "Vectorized, typed, contiguous storage is what makes NumPy/pandas dramatically faster than looping over a Python list element by element." },
+  { cat: "fundamentals", q: "What mode must a file be opened in to use pickle.dump() or pickle.load()?", options: ["Text mode ('w'/'r')", "Binary mode ('wb'/'rb')", "Append mode ('a')", "Any mode works identically"], correct: 1, explain: "pickle serializes to bytes, not text, so the file must be opened in binary mode — 'wb' to write, 'rb' to read." },
+  { cat: "fundamentals", q: "What exception does os.remove() raise if the file doesn't exist?", options: ["OSError only, nothing more specific", "FileNotFoundError", "ValueError", "It fails silently and returns False"], correct: 1, explain: "os.remove() raises FileNotFoundError for a missing file and PermissionError if the process lacks rights to delete it — both worth catching specifically." },
+  { cat: "fundamentals", q: "What is the main use of an empty class (class Config: pass)?", options: ["It causes a syntax error, so it has no use", "A placeholder while designing a hierarchy, or a lightweight attribute container", "It automatically inherits every built-in method", "It can only be used for exceptions"], correct: 1, explain: "pass lets you define a class with no members yet — useful as a stub during design, or as a simple namespace object you attach attributes to directly." },
+  { cat: "fundamentals", q: "What's the difference between break and continue in a loop?", options: ["They do the same thing", "break exits the loop entirely; continue skips only the rest of the current iteration", "continue exits the loop entirely; break skips only the current iteration", "break only works in while loops, continue only in for loops"], correct: 1, explain: "break stops the loop immediately; continue moves on to the next iteration without stopping the loop." },
+  { cat: "fundamentals", q: "What does max(\"abc{def}xyz\") return, and why?", options: ["'f' -- the last letter in the string", "'{' -- because its ASCII value (123) is higher than any lowercase letter's", "'z' -- the alphabetically last letter", "It raises a TypeError"], correct: 1, explain: "max() compares raw ASCII values, not 'alphabetical-ness' -- '{' (123) and '}' (125) both exceed 'z' (122), so a plain max() on mixed text can return a special character instead of a real letter." },
+  { cat: "fundamentals", q: "Which method converts a Python str to bytes?", options: [".tobytes()", ".encode()", ".pack()", ".serialize()"], correct: 1, explain: "str.encode() converts text to bytes; bytes.decode() reverses it back to a string. Mixing str and bytes without converting raises a TypeError." },
+  { cat: "fundamentals", q: "What makes a nested function a true closure rather than just a nested function?", options: ["Simply being defined inside another function", "It references a variable from the enclosing scope AND is returned/used outside that scope", "It must be decorated with @closure", "It must not take any parameters"], correct: 1, explain: "A nested function that never reaches outside itself is just a nested function. It's a closure only when it captures an enclosing variable and outlives the function that created it." },
+  { cat: "fundamentals", q: "When downloading and saving an image from a URL with requests, how must the local file be opened?", options: ["Text write mode 'w', using response.text", "Binary write mode 'wb', using response.content", "Append mode 'a'", "It doesn't matter which mode is used"], correct: 1, explain: "Images are binary data -- opening in 'wb' and writing response.content (raw bytes) is required; response.text is for text content and would corrupt binary data." },
+  { cat: "fundamentals", q: "Which correctly removes ALL whitespace (spaces, tabs, newlines) from a string, not just the edges?", options: ["s.strip()", "\"\".join(s.split())", "s.lstrip()", "s.rstrip()"], correct: 1, explain: "s.split() with no argument splits on any whitespace and discards it; joining the pieces back together with an empty separator removes all of it, anywhere in the string. strip()/lstrip()/rstrip() only remove whitespace from the edges." },
+  { cat: "fundamentals", q: "What happens when you zip() two lists of different lengths?", options: ["It raises a ValueError", "It stops at the shorter iterable's length, silently dropping the extra elements", "It pads the shorter one with None automatically", "It raises an IndexError"], correct: 1, explain: "zip() stops as soon as the shortest iterable is exhausted. Use itertools.zip_longest() if you need padding instead of silent truncation." },
+  { cat: "fundamentals", q: "Which is a real difference between Python 2 and Python 3?", options: ["Python 3 removed support for loops entirely", "print is a function in Python 3 (print(x)) but a statement in Python 2 (print x)", "Python 2 supports classes, Python 3 does not", "Variables must be declared with a type in Python 3 only"], correct: 1, explain: "print became a regular function in Python 3, requiring parentheses -- one of the most visible breaking changes from Python 2." },
+  { cat: "fundamentals", q: "Why does xrange() no longer exist in Python 3?", options: ["It was renamed to lazy_range()", "Python 3's range() itself became lazy, absorbing what xrange() used to do", "Python 3 removed lazy iteration entirely", "It still exists but is deprecated"], correct: 1, explain: "In Python 2, range() built a full list upfront while xrange() was the memory-efficient lazy version; Python 3 merged this by making range() itself lazy." },
+  { cat: "fundamentals", q: "Which approach removes duplicates from a list while preserving the original order?", options: ["list(set(lst))", "list(dict.fromkeys(lst))", "sorted(lst)", "lst.remove_duplicates()"], correct: 1, explain: "set() removes duplicates but doesn't guarantee order; dict.fromkeys() relies on Python 3.7+ dicts preserving insertion order, keeping the first-seen order intact." },
+  { cat: "fundamentals", q: "What is the time and space complexity of Floyd's Cycle Detection Algorithm?", options: ["O(n) time, O(n) space", "O(n) time, O(1) space", "O(n\u00b2) time, O(1) space", "O(log n) time, O(1) space"], correct: 1, explain: "The slow/fast pointer technique needs no extra data structure to track visited nodes -- just two pointers -- giving O(1) space versus O(n) for a set-based visited-node approach." },
+  { cat: "fundamentals", q: "In a class method, what does 'self' actually receive?", options: ["The class itself, not an instance", "A reference to the specific instance the method was called on", "Nothing -- it's just a naming convention with no real effect", "The method's own name as a string"], correct: 1, explain: "Python automatically passes the calling instance as the first argument when you write obj.method() -- the method's definition just needs to declare a parameter (conventionally named self) to receive it." },
+  { cat: "fundamentals", q: "Which of these is an example of implicit type conversion in Python?", options: ["int(\"42\")", "5 + 2.5 automatically becoming 7.5 (float)", "str(100)", "float(\"3.14\")"], correct: 1, explain: "Implicit conversion happens automatically when Python mixes types in an operation (int + float -> float), with no function call needed. The others are all explicit casts you request yourself." },
+  { cat: "fundamentals", q: "Inside a function, what happens if you modify a variable without declaring it global first, when a same-named variable exists at module level?", options: ["It automatically updates the global variable", "Python creates a new LOCAL variable instead, leaving the global untouched", "It raises a NameError immediately", "It raises a SyntaxError"], correct: 1, explain: "Assigning to a name inside a function makes it local by default -- without the global keyword, you're creating a separate local variable that shadows the global one, not modifying the global." },
+  { cat: "fundamentals", q: "When two decorators are stacked on one function (@bold then @italic above def f), which one wraps the function first?", options: ["bold, since it's listed first", "italic, since it's closest to the function definition", "They both wrap simultaneously", "Only the outer decorator (bold) has any effect"], correct: 1, explain: "Decorators apply bottom-up: the one closest to the function runs first (wraps it first), and each one above wraps the result of the one before it." },
+  { cat: "fundamentals", q: "Which built-in function converts an integer to its hexadecimal string representation?", options: ["int(x, 16)", "hex(x)", "x.to_hex()", "format_hex(x)"], correct: 1, explain: "hex() converts an int TO a hex string (e.g. hex(10) -> '0xa'); int(str, 16) does the reverse, parsing a hex string back into a decimal int." },
 
   { cat: "eda", q: "Why might the mean be a misleading summary statistic?", options: ["It's always equal to the median", "It's sensitive to outliers/skew", "It can't be computed for numeric data", "It ignores duplicate rows"], correct: 1, explain: "For a skewed distribution, the mean gets pulled toward extreme values while the median stays representative." },
   { cat: "eda", q: "What does a high correlation between two variables tell you?", options: ["One variable definitely causes the other", "They tend to move together, but causation isn't proven", "The data has no missing values", "The variables are identical"], correct: 1, explain: "Correlation is a hypothesis to investigate further, never a conclusion on its own." },
