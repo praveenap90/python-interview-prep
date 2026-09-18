@@ -412,11 +412,26 @@
   .flash-front .fc-q { font-weight: 600; color: var(--pine-deep); }
   .flash-front .fc-hint { margin-top: auto; font-size: 11px; color: #9a9480; font-family: "Courier New", ui-monospace, monospace; }
 
+  .flash-card.has-code { height: 300px; }
+
   .flash-back {
     background: var(--pine-deep);
     color: #eef1e2;
     transform: rotateY(180deg);
   }
+
+  .flash-back pre {
+    background: rgba(0,0,0,0.28);
+    padding: 8px 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 11px;
+    line-height: 1.5;
+    margin: 8px 0;
+    white-space: pre;
+  }
+
+  .flash-back .fb-explain { font-size: 12.5px; color: #cfd9d0; margin-top: 6px; }
 
   footer { padding: 36px 0 56px; }
   footer p { font-size: 14px; color: var(--ink-soft); }
@@ -571,6 +586,39 @@ pip install -r requirements.txt</pre>
           <tr><td>98% train accuracy, 60% validation accuracy</td><td>Overfitting — check regularization &amp; more data</td></tr>
           <tr><td>99% accuracy on a 1%-positive-class dataset</td><td>Suspect the model is just predicting the majority class</td></tr>
         </table>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🔁 Python ↔ SQL Quick Reference</h4>
+        <div style="max-height: 480px; overflow-y: auto;">
+        <table>
+          <tr><th>#</th><th>Requirement</th><th>Python (pandas)</th><th>SQL</th></tr>
+          <tr><td>1</td><td>Select all rows</td><td><code>df</code></td><td><code>select * from table</code></td></tr>
+          <tr><td>2</td><td>Select specific columns</td><td><code>df[['col1','col2']]</code></td><td><code>select col1, col2 from table</code></td></tr>
+          <tr><td>3</td><td>Filter rows based on a condition</td><td><code>df[df['col1'] &gt; 5]</code></td><td><code>select * from table where col1 &gt; 5</code></td></tr>
+          <tr><td>4</td><td>Filter rows on multiple conditions</td><td><code>df[(df['col1'] &gt; 5) &amp; (df['col2'] &lt; 10)]</code></td><td><code>select * from table where col1 &gt; 5 and col2 &lt; 10</code></td></tr>
+          <tr><td>5</td><td>Group by a column and count</td><td><code>df.groupby('col1').size()</code></td><td><code>select col1, count(*) from table group by col1</code></td></tr>
+          <tr><td>6</td><td>Group by a column, sum another</td><td><code>df.groupby('col1')['col2'].sum()</code></td><td><code>select col1, sum(col2) from table group by col1</code></td></tr>
+          <tr><td>7</td><td>Order by a column</td><td><code>df.sort_values(by='col1')</code></td><td><code>select * from table order by col1</code></td></tr>
+          <tr><td>8</td><td>Order by a column, descending</td><td><code>df.sort_values(by='col1', ascending=False)</code></td><td><code>select * from table order by col1 desc</code></td></tr>
+          <tr><td>9</td><td>Join two tables</td><td><code>pd.merge(df1, df2, on='id')</code></td><td><code>select * from t1 join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>10</td><td>Left join two tables</td><td><code>pd.merge(df1, df2, on='id', how='left')</code></td><td><code>select * from t1 left join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>11</td><td>Right join two tables</td><td><code>pd.merge(df1, df2, on='id', how='right')</code></td><td><code>select * from t1 right join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>12</td><td>Full outer join two tables</td><td><code>pd.merge(df1, df2, on='id', how='outer')</code></td><td><code>select * from t1 full outer join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>13</td><td>Average of a column</td><td><code>df['col1'].mean()</code></td><td><code>select avg(col1) from table</code></td></tr>
+          <tr><td>14</td><td>Sum of a column</td><td><code>df['col1'].sum()</code></td><td><code>select sum(col1) from table</code></td></tr>
+          <tr><td>15</td><td>Maximum of a column</td><td><code>df['col1'].max()</code></td><td><code>select max(col1) from table</code></td></tr>
+          <tr><td>16</td><td>Minimum of a column</td><td><code>df['col1'].min()</code></td><td><code>select min(col1) from table</code></td></tr>
+          <tr><td>17</td><td>Count distinct values in a column</td><td><code>df['col1'].nunique()</code></td><td><code>select count(distinct col1) from table</code></td></tr>
+          <tr><td>18</td><td>Rename a column</td><td><code>df = df.rename(columns={'old_name':'new_name'})</code></td><td><code>alter table t1 rename column old_name to new_name</code></td></tr>
+          <tr><td>19</td><td>Add a new column</td><td><code>df['col3'] = value</code></td><td><code>alter table t1 add column col3 int</code></td></tr>
+          <tr><td>20</td><td>Drop a column</td><td><code>df = df.drop(columns=['col1'])</code></td><td><code>alter table t1 drop column col1</code></td></tr>
+          <tr><td>21</td><td>CASE — value based on a condition</td><td><code>np.where(df['col1'] &gt; 30, 'Y', 'No')</code></td><td><code>select col1, case when col1 &gt; 30 then 'Y' else 'No' end from t1</code></td></tr>
+          <tr><td>22</td><td>COALESCE — first non-null value</td><td><code>df['address'].fillna('No Address')</code></td><td><code>select coalesce(address, 'No Address') from employees</code></td></tr>
+          <tr><td>23</td><td>NULLIF — NULL if two values are equal</td><td><code>df['col1'].replace(0, np.nan)</code></td><td><code>select nullif(col1, 0) from t1</code></td></tr>
+          <tr><td>24</td><td>CAST — convert one data type to another</td><td><code>df['col1'].astype(str)</code></td><td><code>select cast(col1 as varchar) from t1</code></td></tr>
+        </table>
+        </div>
       </div>
 
     </div>
@@ -1169,6 +1217,272 @@ const FLASHCARDS = [
   { cat: "fundamentals", q: "Why use a context manager (with open(...) as f:) over manual open/close?", a: "It guarantees the file is closed even if an exception occurs — manual close() gets skipped if an error happens first." },
   { cat: "fundamentals", q: "What's the difference between a function (def) and a lambda?", a: "A def function is named, reusable, can hold multiple statements, a docstring, and complex logic. A lambda is an anonymous, single-expression function with no statements — good for short, throwaway logic passed inline, e.g. sorted(data, key=lambda x: x['age'])." },
   { cat: "fundamentals", q: "Why can't plain Python lists handle large-scale data analysis well?", a: "Lists store each element as a separate, untyped Python object with per-object overhead, and operations require explicit Python-level loops (slow, no vectorization). Tools like NumPy arrays/pandas store data in contiguous, homogeneously-typed memory and run operations in vectorized C code — far faster and more memory-efficient at scale." },
+  { cat: "fundamentals", q: "Explain the difference between apply(), map(), and vectorization in Pandas.", a: `<code>map()</code> works element-wise on a single Series. <code>apply()</code> is more flexible (can work row/column-wise across a DataFrame) but still loops in Python under the hood. Vectorized operations use pandas/NumPy's built-in C-level implementation across the whole array at once — no explicit loop at all.
+<pre>\# map() -- Series only, element-wise lookup/replace
+df["status_label"] = df["status_code"].map({1: "active", 0: "inactive"})
+
+\# apply() -- flexible, can go row-wise across columns, but loops in Python
+df["full_name"] = df.apply(lambda r: f"{r['first']} {r['last']}", axis=1)
+
+\# Vectorized -- fastest, no explicit loop at all
+df["total"] = df["price"] * df["quantity"]</pre>
+<div class="fb-explain">Rule of thumb: reach for a vectorized expression first, use <code>map()</code> for simple Series-level lookups, and only reach for <code>apply()</code> when the logic genuinely can't be vectorized (e.g. complex row-wise conditionals) — it's the slowest of the three for large data since it still runs a Python-level loop per row.</div>` },
+  { cat: "fundamentals", q: "How would you read a large CSV file in Python efficiently?", a: `<pre>import pandas as pd
+
+\# 1. Only read needed columns, use smaller dtypes to cut memory use
+df = pd.read_csv(
+    "large_file.csv",
+    usecols=["order_id", "customer_id", "amount"],
+    dtype={"order_id": "int32", "amount": "float32"}
+)
+
+\# 2. If it still doesn't fit in memory, process in chunks
+total = 0
+for chunk in pd.read_csv("large_file.csv", chunksize=100_000):
+    total += chunk["amount"].sum()
+print(total)</pre>
+<div class="fb-explain"><code>usecols</code>/<code>dtype</code> reduce the memory footprint by loading only what's needed, in smaller types. <code>chunksize</code> processes the file in batches instead of loading it all at once — the key technique for files bigger than available RAM.</div>` },
+
+  { cat: "fundamentals", q: "What's the best way to structure a function?", a: `One job, a descriptive name, type hints, a docstring, input validation, and a clear return value instead of relying on side effects.
+<pre>def calculate_discount(price: float, discount_pct: float) -&gt; float:
+    """Return the price after applying a percentage discount."""
+    if not 0 &lt;= discount_pct &lt;= 100:
+        raise ValueError("discount_pct must be between 0 and 100")
+    return price * (1 - discount_pct / 100)</pre>
+<div class="fb-explain">Small, single-purpose, independently testable functions are easier to reuse, debug, and reason about than one long function doing five things.</div>` },
+  { cat: "fundamentals", q: "What advantage does a NumPy array have over a nested list?", a: `A NumPy array stores elements in one contiguous, typed memory block and runs operations in vectorized C code; a nested list is separate Python list objects requiring explicit loops for any math.
+<pre>import numpy as np
+
+nested = [[1, 2, 3], [4, 5, 6]]
+arr = np.array(nested)
+
+\# Nested list: manual loop required
+doubled_nested = [[x * 2 for x in row] for row in nested]
+
+\# NumPy: vectorized, single C-level operation, no explicit loop
+doubled_arr = arr * 2</pre>
+<div class="fb-explain">Same result, but the NumPy version is dramatically faster and more memory-efficient at scale, and supports slicing/broadcasting nested lists don't.</div>` },
+  { cat: "fundamentals", q: "What does the 'is' operator do?", a: `Compares object identity (are these the exact same object in memory), not value equality. Use == for values; reserve is for identity checks like x is None.
+<pre>a = [1, 2, 3]
+b = [1, 2, 3]
+c = a
+
+print(a == b)  \# True  -- same values
+print(a is b)  \# False -- different objects in memory
+print(a is c)  \# True  -- c points to the same object as a</pre>` },
+  { cat: "fundamentals", q: "What is the purpose of the pass statement?", a: `A no-op placeholder used where Python syntax requires a statement but no action is needed yet -- commonly for stubbing out a function or class during development.
+<pre>def not_implemented_yet():
+    pass  \# TODO: implement later
+
+class Placeholder:
+    pass</pre>` },
+  { cat: "fundamentals", q: "How will you check if all the characters in a string are alphanumeric?", a: `Use <code>str.isalnum()</code>.
+<pre>"Python3".isalnum()    \# True
+"Python 3".isalnum()   \# False -- space is not alphanumeric</pre>` },
+  { cat: "fundamentals", q: "How will you merge elements in a sequence?", a: `Use <code>str.join()</code> to combine a sequence of strings into one string with a chosen separator.
+<pre>words = ["Data", "Engineer", "Prep"]
+merged = " ".join(words)
+print(merged)  \# "Data Engineer Prep"</pre>` },
+  { cat: "fundamentals", q: "How would you remove all leading whitespace in a string?", a: `Use <code>str.lstrip()</code>.
+<pre>"   hello world".lstrip()   \# "hello world"</pre>
+<div class="fb-explain">Use <code>.rstrip()</code> for trailing whitespace only, or <code>.strip()</code> to remove both leading and trailing.</div>` },
+  { cat: "fundamentals", q: "How would you replace all occurrences of a substring with a new string?", a: `Use <code>str.replace(old, new)</code>.
+<pre>"data data data".replace("data", "info")   \# "info info info"</pre>` },
+  { cat: "fundamentals", q: "What is the difference between del and remove() on lists?", a: `<code>del</code> removes an item by index (or deletes the variable entirely); <code>.remove()</code> removes the first item matching a given value.
+<pre>nums = [10, 20, 30, 20]
+del nums[1]        \# removes by index -&gt; [10, 30, 20]
+nums.remove(20)     \# removes first matching value -&gt; [10, 30]</pre>` },
+  { cat: "fundamentals", q: "How do you display the contents of a text file in reverse order?", a: `Read all lines into a list, then iterate over <code>reversed()</code>.
+<pre>with open("file.txt") as f:
+    lines = f.readlines()
+
+for line in reversed(lines):
+    print(line.rstrip())</pre>` },
+  { cat: "fundamentals", q: "Differentiate between append() and extend().", a: `<code>.append(x)</code> adds <code>x</code> as a single new element, even if it's itself a list. <code>.extend(iterable)</code> adds each element of the iterable individually.
+<pre>a = [1, 2]
+a.append([3, 4])    \# [1, 2, [3, 4]]
+
+b = [1, 2]
+b.extend([3, 4])    \# [1, 2, 3, 4]</pre>` },
+  { cat: "fundamentals", q: "What is a docstring in Python?", a: `A string literal as the first statement inside a function, class, or module, documenting its purpose -- accessible via <code>.__doc__</code> or <code>help()</code>.
+<pre>def add(a, b):
+    """Return the sum of a and b."""
+    return a + b
+
+print(add.__doc__)   \# "Return the sum of a and b."</pre>` },
+  { cat: "fundamentals", q: "How do you use print() without the newline?", a: `Pass <code>end=""</code> (or any other string) to override print's default trailing newline.
+<pre>print("Hello", end="")
+print(" World")
+\# Output: Hello World</pre>` },
+  { cat: "fundamentals", q: "How do you use the split() function in Python?", a: `<code>str.split(sep)</code> splits a string into a list of substrings on a delimiter -- default (no argument) splits on any whitespace.
+<pre>"a,b,c".split(",")        \# ['a', 'b', 'c']
+"one two  three".split()  \# ['one', 'two', 'three']</pre>` },
+  { cat: "fundamentals", q: "Is Python object-oriented or functional programming?", a: "Python is multi-paradigm — it fully supports object-oriented programming (classes, inheritance, encapsulation) and also supports functional-style features (first-class functions, lambda, map/filter/reduce), without forcing either style exclusively." },
+  { cat: "fundamentals", q: "\"In Python, functions are first-class objects.\" What do you infer from this?", a: `Functions can be assigned to variables, passed as arguments, returned from other functions, and stored in data structures -- just like any other value.
+<pre>def greet(name):
+    return f"Hello, {name}"
+
+say_hi = greet            \# assign to a variable
+functions = [greet]        \# store in a list
+
+def apply(func, value):
+    return func(value)     \# pass as an argument
+
+print(apply(greet, "Laxmi"))</pre>` },
+  { cat: "fundamentals", q: "How do you get indices of N maximum values in a NumPy array?", a: `Use <code>np.argpartition</code> (fast, unordered) or <code>np.argsort</code> (fully sorted, slightly slower).
+<pre>import numpy as np
+
+arr = np.array([4, 2, 9, 1, 7, 5])
+n = 3
+
+top_n_idx = np.argpartition(arr, -n)[-n:]
+print(top_n_idx, arr[top_n_idx])</pre>
+<div class="fb-explain"><code>argpartition</code> only guarantees the top N are in the last N positions (unordered) — cheaper than a full sort when you don't need them ranked.</div>` },
+  { cat: "fundamentals", q: "You've uploaded a dataset as CSV on Google Spreadsheet and shared it publicly. How can you access this in Python?", a: `Publish the sheet as CSV (File → Share → Publish to web → CSV) or build the export URL directly, then read it straight into pandas — no auth needed for a publicly shared sheet.
+<pre>import pandas as pd
+
+sheet_id = "YOUR_SHEET_ID"
+url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+df = pd.read_csv(url)</pre>` },
+  { cat: "fundamentals", q: "How can you copy objects in Python?", a: `Shallow copy (<code>copy.copy()</code>, <code>list(x)</code>, <code>x[:]</code>) copies one level deep — nested objects are still shared. Deep copy (<code>copy.deepcopy()</code>) recursively copies everything, so nested structures become fully independent.
+<pre>import copy
+
+original = [[1, 2], [3, 4]]
+
+shallow = copy.copy(original)
+deep = copy.deepcopy(original)
+
+original[0].append(99)
+print(shallow)   \# [[1, 2, 99], [3, 4]]  -- nested list still shared
+print(deep)       \# [[1, 2], [3, 4]]       -- fully independent</pre>` },
+  { cat: "fundamentals", q: "How would you reset the index of a DataFrame to a given list?", a: `Assign directly to <code>df.index</code> — <code>reset_index()</code> only resets to the default 0..n-1 integer index, it can't take an arbitrary list.
+<pre>import pandas as pd
+
+df = pd.DataFrame({"a": [1, 2, 3]})
+df.index = ["x", "y", "z"]
+print(df)</pre>` },
+  { cat: "fundamentals", q: "What is the difference between range() and xrange() in Python?", a: `<code>xrange()</code> existed only in Python 2 and was lazy (computed values on demand, memory-efficient for large ranges); Python 2's <code>range()</code> built the full list in memory upfront. In Python 3, <code>range()</code> itself is lazy — <code>xrange()</code> no longer exists at all.
+<pre>\# Python 3
+r = range(1_000_000)    \# lazy, doesn't build a list in memory
+print(type(r))            \# &lt;class 'range'&gt;
+print(list(r)[:5])         \# [0, 1, 2, 3, 4]</pre>` },
+  { cat: "fundamentals", q: "How can you check whether a Pandas DataFrame is empty or not?", a: `Use <code>df.empty</code>.
+<pre>import pandas as pd
+
+df = pd.DataFrame()
+print(df.empty)   \# True</pre>` },
+  { cat: "fundamentals", q: "How do you create a Series from a list, NumPy array, and dictionary?", a: `<pre>import pandas as pd
+import numpy as np
+
+s1 = pd.Series([1, 2, 3])                    \# from a list
+s2 = pd.Series(np.array([1, 2, 3]))           \# from a NumPy array
+s3 = pd.Series({"a": 1, "b": 2, "c": 3})      \# from a dict -- keys become the index</pre>` },
+  { cat: "fundamentals", q: "How do you get the items not common to both Series A and Series B?", a: `Combine the union minus the intersection — pandas has no single built-in "symmetric difference," so build it from <code>np.union1d</code>/<code>np.intersect1d</code>.
+<pre>import pandas as pd
+import numpy as np
+
+a = pd.Series([1, 2, 3, 4, 5])
+b = pd.Series([3, 4, 5, 6, 7])
+
+union = pd.Series(np.union1d(a, b))
+intersect = pd.Series(np.intersect1d(a, b))
+not_common = union[~union.isin(intersect)]
+print(not_common.tolist())   \# [1, 2, 6, 7]</pre>` },
+  { cat: "fundamentals", q: "How do you find the positions of numbers that are multiples of three from a Series?", a: `<pre>import pandas as pd
+
+s = pd.Series([1, 3, 6, 8, 9, 12, 14])
+positions = s[s % 3 == 0].index.tolist()
+print(positions)   \# [1, 2, 4, 5]</pre>` },
+  { cat: "fundamentals", q: "How do you reverse the rows of a DataFrame?", a: `<pre>df_reversed = df.iloc[::-1].reset_index(drop=True)</pre>
+<div class="fb-explain"><code>iloc[::-1]</code> reverses row order via slicing; <code>reset_index(drop=True)</code> gives the reversed frame a clean 0..n-1 index instead of keeping the original (now-reversed) index values.</div>` },
+  { cat: "fundamentals", q: "What are the important features of Python?", a: `<ul style="margin:6px 0 0 18px; padding:0;"><li>Clean, readable syntax</li><li>Interpreted — no separate compile step</li><li>Dynamically typed</li><li>Extensive standard library + huge third-party ecosystem</li><li>Multi-paradigm — supports both OOP and functional styles</li><li>Cross-platform</li><li>Automatic memory management (garbage collected)</li></ul>` },
+  { cat: "fundamentals", q: "Why use else in a try/except construct?", a: `The <code>else</code> block runs only if the <code>try</code> block completes without raising an exception — keeping "success path" code separate from the <code>try</code> block so it's never accidentally caught by <code>except</code>.
+<pre>try:
+    result = 10 / 2
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+else:
+    print(f"Success: {result}")   \# only runs if no exception occurred</pre>` },
+  { cat: "fundamentals", q: "Given lst = [2, 33, 222, 14, 25], how would you subtract 1 from each element?", a: `<pre>lst = [2, 33, 222, 14, 25]
+result = [x - 1 for x in lst]
+print(result)   \# [1, 32, 221, 13, 24]</pre>` },
+  { cat: "fundamentals", q: "What are the benefits of Flask in web development?", a: "A lightweight (\"micro\") framework with minimal overhead and few imposed conventions — add only the pieces you need. That makes it easy to learn and fast to get a small API or model-serving endpoint running, with a large ecosystem of extensions for anything more complex." },
+  { cat: "fundamentals", q: "How would you print odd numbers between 0 and 100?", a: `<pre>for i in range(1, 100, 2):
+    print(i)</pre>
+<div class="fb-explain">Starting at 1 with a step of 2 hits every odd number up to 99 without needing an if-check inside the loop.</div>` },
+  { cat: "fundamentals", q: "Explain methods for modifying strings in Python (concatenation, slicing, replacing, case conversion).", a: `<pre>s1, s2 = "Data", "Engineer"
+
+concatenated = s1 + " " + s2                    \# "Data Engineer"
+sliced = concatenated[0:4]                        \# "Data"
+replaced = concatenated.replace("Data", "ML")      \# "ML Engineer"
+upper = concatenated.upper()                       \# "DATA ENGINEER"
+lower = concatenated.lower()                       \# "data engineer"</pre>
+<div class="fb-explain">Strings are immutable — every one of these returns a *new* string rather than modifying the original in place.</div>` },
+  { cat: "fundamentals", q: "Explain local and global variables in Python — how they differ, when to use each, with examples.", a: `A <strong>local</strong> variable is defined inside a function and only exists/is visible within it. A <strong>global</strong> variable is defined at module level and is visible everywhere, including inside functions (read-only by default — writing to it requires the <code>global</code> keyword).
+<pre>count = 0   \# global
+
+def increment():
+    global count      \# without this, count += 1 below raises an error
+    count += 1
+
+def local_example():
+    count = 100        \# a NEW local variable, doesn't touch the global one
+    return count
+
+increment()
+print(count)             \# 1
+print(local_example())   \# 100
+print(count)              \# still 1 -- untouched by local_example</pre>
+<div class="fb-explain">Prefer locals and function parameters/return values over globals wherever possible — globals make code harder to reason about since any function can silently change shared state.</div>` },
+  { cat: "fundamentals", q: "Explain how to create and use a chain of function decorators. Provide an example applying multiple decorators to one function.", a: `Decorators stack bottom-up: the one closest to the function runs first (wraps it first), and each subsequent decorator wraps the result of the one before it.
+<pre>import functools
+
+def bold(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return f"&lt;b&gt;{func(*args, **kwargs)}&lt;/b&gt;"
+    return wrapper
+
+def italic(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return f"&lt;i&gt;{func(*args, **kwargs)}&lt;/i&gt;"
+    return wrapper
+
+@bold
+@italic
+def greet(name):
+    return f"Hello, {name}"
+
+print(greet("Laxmi"))
+\# &lt;b&gt;&lt;i&gt;Hello, Laxmi&lt;/i&gt;&lt;/b&gt;
+\# italic runs first (closest to the function), then bold wraps its result</pre>` },
+  { cat: "fundamentals", q: "Explain what Python modules are, common built-in modules, and how to import/use them.", a: `A module is just a <code>.py</code> file containing reusable functions, classes, and variables — <code>import</code> makes its contents available in another file without copy-pasting code.
+<pre>import math
+import json
+from datetime import datetime
+from collections import Counter
+
+print(math.sqrt(16))                        \# 4.0
+print(json.dumps({"a": 1}))                    \# '{"a": 1}'
+print(datetime.now().year)                     \# current year
+print(Counter(["a", "b", "a"]))                  \# Counter({'a': 2, 'b': 1})</pre>
+<div class="fb-explain">Common built-ins: <code>math</code> (numeric functions), <code>os</code>/<code>sys</code> (OS and interpreter access), <code>json</code> (serialization), <code>datetime</code> (dates/times), <code>collections</code> (specialized containers like <code>Counter</code>/<code>defaultdict</code>), <code>re</code> (regex). <code>import module</code> requires the <code>module.</code> prefix on every use; <code>from module import name</code> imports it directly into the current namespace.</div>` },
+  { cat: "fundamentals", q: "Explain case sensitivity in Python identifiers, with examples.", a: `Python is fully case-sensitive — <code>age</code>, <code>Age</code>, and <code>AGE</code> are three completely distinct names, for variables, functions, classes, and keywords alike.
+<pre>age = 25
+Age = 30
+AGE = 35
+
+print(age, Age, AGE)   \# 25 30 35 -- three separate variables
+
+def greet():
+    return "hello"
+
+def Greet():
+    return "HELLO"
+
+print(greet(), Greet())   \# hello HELLO -- two separate functions</pre>
+<div class="fb-explain">This also applies to keywords — <code>True</code> is valid, <code>true</code> is not (it's just an undefined name and raises <code>NameError</code>). A common source of bugs: inconsistent capitalization of the same intended variable (e.g. mixing <code>userName</code> and <code>username</code>) silently creates two different variables instead of one.</div>` },
 
   { cat: "eda", q: "What is EDA and why do it first?", a: "Investigating a dataset's structure, quality, and patterns before drawing conclusions — catches quality issues and informs cleaning/features before anything is built on top of it." },
   { cat: "eda", q: "When does mean vs. median matter most?", a: "For a skewed distribution, the mean is pulled by outliers while the median stays a more representative 'typical' value." },
@@ -1179,6 +1493,29 @@ const FLASHCARDS = [
   { cat: "eda", q: "What's the difference between MCAR, MAR, and MNAR?", a: "MCAR: missingness unrelated to any data. MAR: related to another observed variable. MNAR: related to the missing value itself." },
   { cat: "eda", q: "When use a box plot instead of a histogram?", a: "Box plots are better for comparing distributions across categories; histograms are better for one distribution's detailed shape." },
   { cat: "eda", q: "You find a pattern that seems to explain a business question — what next?", a: "Check robustness across subsets and rule out a data-quality explanation before reporting it as a genuine finding." },
+  { cat: "eda", q: "Write a Python script to find outliers in a dataset using the IQR method.", a: `<pre>import pandas as pd
+
+def find_outliers_iqr(df, column):
+    q1, q3 = df[column].quantile([0.25, 0.75])
+    iqr = q3 - q1
+    lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+    return df[(df[column] < lower) | (df[column] > upper)]
+
+outliers = find_outliers_iqr(df, "revenue")
+print(f"{len(outliers)} outliers out of {len(df)} rows")</pre>
+<div class="fb-explain">IQR = Q3 − Q1 (the middle 50% spread). Values falling outside Q1 − 1.5×IQR to Q3 + 1.5×IQR are flagged — the same rule a box plot's whiskers use. It's robust to non-normal distributions since it's based on quartiles, not the mean/standard deviation.</div>` },
+  { cat: "eda", q: "How do you set a line width in plt.plot([1,2,3,4])? (a) width=3 (b) line_width=3 (c) lw=3", a: `<strong>(c) — <code>lw=3</code></strong> (shorthand for <code>linewidth=3</code>)
+<pre>import matplotlib.pyplot as plt
+
+plt.plot([1, 2, 3, 4], lw=3)   \# or: linewidth=3
+plt.show()</pre>
+<div class="fb-explain">matplotlib's <code>Line2D</code> accepts <code>lw</code> as shorthand for <code>linewidth</code>; <code>width</code> and <code>line_width</code> aren't valid parameter names and raise a <code>TypeError</code>.</div>` },
+  { cat: "eda", q: "Which Python library is built on top of matplotlib and pandas to ease data plotting?", a: `<strong>Seaborn.</strong> It provides a higher-level, more concise API for statistical visualizations (distributions, categorical comparisons, correlation heatmaps) that would take much more matplotlib code to build manually.
+<pre>import seaborn as sns
+
+sns.histplot(df["revenue"], kde=True)
+sns.boxplot(data=df, x="region", y="revenue")
+sns.heatmap(df.corr(), annot=True)</pre>` },
 
   { cat: "preprocessing", q: "Difference between EDA and pre-processing?", a: "EDA is diagnostic (finds issues); pre-processing is corrective (fixes them) in a documented, repeatable way." },
   { cat: "preprocessing", q: "When drop rows with missing values vs. impute them?", a: "Drop when missing rate is very low or the field is essential and unrecoverable; impute when dropping would lose significant data and a reasonable estimate exists." },
@@ -1188,6 +1525,37 @@ const FLASHCARDS = [
   { cat: "preprocessing", q: "What does idempotent mean for a pre-processing step, and why does it matter?", a: "Running it twice on the same input gives the same output — important for pipelines that might retry or rerun." },
   { cat: "preprocessing", q: "How decide whether to cap, remove, or keep an outlier?", a: "Determine if it's a data error (fix/remove) or a genuine extreme case (often keep or cap, since it may carry real signal)." },
   { cat: "preprocessing", q: "Why standardize categorical text before analysis?", a: "Without it, 'California', 'california ', and 'CALIFORNIA' are treated as three distinct categories, fragmenting counts." },
+  { cat: "preprocessing", q: "Given a dataset, how would you detect and handle missing values?", a: `Detect first with <code>isnull()</code>, then decide per column — don't blanket-drop.
+<pre>import pandas as pd
+
+\# Detect
+missing_pct = df.isnull().mean() * 100
+print(missing_pct[missing_pct > 0])
+
+\# Handle -- decide per column, don't blanket-drop
+df["age"] = df["age"].fillna(df["age"].median())   \# numeric: median
+df["city"] = df["city"].fillna("unknown")            \# categorical: placeholder
+df = df.dropna(subset=["customer_id"])                \# can't proceed without key</pre>
+<div class="fb-explain">Numeric columns typically get a median fill (robust to outliers); categorical columns get an explicit placeholder rather than a silent drop; rows missing a required key usually get dropped since there's nothing reasonable to impute.</div>` },
+  { cat: "preprocessing", q: "How do you merge two Pandas DataFrames on multiple columns?", a: `Pass a list of column names to <code>on</code> (or <code>left_on</code>/<code>right_on</code> if names differ between frames).
+<pre>import pandas as pd
+
+merged = pd.merge(
+    orders_df, customers_df,
+    on=["customer_id", "region"],   \# match on multiple columns
+    how="left"                       \# keep all orders, even without a match
+)
+
+print(merged.shape)
+print(merged["customer_id"].isnull().sum())  \# rows with no match</pre>
+<div class="fb-explain">A list passed to <code>on</code> requires an exact match across every listed column in both frames. Use <code>left_on=[...]</code>/<code>right_on=[...]</code> when the join columns have different names, and always check <code>how=</code> — "left" keeps every row from the left table even without a match, "inner" drops unmatched rows entirely.</div>` },
+  { cat: "preprocessing", q: "You get an error reading \"temp.csv\" with pandas. Which fixes it — compression='gzip', dialect='str', or encoding='utf-8'?", a: `<strong>encoding='utf-8'</strong> (or the file's actual encoding, e.g. 'latin1'). A read error on a CSV is very often a character-encoding mismatch — the file isn't plain ASCII/UTF-8 as pandas assumes by default.
+<pre>import pandas as pd
+
+df = pd.read_csv("temp.csv", encoding="utf-8")
+\# if that still fails, the file may use a different encoding:
+df = pd.read_csv("temp.csv", encoding="latin1")</pre>
+<div class="fb-explain"><code>compression='gzip'</code> is for reading compressed files (wrong problem here), and <code>dialect='str'</code> isn't a valid pandas parameter at all.</div>` },
 
   { cat: "feature-engineering", q: "What is feature engineering vs. pre-processing?", a: "Pre-processing cleans existing data; feature engineering creates new variables from that cleaned data to better capture patterns." },
   { cat: "feature-engineering", q: "What is feature leakage and why dangerous?", a: "Using info not actually available at prediction time — makes a model look accurate in development while being useless or wrong once deployed." },
@@ -1214,7 +1582,38 @@ const FLASHCARDS = [
   { cat: "ml-modeling", q: "What does regularization (L1/L2) do?", a: "Adds a penalty for model complexity/large coefficients, discouraging the model from fitting noise in the training data." },
   { cat: "ml-modeling", q: "When would you choose precision over recall as the primary metric?", a: "When false positives are more costly than false negatives — e.g. a spam filter, where wrongly flagging real email is worse than missing some spam." },
   { cat: "ml-modeling", q: "What's a common cause of data leakage during cross-validation?", a: "Fitting a transformation (scaling, imputation) on the full dataset before splitting into folds, instead of fitting it fresh within each fold." },
-  { cat: "ml-modeling", q: "Why start with a simple baseline model before a complex one?", a: "It sets a performance floor and sanity-checks the pipeline — if a complex model barely beats a simple baseline, the complexity may not be worth it." }
+  { cat: "ml-modeling", q: "Why start with a simple baseline model before a complex one?", a: "It sets a performance floor and sanity-checks the pipeline — if a complex model barely beats a simple baseline, the complexity may not be worth it." },
+  { cat: "ml-modeling", q: "How would you import a Decision Tree Classifier in sklearn? (a) sklearn.decision_tree (b) sklearn.ensemble (c) sklearn.tree", a: `<strong>(c) — <code>from sklearn.tree import DecisionTreeClassifier</code></strong>
+<pre>from sklearn.tree import DecisionTreeClassifier
+
+model = DecisionTreeClassifier(max_depth=5, random_state=42)
+model.fit(X_train, y_train)</pre>
+<div class="fb-explain"><code>sklearn.ensemble</code> is for ensemble methods like RandomForest/GradientBoosting, not the single Decision Tree itself; <code>sklearn.decision_tree</code> isn't a real module.</div>` },
+  { cat: "ml-modeling", q: "train_set = np.array([1,2,3]); test_set = np.array([[0,1,2],[1,2,3]]). How do you get res_set = [[1,2,3],[0,1,2],[1,2,3]]?", a: `Use <code>np.vstack()</code> to stack the arrays row-wise — <code>train_set</code> becomes the first row, followed by <code>test_set</code>'s rows.
+<pre>import numpy as np
+
+train_set = np.array([1, 2, 3])
+test_set = np.array([[0, 1, 2], [1, 2, 3]])
+
+res_set = np.vstack((train_set, test_set))
+print(res_set)
+\# [[1 2 3]
+\#  [0 1 2]
+\#  [1 2 3]]</pre>
+<div class="fb-explain"><code>vstack</code> requires each row to have the same number of columns — here train_set (shape (3,)) is treated as one row of 3, matching test_set's row width.</div>` },
+  { cat: "ml-modeling", q: "How do you compute the Euclidean distance between two Series p and q?", a: `Take the square root of the sum of squared differences — <code>np.sqrt(((p - q) ** 2).sum())</code>, or use <code>np.linalg.norm()</code> directly.
+<pre>import pandas as pd
+import numpy as np
+
+p = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+q = pd.Series([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+
+euclidean_dist = np.sqrt(((p - q) ** 2).sum())
+\# equivalently:
+euclidean_dist = np.linalg.norm(p - q)
+print(euclidean_dist)</pre>
+<div class="fb-explain">This is the same distance metric behind k-NN and k-means — smaller values mean the two vectors are more similar. It only makes sense when features are on comparable scales (see Feature Engineering's note on scaling).</div>` },
+  { cat: "ml-modeling", q: "If you split your data into train/test sets, is it still possible to overfit your model?", a: "Yes — a train/test split only measures overfitting, it doesn't prevent it. If you repeatedly tune hyperparameters based on test-set performance, you effectively leak test-set information back into your modeling choices. That's why hyperparameter tuning uses a separate validation set or cross-validation, keeping the test set touched only once, at the very end, for a final unbiased estimate." }
 ];
 
 const QUIZ = [
@@ -1412,8 +1811,9 @@ function renderFlashcards() {
   const cards = FLASHCARDS.filter(c => flashFilter === "all" || c.cat === flashFilter);
   cards.forEach(c => {
     const modTitle = MODULES.find(m => m.id === c.cat).title;
+    const hasCode = c.a.includes("<pre");
     const card = document.createElement("div");
-    card.className = "flash-card";
+    card.className = "flash-card" + (hasCode ? " has-code" : "");
     card.innerHTML = `
       <div class="flash-inner">
         <div class="flash-face flash-front">
