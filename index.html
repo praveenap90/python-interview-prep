@@ -458,6 +458,7 @@
     <div class="nav-links">
       <a href="#modules">Modules</a>
       <a href="#quiz">Practice Quiz</a>
+      <a href="#comparisons">Comparisons</a>
       <a href="#cheatsheet">Cheat Sheet</a>
       <a href="#flashcards">Flash Cards</a>
     </div>
@@ -502,6 +503,256 @@
     <p class="lead">15 questions across all 5 modules. Filter by category and track your score as you go.</p>
     <div class="quiz-filters" id="quiz-filters"></div>
     <div class="quiz-box" id="quiz-box"></div>
+  </div>
+</section>
+
+<section id="comparisons">
+  <div class="wrap">
+    <p class="section-label">▸ side-by-side</p>
+    <h2>Comparison Tables</h2>
+    <p class="lead">"What's the difference between X and Y?" is one of the most common interview question shapes — these lay the options out side by side so the distinctions are easy to scan and remember.</p>
+    <div class="cheat-grid" id="comparisons-grid">
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🗂️ List vs. Tuple vs. Dictionary vs. Set</h4>
+        <div style="max-height: 480px; overflow-y: auto;">
+        <table>
+          <tr><th>Feature</th><th>List</th><th>Tuple</th><th>Dictionary</th><th>Set</th></tr>
+          <tr><td>Definition</td><td>Ordered, changeable collection</td><td>Ordered, unchangeable collection</td><td>Key-value pairs</td><td>Unordered collection of unique elements</td></tr>
+          <tr><td>Syntax</td><td><code>[]</code></td><td><code>()</code></td><td><code>{key: value}</code></td><td><code>{value}</code></td></tr>
+          <tr><td>Example</td><td><code>numbers = [10, 20, 30]</code></td><td><code>numbers = (10, 20, 30)</code></td><td><code>student = {"name": "John", "age": 25}</code></td><td><code>colors = {"red", "blue", "green"}</code></td></tr>
+          <tr><td>Stores</td><td>Individual values</td><td>Individual values</td><td>Key-value pairs</td><td>Individual unique values</td></tr>
+          <tr><td>Ordered?</td><td>✅ Yes (insertion order)</td><td>✅ Yes (insertion order)</td><td>✅ Yes (Python 3.7+)</td><td>❌ No guaranteed order</td></tr>
+          <tr><td>Mutable?</td><td>✅ Yes</td><td>❌ No</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+          <tr><td>Allows duplicates?</td><td>✅ Yes</td><td>✅ Yes</td><td>❌ Keys must be unique</td><td>❌ No</td></tr>
+          <tr><td>Mixed data types?</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes (keys &amp; values)</td><td>✅ Yes</td></tr>
+          <tr><td>Access method</td><td>Index</td><td>Index</td><td>Key</td><td>Membership check</td></tr>
+          <tr><td>Access example</td><td><code>list[0]</code></td><td><code>tuple[0]</code></td><td><code>dict["name"]</code></td><td><code>value in set</code></td></tr>
+          <tr><td>Can be nested?</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+          <tr><td>Lookup performance</td><td>Slow: O(n)</td><td>Slow: O(n)</td><td>Fast: O(1) avg</td><td>Fast: O(1) avg</td></tr>
+          <tr><td>Memory usage</td><td>Higher than tuple</td><td>Lower than list</td><td>Higher (key storage)</td><td>Higher than list for small collections</td></tr>
+          <tr><td>Best used when</td><td>Collection needs to change</td><td>Data should stay constant</td><td>You need relationships between data</td><td>You need uniqueness &amp; fast membership checks</td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🔗 Set Operations: union, intersection, difference, symmetric_difference</h4>
+        <div style="max-height: 380px; overflow-y: auto;">
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">Using <code>a = {1,2,3}</code> and <code>b = {2,3,4}</code> throughout.</p>
+        <table>
+          <tr><th>Operation</th><th>Method</th><th>Operator</th><th>Returns</th><th>Modifies original?</th><th>Result</th></tr>
+          <tr><td>Union</td><td><code>a.union(b)</code></td><td><code>a | b</code></td><td>Elements in <em>either</em> set</td><td>No — new set</td><td><code>{1,2,3,4}</code></td></tr>
+          <tr><td>Intersection</td><td><code>a.intersection(b)</code></td><td><code>a &amp; b</code></td><td>Elements in <em>both</em> sets</td><td>No — new set</td><td><code>{2,3}</code></td></tr>
+          <tr><td>Intersection update</td><td><code>a.intersection_update(b)</code></td><td><code>a &amp;= b</code></td><td>Elements in both, rewrites <code>a</code> in place</td><td>✅ Yes</td><td><code>a</code> becomes <code>{2,3}</code></td></tr>
+          <tr><td>Difference</td><td><code>a.difference(b)</code></td><td><code>a - b</code></td><td>Elements in <code>a</code> but not <code>b</code></td><td>No — new set</td><td><code>{1}</code></td></tr>
+          <tr><td>Symmetric difference</td><td><code>a.symmetric_difference(b)</code></td><td><code>a ^ b</code></td><td>Elements in exactly one of the two sets</td><td>No — new set</td><td><code>{1,4}</code></td></tr>
+        </table>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">Everything except <code>intersection_update()</code> (and its siblings <code>update()</code>, <code>difference_update()</code>, <code>symmetric_difference_update()</code>) returns a brand-new set and leaves the originals untouched — the <code>_update</code> variants are the in-place versions, mutating the left-hand set instead of returning a new one.</div>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🔁 Python ↔ SQL Quick Reference</h4>
+        <div style="max-height: 480px; overflow-y: auto;">
+        <table>
+          <tr><th>#</th><th>Requirement</th><th>Python (pandas)</th><th>SQL</th></tr>
+          <tr><td>1</td><td>Select all rows</td><td><code>df</code></td><td><code>select * from table</code></td></tr>
+          <tr><td>2</td><td>Select specific columns</td><td><code>df[['col1','col2']]</code></td><td><code>select col1, col2 from table</code></td></tr>
+          <tr><td>3</td><td>Filter rows based on a condition</td><td><code>df[df['col1'] &gt; 5]</code></td><td><code>select * from table where col1 &gt; 5</code></td></tr>
+          <tr><td>4</td><td>Filter rows on multiple conditions</td><td><code>df[(df['col1'] &gt; 5) &amp; (df['col2'] &lt; 10)]</code></td><td><code>select * from table where col1 &gt; 5 and col2 &lt; 10</code></td></tr>
+          <tr><td>5</td><td>Group by a column and count</td><td><code>df.groupby('col1').size()</code></td><td><code>select col1, count(*) from table group by col1</code></td></tr>
+          <tr><td>6</td><td>Group by a column, sum another</td><td><code>df.groupby('col1')['col2'].sum()</code></td><td><code>select col1, sum(col2) from table group by col1</code></td></tr>
+          <tr><td>7</td><td>Order by a column</td><td><code>df.sort_values(by='col1')</code></td><td><code>select * from table order by col1</code></td></tr>
+          <tr><td>8</td><td>Order by a column, descending</td><td><code>df.sort_values(by='col1', ascending=False)</code></td><td><code>select * from table order by col1 desc</code></td></tr>
+          <tr><td>9</td><td>Join two tables</td><td><code>pd.merge(df1, df2, on='id')</code></td><td><code>select * from t1 join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>10</td><td>Left join two tables</td><td><code>pd.merge(df1, df2, on='id', how='left')</code></td><td><code>select * from t1 left join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>11</td><td>Right join two tables</td><td><code>pd.merge(df1, df2, on='id', how='right')</code></td><td><code>select * from t1 right join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>12</td><td>Full outer join two tables</td><td><code>pd.merge(df1, df2, on='id', how='outer')</code></td><td><code>select * from t1 full outer join t2 on t1.id = t2.id</code></td></tr>
+          <tr><td>13</td><td>Average of a column</td><td><code>df['col1'].mean()</code></td><td><code>select avg(col1) from table</code></td></tr>
+          <tr><td>14</td><td>Sum of a column</td><td><code>df['col1'].sum()</code></td><td><code>select sum(col1) from table</code></td></tr>
+          <tr><td>15</td><td>Maximum of a column</td><td><code>df['col1'].max()</code></td><td><code>select max(col1) from table</code></td></tr>
+          <tr><td>16</td><td>Minimum of a column</td><td><code>df['col1'].min()</code></td><td><code>select min(col1) from table</code></td></tr>
+          <tr><td>17</td><td>Count distinct values in a column</td><td><code>df['col1'].nunique()</code></td><td><code>select count(distinct col1) from table</code></td></tr>
+          <tr><td>18</td><td>Rename a column</td><td><code>df = df.rename(columns={'old_name':'new_name'})</code></td><td><code>alter table t1 rename column old_name to new_name</code></td></tr>
+          <tr><td>19</td><td>Add a new column</td><td><code>df['col3'] = value</code></td><td><code>alter table t1 add column col3 int</code></td></tr>
+          <tr><td>20</td><td>Drop a column</td><td><code>df = df.drop(columns=['col1'])</code></td><td><code>alter table t1 drop column col1</code></td></tr>
+          <tr><td>21</td><td>CASE — value based on a condition</td><td><code>np.where(df['col1'] &gt; 30, 'Y', 'No')</code></td><td><code>select col1, case when col1 &gt; 30 then 'Y' else 'No' end from t1</code></td></tr>
+          <tr><td>22</td><td>COALESCE — first non-null value</td><td><code>df['address'].fillna('No Address')</code></td><td><code>select coalesce(address, 'No Address') from employees</code></td></tr>
+          <tr><td>23</td><td>NULLIF — NULL if two values are equal</td><td><code>df['col1'].replace(0, np.nan)</code></td><td><code>select nullif(col1, 0) from t1</code></td></tr>
+          <tr><td>24</td><td>CAST — convert one data type to another</td><td><code>df['col1'].astype(str)</code></td><td><code>select cast(col1 as varchar) from t1</code></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🐼 Pandas Filtering Quick Reference</h4>
+        <div style="max-height: 380px; overflow-y: auto;">
+        <table>
+          <tr><th>Need</th><th>Syntax</th></tr>
+          <tr><td>Single value, by position / label</td><td><code>df.iat[0,1]</code> / <code>df.at[0,'col']</code> (fastest)</td></tr>
+          <tr><td>Position slice (end-exclusive)</td><td><code>df.iloc[0:3, 0:2]</code></td></tr>
+          <tr><td>Label slice (end-inclusive) / boolean mask</td><td><code>df.loc[0:3, ['A','B']]</code> / <code>df.loc[df['col']&gt;10]</code></td></tr>
+          <tr><td>Multiple columns</td><td><code>df[['col1','col2']]</code> — double brackets</td></tr>
+          <tr><td>Multiple row conditions</td><td><code>df[(df['a']&gt;5) &amp; (df['b']&lt;10)]</code> — never <code>and</code>/<code>or</code></td></tr>
+          <tr><td>SQL-like filter</td><td><code>df.query("a &gt; 5 and b &lt; 10")</code></td></tr>
+          <tr><td>Value in a list</td><td><code>df[df['col'].isin([...])]</code> (<code>~</code> for NOT in)</td></tr>
+          <tr><td>Missing / present</td><td><code>df[df['col'].isna()]</code> / <code>.notna()</code></td></tr>
+          <tr><td>Text pattern (case-insensitive)</td><td><code>df[df['col'].str.contains('x', case=False)]</code></td></tr>
+          <tr><td>Date part</td><td><code>df[df['date'].dt.month == 3]</code></td></tr>
+          <tr><td>Date range</td><td><code>df[df['date'].between('2023-01-01','2023-12-31')]</code></td></tr>
+          <tr><td>Top / bottom N</td><td><code>df.nlargest(5,'col')</code> / <code>df.nsmallest(5,'col')</code></td></tr>
+          <tr><td>Numeric range</td><td><code>df['col'].between(50, 100)</code></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🐼 Pandas Filtering Deep Dive — Column, String, Date &amp; Numeric</h4>
+        <div style="max-height: 560px; overflow-y: auto;">
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;"><strong>Column filtering</strong> (which columns) — different from row filtering (which rows) above.</p>
+        <table>
+          <tr><th>Need</th><th>Syntax</th></tr>
+          <tr><td>Single column (as Series)</td><td><code>df['col']</code> or <code>df.col</code></td></tr>
+          <tr><td>Multiple columns (as DataFrame)</td><td><code>df[['col1','col2']]</code></td></tr>
+          <tr><td>Columns by dtype</td><td><code>df.select_dtypes(include='number')</code> (or <code>exclude=</code>)</td></tr>
+          <tr><td>Columns by name substring</td><td><code>df.filter(like='sales')</code></td></tr>
+          <tr><td>Columns by regex</td><td><code>df.filter(regex='^A.*Z$')</code></td></tr>
+          <tr><td>Columns with any missing value</td><td><code>df.loc[:, df.isna().any()]</code></td></tr>
+          <tr><td>Columns with no missing value</td><td><code>df.loc[:, df.notna().all()]</code></td></tr>
+          <tr><td>Drop columns</td><td><code>df.drop(columns=['col1','col2'])</code></td></tr>
+        </table>
+        <p style="font-size:13px; color:var(--ink-soft); margin:14px 0 10px;"><strong>String filtering methods</strong> — all return a boolean Series usable as a mask.</p>
+        <table>
+          <tr><th>Method</th><th>Matches</th></tr>
+          <tr><td><code>str.contains('x', case=False)</code></td><td>substring anywhere (case-insensitive with the flag)</td></tr>
+          <tr><td><code>str.startswith('A')</code> / <code>endswith('Z')</code></td><td>prefix / suffix (accepts a tuple for multiple)</td></tr>
+          <tr><td><code>str.match('^A.*')</code></td><td>regex from the start of the string</td></tr>
+          <tr><td><code>str.fullmatch('Hello')</code></td><td>regex against the entire string</td></tr>
+          <tr><td><code>str.len() &gt; 5</code></td><td>string length comparison</td></tr>
+          <tr><td><code>str.isnumeric()</code> / <code>str.isalpha()</code></td><td>content check — digits only / letters only</td></tr>
+        </table>
+        <p style="font-size:13px; color:var(--ink-soft); margin:14px 0 10px;"><strong>Date/time filtering</strong> — after <code>pd.to_datetime()</code>, via the <code>.dt</code> accessor.</p>
+        <table>
+          <tr><th>Need</th><th>Syntax</th></tr>
+          <tr><td>Exact date</td><td><code>df[df['date'] == '2023-01-01']</code></td></tr>
+          <tr><td>Month / Year / Day</td><td><code>.dt.month == 1</code> / <code>.dt.year == 2023</code> / <code>.dt.day == 15</code></td></tr>
+          <tr><td>Weekday</td><td><code>.dt.weekday == 0</code> (0=Mon) or <code>.dt.day_name()</code></td></tr>
+          <tr><td>Quarter</td><td><code>.dt.quarter == 1</code></td></tr>
+          <tr><td>Hour / minute / second</td><td><code>.dt.hour &gt;= 9</code></td></tr>
+          <tr><td>Rolling window (last N days)</td><td><code>df['date'] &gt;= pd.Timestamp.today() - pd.Timedelta(days=30)</code></td></tr>
+          <tr><td>Range, inclusive</td><td><code>df['date'].between('2023-01-01','2023-03-31')</code></td></tr>
+        </table>
+        <p style="font-size:13px; color:var(--ink-soft); margin:14px 0 10px;"><strong>Numeric &amp; boolean filtering</strong> — extras beyond plain comparisons.</p>
+        <table>
+          <tr><th>Need</th><th>Syntax</th></tr>
+          <tr><td>Magnitude, ignoring sign</td><td><code>df[df['col'].abs() &gt; 10]</code></td></tr>
+          <tr><td>Percentile / quantile threshold</td><td><code>df[df['col'] &gt; df['col'].quantile(0.9)]</code> (top 10%)</td></tr>
+          <tr><td>Boolean column, True rows</td><td><code>df[df['col_bool']]</code></td></tr>
+          <tr><td>Boolean column, False rows</td><td><code>df[~df['col_bool']]</code></td></tr>
+          <tr><td>Combine boolean + null check</td><td><code>df[df['col_bool'] &amp; df['col'].notna()]</code></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🧹 Data Cleaning Techniques Reference (with code)</h4>
+        <div style="max-height: 560px; overflow-y: auto;">
+        <table>
+          <tr><th>Technique</th><th>Why needed</th><th>Common issue</th><th>Function</th><th>Code</th></tr>
+          <tr><td>1. Inspect Dataset</td><td>Understand structure, columns, data types, quality</td><td>Unknown dataset issues</td><td><code>head()</code>, <code>info()</code>, <code>describe()</code></td><td><pre>df.head()
+df.info()
+df.describe()</pre></td></tr>
+          <tr><td>2. Find Missing Values</td><td>Identify incomplete records</td><td>Age, income, or category missing</td><td><code>isnull()</code>, <code>sum()</code></td><td><pre>missing = df.isnull().sum()
+print(missing)</pre></td></tr>
+          <tr><td>3. Remove Missing Rows</td><td>Remove incomplete records when data is unusable</td><td>Customer record has no ID</td><td><code>dropna()</code></td><td><pre>df_clean = df.dropna()</pre></td></tr>
+          <tr><td>4. Fill Missing Values (Mean)</td><td>Replace missing numerical values</td><td>Missing customer age</td><td><code>fillna()</code></td><td><pre>df['age'] = df['age'].fillna(
+    df['age'].mean()
+)</pre></td></tr>
+          <tr><td>5. Fill Missing Values (Median)</td><td>Better for skewed data and outliers</td><td>Income distribution</td><td><code>median()</code></td><td><pre>df['income'] = df['income'].fillna(
+    df['income'].median()
+)</pre></td></tr>
+          <tr><td>6. Fill Missing Categories</td><td>Handle missing text values</td><td>Missing city/category</td><td><code>fillna()</code></td><td><pre>df['city'] = df['city'].fillna('Unknown')</pre></td></tr>
+          <tr><td>7. Detect Duplicate Rows</td><td>Find repeated records</td><td>Duplicate transactions</td><td><code>duplicated()</code></td><td><pre>duplicates = df[df.duplicated()]
+print(duplicates)</pre></td></tr>
+          <tr><td>8. Remove Duplicate Rows</td><td>Keep only unique records</td><td>Same customer uploaded twice</td><td><code>drop_duplicates()</code></td><td><pre>df = df.drop_duplicates()</pre></td></tr>
+          <tr><td>9. Remove Duplicates by Column</td><td>Keep unique entities</td><td>Multiple customer profiles</td><td><code>subset</code> param</td><td><pre>df = df.drop_duplicates(
+    subset=['customer_id']
+)</pre></td></tr>
+          <tr><td>10. Check Data Types</td><td>Identify incorrect formats</td><td>Date stored as text</td><td><code>dtypes</code></td><td><pre>print(df.dtypes)</pre></td></tr>
+          <tr><td>11. Convert Data Types</td><td>Make columns usable for analysis</td><td>"5000" stored as string</td><td><code>astype()</code></td><td><pre>df['sales'] = df['sales'].astype(int)</pre></td></tr>
+          <tr><td>12. Convert Date Columns</td><td>Enable time-based analysis</td><td>Date stored as object</td><td><code>to_datetime()</code></td><td><pre>df['order_date'] = pd.to_datetime(
+    df['order_date']
+)</pre></td></tr>
+          <tr><td>13. Remove Extra Spaces</td><td>Fix inconsistent text</td><td>" Chicago "</td><td><code>str.strip()</code></td><td><pre>df['city'] = df['city'].str.strip()</pre></td></tr>
+          <tr><td>14. Standardize Text Case</td><td>Make categories consistent</td><td>Chicago, CHICAGO, chicago</td><td><code>str.lower()</code>, <code>str.title()</code></td><td><pre>df['city'] = (
+    df['city'].str.lower().str.title()
+)</pre></td></tr>
+          <tr><td>15. Remove Special Characters</td><td>Clean messy strings</td><td>"John@123"</td><td><code>str.replace()</code></td><td><pre>df['name'] = df['name'].str.replace(
+    '[^a-zA-Z]', '', regex=True
+)</pre></td></tr>
+          <tr><td>16. Standardize Categories</td><td>Combine similar labels</td><td>Male, M, male</td><td><code>replace()</code></td><td><pre>mapping = {'M':'Male','male':'Male','MALE':'Male'}
+df['gender'] = df['gender'].replace(mapping)</pre></td></tr>
+          <tr><td>17. Detect Invalid Values</td><td>Remove impossible data</td><td>Age = -10</td><td>Filtering</td><td><pre>df = df[df['age'] &gt;= 0]</pre></td></tr>
+          <tr><td>18. Detect Outliers (IQR)</td><td>Remove extreme values</td><td>Salary = $10M</td><td><code>quantile()</code></td><td><pre>Q1 = df['salary'].quantile(0.25)
+Q3 = df['salary'].quantile(0.75)
+IQR = Q3 - Q1
+lower, upper = Q1 - 1.5*IQR, Q3 + 1.5*IQR
+clean_df = df[(df['salary'] &gt;= lower) &amp;
+              (df['salary'] &lt;= upper)]</pre></td></tr>
+          <tr><td>19. Remove Outliers (Z-score)</td><td>Identify statistically unusual values</td><td>Extreme measurements</td><td><code>scipy.stats.zscore()</code></td><td><pre>from scipy.stats import zscore
+z_scores = zscore(df['income'])
+clean_df = df[abs(z_scores) &lt; 3]</pre></td></tr>
+          <tr><td>20. Encode Categories</td><td>Convert text into numbers for ML</td><td>City, Gender, Product type</td><td><code>get_dummies()</code></td><td><pre>df = pd.get_dummies(df, columns=['city'])</pre></td></tr>
+          <tr><td>21. Scale Numerical Features</td><td>Put variables on similar scale</td><td>Age vs income</td><td><code>StandardScaler()</code></td><td><pre>from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+df['income_scaled'] = scaler.fit_transform(
+    df[['income']]
+)</pre></td></tr>
+          <tr><td>22. Rename Columns</td><td>Improve readability</td><td>"Customer Name"</td><td><code>rename()</code></td><td><pre>df = df.rename(columns={
+    'Customer Name': 'customer_name'
+})</pre></td></tr>
+          <tr><td>23. Remove Unnecessary Columns</td><td>Reduce noise</td><td>Duplicate IDs</td><td><code>drop()</code></td><td><pre>df = df.drop(columns=['temp_column'])</pre></td></tr>
+          <tr><td>24. Validate Data Quality</td><td>Ensure cleaned data is correct</td><td>Bad production data</td><td><code>assert</code></td><td><pre>assert df.isnull().sum().sum() == 0
+assert df['age'].between(0, 100).all()</pre></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🧹 Additional Data Cleaning Techniques (business-rule &amp; ML-prep focused)</h4>
+        <div style="max-height: 360px; overflow-y: auto;">
+        <table>
+          <tr><th>Technique</th><th>Problem addressed</th><th>Description</th><th>Example</th><th>Tools</th></tr>
+          <tr><td>Correcting Spelling Errors</td><td>Typographical mistakes</td><td>Fix inconsistent text values so the same real-world entity isn't split across variants</td><td><code>"Calfornia"</code> → <code>"California"</code></td><td>Dictionary mapping, fuzzy matching (e.g. <code>rapidfuzz</code>)</td></tr>
+          <tr><td>Data Validation Rules</td><td>Incorrect business logic</td><td>Apply domain rules that a value being "the right type" doesn't guarantee</td><td>Order date cannot be before signup date</td><td>Custom boolean functions / <code>assert</code></td></tr>
+          <tr><td>Handling Inconsistent Units</td><td>Different measurement systems</td><td>Convert every value into one common unit before comparing or aggregating</td><td>Pounds and kilograms mixed in the same column</td><td>Custom conversion functions</td></tr>
+          <tr><td>Data Range Validation</td><td>Values outside expected range</td><td>Check that a column's values fall within known valid boundaries</td><td>A 1–5 rating column containing a 7</td><td>Filtering, <code>assert</code></td></tr>
+          <tr><td>Missing Indicator Creation</td><td>Missingness may itself carry a signal</td><td>Add a binary flag column recording where a value was missing, before/instead of imputing</td><td><code>df['income_missing'] = df['income'].isna().astype(int)</code></td><td><code>isna().astype(int)</code></td></tr>
+        </table>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">These sit on top of the 24-step reference above: spelling/units/range checks are <em>business-rule</em> cleaning (the value is syntactically fine but semantically wrong), while a missing-indicator column is a common trick for preserving information before <code>fillna()</code> erases the fact that a value was ever missing.</div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🔄 End-to-End Cleaning Pipeline</h4>
+        <table>
+          <tr><th>Step</th><th>Purpose</th><th>Code</th></tr>
+          <tr><td>1. Load Data</td><td>Read raw data</td><td><pre>df = pd.read_csv('customers.csv')</pre></td></tr>
+          <tr><td>2. Remove Duplicates</td><td>Avoid repeated records</td><td><pre>df = df.drop_duplicates()</pre></td></tr>
+          <tr><td>3. Clean Column Names</td><td>Standard naming</td><td><pre>df.columns = (
+    df.columns.str.lower().str.replace(' ', '_')
+)</pre></td></tr>
+          <tr><td>4. Handle Missing Values</td><td>Improve completeness</td><td><pre>df['age'] = df['age'].fillna(df['age'].median())</pre></td></tr>
+          <tr><td>5. Clean Text</td><td>Standardize categories</td><td><pre>df['city'] = df['city'].str.strip().str.title()</pre></td></tr>
+          <tr><td>6. Convert Types</td><td>Correct formats</td><td><pre>df['date'] = pd.to_datetime(df['date'])</pre></td></tr>
+          <tr><td>7. Remove Invalid Data</td><td>Enforce rules</td><td><pre>df = df[df['age'] &gt;= 0]</pre></td></tr>
+          <tr><td>8. Save Clean Data</td><td>Create analysis dataset</td><td><pre>df.to_csv('clean_data.csv', index=False)</pre></td></tr>
+        </table>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">This is the shape most real pre-processing scripts follow — load → dedupe → standardize names → handle missing → clean text → fix types → enforce rules → save. Each step here maps to a technique in the fuller reference table above.</div>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -595,165 +846,6 @@ pip install -r requirements.txt</pre>
         </table>
       </div>
 
-      <div class="cheat-card" style="grid-column: 1 / -1;">
-        <h4>🔁 Python ↔ SQL Quick Reference</h4>
-        <div style="max-height: 480px; overflow-y: auto;">
-        <table>
-          <tr><th>#</th><th>Requirement</th><th>Python (pandas)</th><th>SQL</th></tr>
-          <tr><td>1</td><td>Select all rows</td><td><code>df</code></td><td><code>select * from table</code></td></tr>
-          <tr><td>2</td><td>Select specific columns</td><td><code>df[['col1','col2']]</code></td><td><code>select col1, col2 from table</code></td></tr>
-          <tr><td>3</td><td>Filter rows based on a condition</td><td><code>df[df['col1'] &gt; 5]</code></td><td><code>select * from table where col1 &gt; 5</code></td></tr>
-          <tr><td>4</td><td>Filter rows on multiple conditions</td><td><code>df[(df['col1'] &gt; 5) &amp; (df['col2'] &lt; 10)]</code></td><td><code>select * from table where col1 &gt; 5 and col2 &lt; 10</code></td></tr>
-          <tr><td>5</td><td>Group by a column and count</td><td><code>df.groupby('col1').size()</code></td><td><code>select col1, count(*) from table group by col1</code></td></tr>
-          <tr><td>6</td><td>Group by a column, sum another</td><td><code>df.groupby('col1')['col2'].sum()</code></td><td><code>select col1, sum(col2) from table group by col1</code></td></tr>
-          <tr><td>7</td><td>Order by a column</td><td><code>df.sort_values(by='col1')</code></td><td><code>select * from table order by col1</code></td></tr>
-          <tr><td>8</td><td>Order by a column, descending</td><td><code>df.sort_values(by='col1', ascending=False)</code></td><td><code>select * from table order by col1 desc</code></td></tr>
-          <tr><td>9</td><td>Join two tables</td><td><code>pd.merge(df1, df2, on='id')</code></td><td><code>select * from t1 join t2 on t1.id = t2.id</code></td></tr>
-          <tr><td>10</td><td>Left join two tables</td><td><code>pd.merge(df1, df2, on='id', how='left')</code></td><td><code>select * from t1 left join t2 on t1.id = t2.id</code></td></tr>
-          <tr><td>11</td><td>Right join two tables</td><td><code>pd.merge(df1, df2, on='id', how='right')</code></td><td><code>select * from t1 right join t2 on t1.id = t2.id</code></td></tr>
-          <tr><td>12</td><td>Full outer join two tables</td><td><code>pd.merge(df1, df2, on='id', how='outer')</code></td><td><code>select * from t1 full outer join t2 on t1.id = t2.id</code></td></tr>
-          <tr><td>13</td><td>Average of a column</td><td><code>df['col1'].mean()</code></td><td><code>select avg(col1) from table</code></td></tr>
-          <tr><td>14</td><td>Sum of a column</td><td><code>df['col1'].sum()</code></td><td><code>select sum(col1) from table</code></td></tr>
-          <tr><td>15</td><td>Maximum of a column</td><td><code>df['col1'].max()</code></td><td><code>select max(col1) from table</code></td></tr>
-          <tr><td>16</td><td>Minimum of a column</td><td><code>df['col1'].min()</code></td><td><code>select min(col1) from table</code></td></tr>
-          <tr><td>17</td><td>Count distinct values in a column</td><td><code>df['col1'].nunique()</code></td><td><code>select count(distinct col1) from table</code></td></tr>
-          <tr><td>18</td><td>Rename a column</td><td><code>df = df.rename(columns={'old_name':'new_name'})</code></td><td><code>alter table t1 rename column old_name to new_name</code></td></tr>
-          <tr><td>19</td><td>Add a new column</td><td><code>df['col3'] = value</code></td><td><code>alter table t1 add column col3 int</code></td></tr>
-          <tr><td>20</td><td>Drop a column</td><td><code>df = df.drop(columns=['col1'])</code></td><td><code>alter table t1 drop column col1</code></td></tr>
-          <tr><td>21</td><td>CASE — value based on a condition</td><td><code>np.where(df['col1'] &gt; 30, 'Y', 'No')</code></td><td><code>select col1, case when col1 &gt; 30 then 'Y' else 'No' end from t1</code></td></tr>
-          <tr><td>22</td><td>COALESCE — first non-null value</td><td><code>df['address'].fillna('No Address')</code></td><td><code>select coalesce(address, 'No Address') from employees</code></td></tr>
-          <tr><td>23</td><td>NULLIF — NULL if two values are equal</td><td><code>df['col1'].replace(0, np.nan)</code></td><td><code>select nullif(col1, 0) from t1</code></td></tr>
-          <tr><td>24</td><td>CAST — convert one data type to another</td><td><code>df['col1'].astype(str)</code></td><td><code>select cast(col1 as varchar) from t1</code></td></tr>
-        </table>
-        </div>
-      </div>
-
-      <div class="cheat-card" style="grid-column: 1 / -1;">
-        <h4>🐼 Pandas Filtering Quick Reference</h4>
-        <div style="max-height: 380px; overflow-y: auto;">
-        <table>
-          <tr><th>Need</th><th>Syntax</th></tr>
-          <tr><td>Single value, by position / label</td><td><code>df.iat[0,1]</code> / <code>df.at[0,'col']</code> (fastest)</td></tr>
-          <tr><td>Position slice (end-exclusive)</td><td><code>df.iloc[0:3, 0:2]</code></td></tr>
-          <tr><td>Label slice (end-inclusive) / boolean mask</td><td><code>df.loc[0:3, ['A','B']]</code> / <code>df.loc[df['col']&gt;10]</code></td></tr>
-          <tr><td>Multiple columns</td><td><code>df[['col1','col2']]</code> — double brackets</td></tr>
-          <tr><td>Multiple row conditions</td><td><code>df[(df['a']&gt;5) &amp; (df['b']&lt;10)]</code> — never <code>and</code>/<code>or</code></td></tr>
-          <tr><td>SQL-like filter</td><td><code>df.query("a &gt; 5 and b &lt; 10")</code></td></tr>
-          <tr><td>Value in a list</td><td><code>df[df['col'].isin([...])]</code> (<code>~</code> for NOT in)</td></tr>
-          <tr><td>Missing / present</td><td><code>df[df['col'].isna()]</code> / <code>.notna()</code></td></tr>
-          <tr><td>Text pattern (case-insensitive)</td><td><code>df[df['col'].str.contains('x', case=False)]</code></td></tr>
-          <tr><td>Date part</td><td><code>df[df['date'].dt.month == 3]</code></td></tr>
-          <tr><td>Date range</td><td><code>df[df['date'].between('2023-01-01','2023-12-31')]</code></td></tr>
-          <tr><td>Top / bottom N</td><td><code>df.nlargest(5,'col')</code> / <code>df.nsmallest(5,'col')</code></td></tr>
-          <tr><td>Numeric range</td><td><code>df['col'].between(50, 100)</code></td></tr>
-        </table>
-        </div>
-      </div>
-
-      <div class="cheat-card" style="grid-column: 1 / -1;">
-        <h4>🗂️ List vs. Tuple vs. Dictionary vs. Set</h4>
-        <div style="max-height: 480px; overflow-y: auto;">
-        <table>
-          <tr><th>Feature</th><th>List</th><th>Tuple</th><th>Dictionary</th><th>Set</th></tr>
-          <tr><td>Definition</td><td>Ordered, changeable collection</td><td>Ordered, unchangeable collection</td><td>Key-value pairs</td><td>Unordered collection of unique elements</td></tr>
-          <tr><td>Syntax</td><td><code>[]</code></td><td><code>()</code></td><td><code>{key: value}</code></td><td><code>{value}</code></td></tr>
-          <tr><td>Example</td><td><code>numbers = [10, 20, 30]</code></td><td><code>numbers = (10, 20, 30)</code></td><td><code>student = {"name": "John", "age": 25}</code></td><td><code>colors = {"red", "blue", "green"}</code></td></tr>
-          <tr><td>Stores</td><td>Individual values</td><td>Individual values</td><td>Key-value pairs</td><td>Individual unique values</td></tr>
-          <tr><td>Ordered?</td><td>✅ Yes (insertion order)</td><td>✅ Yes (insertion order)</td><td>✅ Yes (Python 3.7+)</td><td>❌ No guaranteed order</td></tr>
-          <tr><td>Mutable?</td><td>✅ Yes</td><td>❌ No</td><td>✅ Yes</td><td>✅ Yes</td></tr>
-          <tr><td>Allows duplicates?</td><td>✅ Yes</td><td>✅ Yes</td><td>❌ Keys must be unique</td><td>❌ No</td></tr>
-          <tr><td>Mixed data types?</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes (keys &amp; values)</td><td>✅ Yes</td></tr>
-          <tr><td>Access method</td><td>Index</td><td>Index</td><td>Key</td><td>Membership check</td></tr>
-          <tr><td>Access example</td><td><code>list[0]</code></td><td><code>tuple[0]</code></td><td><code>dict["name"]</code></td><td><code>value in set</code></td></tr>
-          <tr><td>Can be nested?</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td></tr>
-          <tr><td>Lookup performance</td><td>Slow: O(n)</td><td>Slow: O(n)</td><td>Fast: O(1) avg</td><td>Fast: O(1) avg</td></tr>
-          <tr><td>Memory usage</td><td>Higher than tuple</td><td>Lower than list</td><td>Higher (key storage)</td><td>Higher than list for small collections</td></tr>
-          <tr><td>Best used when</td><td>Collection needs to change</td><td>Data should stay constant</td><td>You need relationships between data</td><td>You need uniqueness &amp; fast membership checks</td></tr>
-        </table>
-        </div>
-      </div>
-
-      <div class="cheat-card" style="grid-column: 1 / -1;">
-        <h4>🧹 Data Cleaning Techniques Reference (with code)</h4>
-        <div style="max-height: 560px; overflow-y: auto;">
-        <table>
-          <tr><th>Technique</th><th>Why needed</th><th>Common issue</th><th>Function</th><th>Code</th></tr>
-          <tr><td>1. Inspect Dataset</td><td>Understand structure, columns, data types, quality</td><td>Unknown dataset issues</td><td><code>head()</code>, <code>info()</code>, <code>describe()</code></td><td><pre>df.head()
-df.info()
-df.describe()</pre></td></tr>
-          <tr><td>2. Find Missing Values</td><td>Identify incomplete records</td><td>Age, income, or category missing</td><td><code>isnull()</code>, <code>sum()</code></td><td><pre>missing = df.isnull().sum()
-print(missing)</pre></td></tr>
-          <tr><td>3. Remove Missing Rows</td><td>Remove incomplete records when data is unusable</td><td>Customer record has no ID</td><td><code>dropna()</code></td><td><pre>df_clean = df.dropna()</pre></td></tr>
-          <tr><td>4. Fill Missing Values (Mean)</td><td>Replace missing numerical values</td><td>Missing customer age</td><td><code>fillna()</code></td><td><pre>df['age'] = df['age'].fillna(
-    df['age'].mean()
-)</pre></td></tr>
-          <tr><td>5. Fill Missing Values (Median)</td><td>Better for skewed data and outliers</td><td>Income distribution</td><td><code>median()</code></td><td><pre>df['income'] = df['income'].fillna(
-    df['income'].median()
-)</pre></td></tr>
-          <tr><td>6. Fill Missing Categories</td><td>Handle missing text values</td><td>Missing city/category</td><td><code>fillna()</code></td><td><pre>df['city'] = df['city'].fillna('Unknown')</pre></td></tr>
-          <tr><td>7. Detect Duplicate Rows</td><td>Find repeated records</td><td>Duplicate transactions</td><td><code>duplicated()</code></td><td><pre>duplicates = df[df.duplicated()]
-print(duplicates)</pre></td></tr>
-          <tr><td>8. Remove Duplicate Rows</td><td>Keep only unique records</td><td>Same customer uploaded twice</td><td><code>drop_duplicates()</code></td><td><pre>df = df.drop_duplicates()</pre></td></tr>
-          <tr><td>9. Remove Duplicates by Column</td><td>Keep unique entities</td><td>Multiple customer profiles</td><td><code>subset</code> param</td><td><pre>df = df.drop_duplicates(
-    subset=['customer_id']
-)</pre></td></tr>
-          <tr><td>10. Check Data Types</td><td>Identify incorrect formats</td><td>Date stored as text</td><td><code>dtypes</code></td><td><pre>print(df.dtypes)</pre></td></tr>
-          <tr><td>11. Convert Data Types</td><td>Make columns usable for analysis</td><td>"5000" stored as string</td><td><code>astype()</code></td><td><pre>df['sales'] = df['sales'].astype(int)</pre></td></tr>
-          <tr><td>12. Convert Date Columns</td><td>Enable time-based analysis</td><td>Date stored as object</td><td><code>to_datetime()</code></td><td><pre>df['order_date'] = pd.to_datetime(
-    df['order_date']
-)</pre></td></tr>
-          <tr><td>13. Remove Extra Spaces</td><td>Fix inconsistent text</td><td>" Chicago "</td><td><code>str.strip()</code></td><td><pre>df['city'] = df['city'].str.strip()</pre></td></tr>
-          <tr><td>14. Standardize Text Case</td><td>Make categories consistent</td><td>Chicago, CHICAGO, chicago</td><td><code>str.lower()</code>, <code>str.title()</code></td><td><pre>df['city'] = (
-    df['city'].str.lower().str.title()
-)</pre></td></tr>
-          <tr><td>15. Remove Special Characters</td><td>Clean messy strings</td><td>"John@123"</td><td><code>str.replace()</code></td><td><pre>df['name'] = df['name'].str.replace(
-    '[^a-zA-Z]', '', regex=True
-)</pre></td></tr>
-          <tr><td>16. Standardize Categories</td><td>Combine similar labels</td><td>Male, M, male</td><td><code>replace()</code></td><td><pre>mapping = {'M':'Male','male':'Male','MALE':'Male'}
-df['gender'] = df['gender'].replace(mapping)</pre></td></tr>
-          <tr><td>17. Detect Invalid Values</td><td>Remove impossible data</td><td>Age = -10</td><td>Filtering</td><td><pre>df = df[df['age'] &gt;= 0]</pre></td></tr>
-          <tr><td>18. Detect Outliers (IQR)</td><td>Remove extreme values</td><td>Salary = $10M</td><td><code>quantile()</code></td><td><pre>Q1 = df['salary'].quantile(0.25)
-Q3 = df['salary'].quantile(0.75)
-IQR = Q3 - Q1
-lower, upper = Q1 - 1.5*IQR, Q3 + 1.5*IQR
-clean_df = df[(df['salary'] &gt;= lower) &amp;
-              (df['salary'] &lt;= upper)]</pre></td></tr>
-          <tr><td>19. Remove Outliers (Z-score)</td><td>Identify statistically unusual values</td><td>Extreme measurements</td><td><code>scipy.stats.zscore()</code></td><td><pre>from scipy.stats import zscore
-z_scores = zscore(df['income'])
-clean_df = df[abs(z_scores) &lt; 3]</pre></td></tr>
-          <tr><td>20. Encode Categories</td><td>Convert text into numbers for ML</td><td>City, Gender, Product type</td><td><code>get_dummies()</code></td><td><pre>df = pd.get_dummies(df, columns=['city'])</pre></td></tr>
-          <tr><td>21. Scale Numerical Features</td><td>Put variables on similar scale</td><td>Age vs income</td><td><code>StandardScaler()</code></td><td><pre>from sklearn.preprocessing import StandardScaler
-scaler = StandardScaler()
-df['income_scaled'] = scaler.fit_transform(
-    df[['income']]
-)</pre></td></tr>
-          <tr><td>22. Rename Columns</td><td>Improve readability</td><td>"Customer Name"</td><td><code>rename()</code></td><td><pre>df = df.rename(columns={
-    'Customer Name': 'customer_name'
-})</pre></td></tr>
-          <tr><td>23. Remove Unnecessary Columns</td><td>Reduce noise</td><td>Duplicate IDs</td><td><code>drop()</code></td><td><pre>df = df.drop(columns=['temp_column'])</pre></td></tr>
-          <tr><td>24. Validate Data Quality</td><td>Ensure cleaned data is correct</td><td>Bad production data</td><td><code>assert</code></td><td><pre>assert df.isnull().sum().sum() == 0
-assert df['age'].between(0, 100).all()</pre></td></tr>
-        </table>
-        </div>
-      </div>
-
-      <div class="cheat-card" style="grid-column: 1 / -1;">
-        <h4>🔄 End-to-End Cleaning Pipeline</h4>
-        <table>
-          <tr><th>Step</th><th>Purpose</th><th>Code</th></tr>
-          <tr><td>1. Load Data</td><td>Read raw data</td><td><pre>df = pd.read_csv('customers.csv')</pre></td></tr>
-          <tr><td>2. Remove Duplicates</td><td>Avoid repeated records</td><td><pre>df = df.drop_duplicates()</pre></td></tr>
-          <tr><td>3. Clean Column Names</td><td>Standard naming</td><td><pre>df.columns = (
-    df.columns.str.lower().str.replace(' ', '_')
-)</pre></td></tr>
-          <tr><td>4. Handle Missing Values</td><td>Improve completeness</td><td><pre>df['age'] = df['age'].fillna(df['age'].median())</pre></td></tr>
-          <tr><td>5. Clean Text</td><td>Standardize categories</td><td><pre>df['city'] = df['city'].str.strip().str.title()</pre></td></tr>
-          <tr><td>6. Convert Types</td><td>Correct formats</td><td><pre>df['date'] = pd.to_datetime(df['date'])</pre></td></tr>
-          <tr><td>7. Remove Invalid Data</td><td>Enforce rules</td><td><pre>df = df[df['age'] &gt;= 0]</pre></td></tr>
-          <tr><td>8. Save Clean Data</td><td>Create analysis dataset</td><td><pre>df.to_csv('clean_data.csv', index=False)</pre></td></tr>
-        </table>
-        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">This is the shape most real pre-processing scripts follow — load → dedupe → standardize names → handle missing → clean text → fix types → enforce rules → save. Each step here maps to a technique in the fuller reference table above.</div>
-      </div>
 
       <div class="cheat-card" style="grid-column: 1 / -1;">
         <h4>🎤 Data Cleaning — Interview Answer Cheat Sheet</h4>
@@ -2145,6 +2237,14 @@ ages = [25, 30, 35]
 pairs = list(zip(names, ages))
 print(pairs)   \# [('Alice', 25), ('Bob', 30), ('Charlie', 35)]</pre>
 <div class="fb-explain"><code>zip()</code> stops at the shortest iterable if lengths differ — use <code>itertools.zip_longest()</code> if you need to pad the shorter ones instead of silently truncating.</div>` },
+  { cat: "fundamentals", sub: "Data Structures & Types", q: "What's the difference between .discard() and .remove() on a set?", a: `Both remove an element from a set, but <code>.remove()</code> raises a <code>KeyError</code> if the element isn't present, while <code>.discard()</code> silently does nothing.
+<pre>s = {1, 2, 3}
+
+s.discard(99)   \# no error -- 99 wasn't in the set
+print(s)        \# {1, 2, 3}
+
+s.remove(99)    \# KeyError: 99</pre>
+<div class="fb-explain">Use <code>.discard()</code> when the element's presence is uncertain and that's fine; use <code>.remove()</code> when its absence would itself signal a bug you want surfaced.</div>` },
   { cat: "fundamentals", sub: "Core Syntax & Control Flow", q: "How do you build a pyramid pattern of asterisks in Python?", a: `<pre>rows = 5
 for i in range(1, rows + 1):
     print(" " * (rows - i) + "*" * (2 * i - 1))</pre>
@@ -2200,6 +2300,19 @@ sns.heatmap(df.corr(), annot=True)</pre>` },
   { cat: "preprocessing", q: "What is data leakage in pre-processing?", a: "Using information from data that should be unseen (e.g. the test set) to compute a fill value or scaling parameter." },
   { cat: "preprocessing", q: "Why might drop_duplicates() on full rows miss real duplicates?", a: "Two rows can represent the same entity with slightly different formatting — dedupe on a business key after standardizing formatting instead." },
   { cat: "preprocessing", q: "A date column fails to parse for some rows — how handle it?", a: "Use errors='coerce' to get NaT instead of crashing, then inspect which rows became NaT — often reveals a second date format mixed in." },
+  { cat: "preprocessing", q: "What's the difference between a data validation rule and a simple type check?", a: `A type check confirms a value is the right <em>kind</em> of data (a date, an integer); a validation rule confirms it makes sense given business logic, which a correct type alone doesn't guarantee.
+<pre>\# Type is fine, but business logic is violated:
+invalid = df[df['order_date'] &lt; df['signup_date']]</pre>
+<div class="fb-explain">These are usually enforced with custom boolean functions or <code>assert</code> statements run after the standard cleaning steps, since no generic pandas method knows the business rule.</div>` },
+  { cat: "preprocessing", q: "Why create a \"missing indicator\" column instead of just imputing the missing values?", a: `Filling NaNs with a mean/median/mode is necessary for most models, but it silently destroys the fact that a value was ever missing — and missingness itself can be predictive (e.g. income more often missing for self-employed respondents).
+<pre>df['income_missing'] = df['income'].isna().astype(int)
+df['income'] = df['income'].fillna(df['income'].median())</pre>
+<div class="fb-explain">Create the flag column <em>before</em> calling <code>fillna()</code> — once filled, the missingness information is gone.</div>` },
+  { cat: "preprocessing", q: "How would you correct near-duplicate spelling variants of the same category (e.g. \"Calfornia\", \"california\", \"CA\")?", a: `A direct dictionary mapping for known variants, or fuzzy string matching (e.g. <code>rapidfuzz</code>/<code>fuzzywuzzy</code>) to catch typos a fixed mapping would miss.
+<pre>mapping = {'calfornia': 'California', 'ca': 'California'}
+df['state'] = df['state'].str.lower().replace(mapping)</pre>
+<div class="fb-explain">Dictionary mapping is precise but only fixes variants you've already seen; fuzzy matching generalizes to unseen typos at the cost of occasional false matches you should spot-check.</div>` },
+  { cat: "preprocessing", q: "A column mixes pounds and kilograms in the same field — how do you clean it?", a: "Detect which unit each row uses (from a separate unit column, a suffix in the text, or a plausible-range heuristic), then convert every value into one common unit with a custom conversion function before any aggregation or modeling." },
   { cat: "preprocessing", q: "What does idempotent mean for a pre-processing step, and why does it matter?", a: "Running it twice on the same input gives the same output — important for pipelines that might retry or rerun." },
   { cat: "preprocessing", q: "How decide whether to cap, remove, or keep an outlier?", a: "Determine if it's a data error (fix/remove) or a genuine extreme case (often keep or cap, since it may carry real signal)." },
   { cat: "preprocessing", q: "Why standardize categorical text before analysis?", a: "Without it, 'California', 'california ', and 'CALIFORNIA' are treated as three distinct categories, fragmenting counts." },
@@ -2325,6 +2438,37 @@ df[df['Date'].between('2023-01-01', '2023-12-31')]</pre>
 df.nsmallest(3, 'Age')         \# bottom 3 by age</pre>` },
   { cat: "pandas-filtering", q: "How do you find rows with a missing value in ANY of several columns?", a: `<pre>df[df[['col1', 'col2']].isna().any(axis=1)]</pre>
 <div class="fb-explain"><code>axis=1</code> checks across columns for each row. Swap <code>.any()</code> for <code>.all()</code> to instead find rows where EVERY listed column is null.</div>` },
+  { cat: "pandas-filtering", q: "How do you select only the numeric (or only the object/datetime) columns of a DataFrame?", a: `Use <code>select_dtypes(include=...)</code> (or <code>exclude=...</code>) — it filters columns by dtype instead of by name.
+<pre>df.select_dtypes(include='number')                 \# int + float columns
+df.select_dtypes(include=['int64','float64'])       \# equivalent, explicit
+df.select_dtypes(exclude='number')                  \# everything else</pre>` },
+  { cat: "pandas-filtering", q: "How do you select columns whose names match a substring or a regex pattern?", a: `<code>.filter(like=...)</code> matches a substring anywhere in the column name; <code>.filter(regex=...)</code> matches a full regex.
+<pre>df.filter(like='sales')          \# columns containing "sales"
+df.filter(regex='^A.*Z\$')        \# columns matching the regex</pre>
+<div class="fb-explain"><code>.filter()</code> here operates on labels (column names by default), not on data values — don't confuse it with row-value filtering.</div>` },
+  { cat: "pandas-filtering", q: "How do you find which columns have at least one missing value (or none at all)?", a: `<pre>df.loc[:, df.isna().any()]    \# columns with >=1 NaN
+df.loc[:, df.notna().all()]   \# columns with zero NaN</pre>
+<div class="fb-explain"><code>.any()</code>/<code>.all()</code> default to <code>axis=0</code> (down each column), which is exactly what's needed to reduce a column to one True/False used as a column mask.</div>` },
+  { cat: "pandas-filtering", q: "Beyond str.contains(), what other string methods filter rows by pattern?", a: `<code>str.startswith()</code> / <code>str.endswith()</code> (accept a tuple for multiple prefixes/suffixes), <code>str.match()</code> (regex from the start of the string), and <code>str.fullmatch()</code> (regex must match the entire string).
+<pre>df[df['col'].str.startswith('A')]
+df[df['col'].str.endswith(('Z','Y'))]     \# tuple = multiple suffixes
+df[df['col'].str.match('^A.*')]           \# matches from the start
+df[df['col'].str.fullmatch('Hello')]      \# must match the whole string</pre>` },
+  { cat: "pandas-filtering", q: "How do you filter rows where a string column is purely numeric or purely alphabetic characters?", a: `<code>str.isnumeric()</code> and <code>str.isalpha()</code> return a boolean Series usable directly as a mask — handy for isolating rows before a type conversion.
+<pre>df[df['col'].str.isnumeric()]   \# e.g. "123" -- catches numbers stored as text
+df[df['col'].str.isalpha()]     \# e.g. "abc" -- letters only, no digits/spaces</pre>` },
+  { cat: "pandas-filtering", q: "How do you filter a datetime column by weekday, quarter, or time-of-day, rather than just by date?", a: `Once a column is parsed with <code>pd.to_datetime()</code>, the <code>.dt</code> accessor exposes many components beyond month/year.
+<pre>df[df['date'].dt.weekday == 0]      \# Monday (0=Mon ... 6=Sun); dt.day_name() for the label
+df[df['date'].dt.quarter == 1]      \# Q1
+df[df['date'].dt.hour >= 9]         \# time-of-day, if the column has a time component
+df[df['date'] >= pd.Timestamp.today() - pd.Timedelta(days=30)]  \# rolling "last 30 days"</pre>` },
+  { cat: "pandas-filtering", q: "How do you filter rows by magnitude (ignoring sign) or by percentile threshold?", a: `<code>.abs()</code> for magnitude, <code>.quantile()</code> for a percentile cutoff — both return a value/Series usable directly inside a boolean mask.
+<pre>df[df['change'].abs() > 15]                       \# big moves, either direction
+df[df['salary'] > df['salary'].quantile(0.9)]     \# top 10%</pre>` },
+  { cat: "pandas-filtering", q: "How do you filter using a boolean column directly, without writing == True?", a: `If the column's dtype is already boolean, use it as the mask directly — <code>~</code> inverts it for the False rows.
+<pre>df[df['is_remote']]     \# rows where True
+df[~df['is_remote']]    \# rows where False</pre>
+<div class="fb-explain">Writing <code>df[df['is_remote'] == True]</code> works but is redundant and non-idiomatic — the column is already the boolean Series pandas needs.</div>` },
   { cat: "pandas-filtering", q: "How do you filter a string column case-insensitively?", a: `Pass <code>case=False</code> to <code>str.contains()</code>, or normalize case explicitly before comparing.
 <pre>df[df['Name'].str.contains('alice', case=False)]
 \# or:
@@ -2383,7 +2527,9 @@ const QUIZ = [
 
   { cat: "pandas-filtering", q: "Which is true about iloc vs. loc slicing?", options: ["Both are end-inclusive", "Both are end-exclusive", "iloc is end-exclusive, loc is end-inclusive", "iloc is end-inclusive, loc is end-exclusive"], correct: 2, explain: "iloc behaves like standard Python/NumPy slicing (end-exclusive); loc, being label-based, includes the end label." },
   { cat: "pandas-filtering", q: "What happens if you write df[(df['a']>5) and (df['b']<10)] instead of using &?", options: ["It works exactly the same as &", "It raises a ValueError about ambiguous truth value", "It silently returns an empty DataFrame", "It only applies the first condition"], correct: 1, explain: "Python's and/or call bool() on each side, but a Series with more than one element has an ambiguous truth value — pandas raises a ValueError instead of guessing." },
-  { cat: "pandas-filtering", q: "Why might df[df['col']>5]['col2'] = 100 fail to update the original DataFrame?", options: ["The syntax is invalid and won't run at all", "It's chained indexing — it may operate on a copy, triggering SettingWithCopyWarning", "You must always use .query() for assignment", "Column 'col2' must be numeric first"], correct: 1, explain: "df[mask] can return a copy rather than a view, so the second assignment may modify that copy instead of the original. Use .loc[mask, 'col2'] = 100 instead." }
+  { cat: "pandas-filtering", q: "Why might df[df['col']>5]['col2'] = 100 fail to update the original DataFrame?", options: ["The syntax is invalid and won't run at all", "It's chained indexing — it may operate on a copy, triggering SettingWithCopyWarning", "You must always use .query() for assignment", "Column 'col2' must be numeric first"], correct: 1, explain: "df[mask] can return a copy rather than a view, so the second assignment may modify that copy instead of the original. Use .loc[mask, 'col2'] = 100 instead." },
+  { cat: "pandas-filtering", q: "Which method selects DataFrame columns by their dtype rather than by name?", options: ["df.filter(like=...)", "df.select_dtypes(include=...)", "df.loc[:, df.isna().any()]", "df.query('dtype == ...')"], correct: 1, explain: "select_dtypes(include=/exclude=) filters columns by their data type (e.g. 'number', 'object', 'datetime'), independent of column names." },
+  { cat: "pandas-filtering", q: "What's the difference between str.match() and str.fullmatch() when filtering rows?", options: ["They are identical", "match() checks from the start of the string only; fullmatch() requires the whole string to match", "fullmatch() is case-insensitive by default and match() is not", "match() only works on numeric columns"], correct: 1, explain: "str.match() succeeds if the pattern matches starting at position 0 (the rest of the string can be anything); str.fullmatch() requires the entire string to match the pattern." }
 ];
 
 document.getElementById("stat-flashcards").textContent = FLASHCARDS.length;
