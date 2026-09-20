@@ -537,6 +537,28 @@
       </div>
 
       <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🎯 List vs. Tuple vs. Set vs. Dictionary — "Which one would you use?" (interview-style)</h4>
+        <div style="max-height: 560px; overflow-y: auto;">
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">The feature table above answers "what's the difference?" This one answers the follow-up interviewers actually probe: "given this situation, which would you pick, and why?"</p>
+        <table>
+          <tr><th>Interview scenario / question</th><th>Structure to use</th><th>Why</th><th>Example</th></tr>
+          <tr><td>"Store a sequence of items that may need to grow, shrink, or be reordered."</td><td>List</td><td>Only mutable <em>and</em> ordered sequence type — append/remove/sort in place</td><td><code>tasks = ["build", "test"]; tasks.append("deploy")</code></td></tr>
+          <tr><td>"Store coordinates or a fixed-size record that should never change."</td><td>Tuple</td><td>Immutability signals "this is a constant record," and it's hashable — usable as a dict key</td><td><code>point = (37.77, -122.41)</code></td></tr>
+          <tr><td>"Return more than one value from a function."</td><td>Tuple</td><td>The idiomatic way — <code>return min_val, max_val</code> packs into a tuple automatically, unpacked by the caller</td><td><code>def stats(): return mean, std</code></td></tr>
+          <tr><td>"Remove duplicate values from a list."</td><td>Set</td><td>A set can only hold unique elements — converting drops duplicates in one step</td><td><code>unique = list(set(my_list))</code></td></tr>
+          <tr><td>"Check membership in a large collection as fast as possible."</td><td>Set (or dict keys)</td><td>O(1) average-case lookup via hashing, vs. O(n) for a list/tuple scan</td><td><code>if user_id in seen_ids:</code></td></tr>
+          <tr><td>"Find common or differing elements between two collections."</td><td>Set</td><td>Built-in <code>&amp;</code>, <code>|</code>, <code>-</code>, <code>^</code> operators do intersection/union/difference/symmetric-difference directly</td><td><code>shared = set(a) &amp; set(b)</code></td></tr>
+          <tr><td>"Map each customer ID to their order count." / "Count word frequencies."</td><td>Dictionary</td><td>Only structure built for key→value lookup; O(1) average access by key</td><td><code>counts = {}; counts[word] = counts.get(word, 0) + 1</code></td></tr>
+          <tr><td>"Represent a JSON API response or a row with named fields."</td><td>Dictionary</td><td>Keys act as self-documenting field names — matches JSON's native shape</td><td><code>{"name": "Alice", "age": 30}</code></td></tr>
+          <tr><td>"Use a compound value as a dictionary key or store it in a set."</td><td>Tuple</td><td>Tuples are hashable (if their contents are); lists and sets are not, and dicts aren't hashable either</td><td><code>seen = {(row.id, row.date) for row in rows}</code></td></tr>
+          <tr><td>"Preserve the order items were added, but forbid duplicates."</td><td>Dictionary (via <code>dict.fromkeys()</code>) — not a set</td><td>Sets don't guarantee order; a dict (Python 3.7+) preserves insertion order while still deduping on keys</td><td><code>ordered_unique = list(dict.fromkeys(my_list))</code></td></tr>
+          <tr><td>"Minimize memory footprint for a large, unchanging batch of values."</td><td>Tuple</td><td>Tuples have lower memory overhead than lists since they're fixed-size and immutable</td><td><code>WEEKDAYS = ("Mon","Tue","Wed","Thu","Fri")</code></td></tr>
+          <tr><td>"Build a lookup table / cache keyed by function arguments."</td><td>Dictionary</td><td>Direct key access avoids re-computation — the basis of manual memoization</td><td><code>cache = {}; cache[args] = compute(args)</code></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
         <h4>🔗 Set Operations: union, intersection, difference, symmetric_difference</h4>
         <div style="max-height: 380px; overflow-y: auto;">
         <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">Using <code>a = {1,2,3}</code> and <code>b = {2,3,4}</code> throughout.</p>
