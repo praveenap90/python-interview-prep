@@ -382,6 +382,8 @@
   .cheat-card th { color: var(--pine-deep); font-weight: 600; }
   .cheat-card pre { background: var(--pine-deep); color: #eef1e2; padding: 8px 10px; border-radius: 4px; font-size: 11px; line-height: 1.5; overflow-x: auto; margin: 4px 0; white-space: pre; }
 
+  /* ---- Coding Practice: reuses .flash-card/.flash-grid, see Flashcards block below ---- */
+
   /* ---- Flashcards ---- */
 
   .flash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
@@ -440,6 +442,11 @@
 
   .flash-back .fb-explain { font-size: 12.5px; color: #cfd9d0; margin-top: 6px; }
 
+  /* Coding Practice cards: same flip mechanic, wider + taller for two code blocks + explanation */
+  #code-grid.flash-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  #code-grid .flash-card { height: 420px; }
+  #code-grid .fc-q { font-size: 14.5px; }
+
   footer { padding: 36px 0 56px; }
   footer p { font-size: 14px; color: var(--ink-soft); }
 
@@ -461,6 +468,7 @@
       <a href="#comparisons">Comparisons</a>
       <a href="#cheatsheet">Cheat Sheet</a>
       <a href="#flashcards">Flash Cards</a>
+      <a href="#coding-practice">Coding Practice</a>
     </div>
   </div>
 </nav>
@@ -895,6 +903,15 @@ pip install -r requirements.txt</pre>
     <div class="quiz-filters" id="flash-filters"></div>
     <div class="quiz-filters" id="flash-subfilters" style="display:none; margin-top:-8px;"></div>
     <div class="flash-grid" id="flash-grid"></div>
+  </div>
+</section>
+
+<section id="coding-practice">
+  <div class="wrap">
+    <p class="section-label">▸ write it yourself</p>
+    <h2>Coding Practice</h2>
+    <p class="lead">"Write a program to..." questions — the whiteboard/live-coding staples. Each one shows a working solution plus the reasoning an interviewer is actually listening for.</p>
+    <div class="flash-grid" id="code-grid"></div>
   </div>
 </section>
 
@@ -2775,6 +2792,97 @@ function renderFlashcards() {
 }
 
 renderFlashcards();
+
+const CODE_QUESTIONS = [
+  { num: "Q1", q: "Write a Python program to sort a list of numbers in ascending order.", a: `<pre>numbers = [5, 2, 9, 1, 5, 6]
+
+\# Built-in, idiomatic way -- Timsort, O(n log n)
+sorted_numbers = sorted(numbers)
+print(sorted_numbers)   \# [1, 2, 5, 5, 6, 9]
+
+\# In-place variant (mutates the original list, returns None)
+numbers.sort()
+print(numbers)          \# [1, 2, 5, 5, 6, 9]</pre>
+<div class="fb-explain"><strong>If asked to implement it manually:</strong></div>
+<pre>def bubble_sort(nums):
+    nums = nums.copy()
+    n = len(nums)
+    for i in range(n):
+        swapped = False
+        for j in range(n - i - 1):
+            if nums[j] > nums[j + 1]:
+                nums[j], nums[j + 1] = nums[j + 1], nums[j]
+                swapped = True
+        if not swapped:   \# already sorted -- stop early
+            break
+    return nums</pre>
+<div class="fb-explain"><strong>What's being tested:</strong> <code>sorted()</code> returns a new list while <code>.sort()</code> mutates in place and returns <code>None</code> (so <code>x = numbers.sort()</code> silently sets <code>x</code> to <code>None</code> -- a classic gotcha). Built-in is O(n log n) vs. bubble sort's O(n²); the <code>swapped</code> early-exit flag shows real algorithm understanding.</div>` },
+
+  { num: "Q2", q: "Write a program to check if a string is a palindrome.", a: `<pre>def is_palindrome(s: str) -&gt; bool:
+    \# Normalize: ignore case and non-alphanumeric characters
+    cleaned = "".join(ch.lower() for ch in s if ch.isalnum())
+    return cleaned == cleaned[::-1]
+
+print(is_palindrome("Racecar"))                          \# True
+print(is_palindrome("A man, a plan, a canal: Panama"))    \# True
+print(is_palindrome("hello"))                             \# False</pre>
+<div class="fb-explain"><strong>Two-pointer variant (no slicing/extra copy):</strong></div>
+<pre>def is_palindrome_two_pointer(s: str) -&gt; bool:
+    cleaned = [ch.lower() for ch in s if ch.isalnum()]
+    left, right = 0, len(cleaned) - 1
+    while left &lt; right:
+        if cleaned[left] != cleaned[right]:
+            return False
+        left += 1
+        right -= 1
+    return True</pre>
+<div class="fb-explain"><strong>What's being tested:</strong> whether you handle case and punctuation/spaces up front -- "Racecar" and phrase-palindromes like "A man, a plan..." are the classic follow-up. The two-pointer version runs in O(1) extra space instead of building a reversed copy.</div>` },
+
+  { num: "Q3", q: "Write a program to reverse a string.", a: `<pre>s = "hello world"
+
+\# Idiomatic slicing -- fastest, most Pythonic
+reversed_s = s[::-1]
+print(reversed_s)   \# "dlrow olleh"
+
+\# Using reversed() + join() -- explicit about intent
+reversed_s2 = "".join(reversed(s))
+print(reversed_s2)  \# "dlrow olleh"</pre>
+<div class="fb-explain"><strong>If asked to implement it manually (no slicing/reversed()):</strong></div>
+<pre>def reverse_string(s: str) -&gt; str:
+    chars = list(s)
+    left, right = 0, len(chars) - 1
+    while left &lt; right:
+        chars[left], chars[right] = chars[right], chars[left]
+        left += 1
+        right -= 1
+    return "".join(chars)
+
+print(reverse_string("hello world"))   \# "dlrow olleh"</pre>
+<div class="fb-explain"><strong>What's being tested:</strong> strings are immutable in Python, so any manual approach needs an intermediate structure (a list) -- you can't swap characters in place on the string itself. The two-pointer swap runs in O(n) time / O(n) space, since O(1) extra space is impossible on an immutable string.</div>` }
+];
+
+function renderCodeCards() {
+  const grid = document.getElementById("code-grid");
+  grid.innerHTML = "";
+  CODE_QUESTIONS.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "flash-card has-code";
+    card.innerHTML = `
+      <div class="flash-inner">
+        <div class="flash-face flash-front">
+          <div class="fc-cat">CODING PRACTICE — ${c.num}</div>
+          <div class="fc-q">${c.q}</div>
+          <div class="fc-hint">Click to flip ↻</div>
+        </div>
+        <div class="flash-face flash-back">${c.a}</div>
+      </div>
+    `;
+    card.addEventListener("click", () => card.classList.toggle("flipped"));
+    grid.appendChild(card);
+  });
+}
+
+renderCodeCards();
 </script>
 
 </body>
