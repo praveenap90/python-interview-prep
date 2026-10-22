@@ -384,6 +384,53 @@
 
   /* ---- Coding Practice: reuses .flash-card/.flash-grid, see Flashcards block below ---- */
 
+  /* ---- Python EDA ---- */
+
+  .eda-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 20px 0 8px; }
+  .eda-stat { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; }
+  .eda-stat .n { font-family: "Courier New", ui-monospace, monospace; font-size: 18px; color: var(--pine-deep); font-weight: 700; }
+  .eda-stat .l { font-size: 11.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .eda-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 18px 0 0; }
+  .eda-step { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 14px; }
+  .eda-step .k { font-family: "Courier New", ui-monospace, monospace; color: var(--ochre); font-size: 12px; }
+  .eda-step .t { font-weight: 700; color: var(--pine-deep); margin: 2px 0; }
+  .eda-step .d { font-size: 13px; color: var(--ink-soft); }
+
+  .eda-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 24px 0 20px; }
+  .eda-tab {
+    background: var(--card-bg); color: var(--ink-soft); border: 1px solid var(--rule);
+    border-radius: 999px; padding: 9px 18px; font: 600 13.5px inherit; cursor: pointer;
+  }
+  .eda-tab:hover { border-color: var(--pine); color: var(--pine-deep); }
+  .eda-tab.active { background: var(--pine-deep); border-color: var(--pine-deep); color: var(--paper); }
+  .eda-tab small { opacity: 0.75; margin-left: 5px; font-family: "Courier New", ui-monospace, monospace; }
+
+  .eda-panel { display: none; }
+  .eda-panel.active { display: block; }
+
+  .eda-card { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 22px 24px; margin-bottom: 18px; }
+  .eda-card .eda-num { font-family: "Courier New", ui-monospace, monospace; color: var(--ochre); font-size: 12px; }
+  .eda-card h4 { margin: 2px 0 4px; color: var(--pine-deep); font-size: 17px; }
+  .eda-card .eda-q { color: var(--ink-soft); font-size: 14.5px; font-style: italic; margin: 0 0 12px; }
+  .eda-card pre { background: var(--pine-deep); color: #eef1e2; padding: 14px 16px; border-radius: 4px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 4px 0 12px; white-space: pre; }
+  .eda-card code { background: var(--pine-tint); padding: 1px 5px; border-radius: 3px; font-size: 13.5px; }
+  .eda-why { background: var(--ochre-tint); border-left: 3px solid var(--ochre); padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 12px; }
+  .eda-why b { color: var(--ochre); }
+  .eda-look { background: var(--pine-tint); border-left: 3px solid var(--pine); padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+  .eda-look b { color: var(--pine-deep); }
+
+  .eda-scenario { background: var(--pine-tint); border: 1px solid var(--rule); border-radius: 8px; padding: 22px 24px; margin-bottom: 18px; }
+  .eda-scenario h4 { font-size: 19px; color: var(--pine-deep); margin: 4px 0 10px; }
+  .eda-scenario blockquote { border-left: 3px solid var(--ochre); padding: 6px 14px; margin: 14px 0; font-style: italic; background: var(--ochre-tint); border-radius: 0 6px 6px 0; color: var(--ink); }
+  .eda-grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 14px; }
+  .eda-grid3 div { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; color: var(--ink-soft); }
+  .eda-grid3 b { color: var(--ochre); }
+  .eda-fine { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; }
+
+  .eda-chips { margin-top: 16px; }
+  .eda-chip { display: inline-block; font-family: "Courier New", ui-monospace, monospace; font-size: 12px; padding: 4px 10px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-soft); background: var(--card-bg); margin: 4px 6px 4px 0; }
+
   /* ---- Flashcards ---- */
 
   .flash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
@@ -445,7 +492,10 @@
   /* Coding Practice cards: same flip mechanic, wider + taller for two code blocks + explanation */
   #code-grid.flash-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
   #code-grid .flash-card { height: 420px; }
-  #code-grid .fc-q { font-size: 14.5px; }
+  #code-grid .flash-face { font-size: 15.5px; line-height: 1.6; }
+  #code-grid .fc-q { font-size: 16.5px; }
+  #code-grid .flash-back pre { font-size: 13px; line-height: 1.65; }
+  #code-grid .flash-back .fb-explain { font-size: 14px; }
 
   footer { padding: 36px 0 56px; }
   footer p { font-size: 14px; color: var(--ink-soft); }
@@ -455,6 +505,22 @@
     .stat-row { gap: 20px; }
     .modal-body { max-height: 60vh; }
   }
+  .mermaid-wrap { background: #fafaf5; border: 1px solid var(--rule); border-radius: 6px; padding: 14px; margin: 10px 0; overflow-x: auto; text-align: center; position: relative; }
+  .mermaid-wrap .mermaid { display: inline-block; min-width: 480px; }
+  .mermaid-expand-btn { position: absolute; top: 8px; right: 8px; z-index: 2; background: var(--pine); color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 5px 11px; cursor: pointer; opacity: 0.85; font-family: inherit; }
+  .mermaid-expand-btn:hover { opacity: 1; background: var(--pine-deep); }
+  .mermaid-modal { display: none; position: fixed; inset: 0; background: rgba(15,20,13,0.94); z-index: 1000; flex-direction: column; }
+  .mermaid-modal.open { display: flex; }
+  .mermaid-modal-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 12px 18px; flex: none; }
+  .mermaid-modal-hint { color: var(--paper-dim); font-size: 12px; margin-right: auto; opacity: 0.8; }
+  .mermaid-modal-toolbar button { background: var(--paper); color: var(--pine-deep); border: 1px solid var(--rule); border-radius: 4px; width: 38px; height: 38px; font-size: 17px; line-height: 1; cursor: pointer; font-family: inherit; }
+  .mermaid-modal-toolbar button:hover { background: var(--ochre); color: #fff; border-color: var(--ochre); }
+  .mermaid-modal-toolbar button.close-btn { background: var(--pine-deep); color: #fff; margin-left: 4px; }
+  .mermaid-modal-canvas { flex: 1; overflow: hidden; cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; }
+  .mermaid-modal-canvas.dragging { cursor: grabbing; }
+  .mermaid-modal-content { transform-origin: center center; will-change: transform; }
+  .mermaid-modal-content svg { max-width: none !important; background: #fff; border-radius: 6px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: block; }
+
 </style>
 </head>
 <body>
@@ -469,6 +535,7 @@
       <a href="#cheatsheet">Cheat Sheet</a>
       <a href="#flashcards">Flash Cards</a>
       <a href="#coding-practice">Coding Practice</a>
+      <a href="#python-eda">Python EDA</a>
     </div>
   </div>
 </nav>
@@ -497,7 +564,7 @@
 
 <section id="modules">
   <div class="wrap">
-    <p class="section-label">▸ eight modules</p>
+    <p class="section-label">▸ eleven modules</p>
     <h2>Click a module to explore</h2>
     <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
     <div class="module-grid" id="module-grid"></div>
@@ -782,6 +849,97 @@ assert df['age'].between(0, 100).all()</pre></td></tr>
         <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">This is the shape most real pre-processing scripts follow — load → dedupe → standardize names → handle missing → clean text → fix types → enforce rules → save. Each step here maps to a technique in the fuller reference table above.</div>
       </div>
 
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>📥 End-to-End Data Workflow: Import → Clean → Export, by Source Type</h4>
+        <div style="max-height: 420px; overflow-y: auto;">
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">Decision flow: pick the file type → use its import method with the right parameters → check with <code>df.head()</code>/<code>df.info()</code> → clean based on whether you're holding a NumPy array, a Series, or a DataFrame → export.</p>
+        <table>
+          <tr><th>Source type</th><th>Import method</th><th>Key import parameters</th><th>Cleaning techniques</th><th>Export method</th><th>Export example</th></tr>
+          <tr><td>CSV</td><td><code>pd.read_csv</code></td><td><code>sep</code>, <code>header</code>, <code>usecols</code>, <code>dtype</code>, <code>parse_dates</code>, <code>na_values</code>, <code>nrows</code>, <code>encoding</code></td><td><code>fillna</code>, <code>dropna</code>, <code>drop_duplicates</code>, <code>astype</code>, string strip/lower, filtering</td><td><code>to_csv</code></td><td><pre>df.to_csv("out.csv", index=False)</pre></td></tr>
+          <tr><td>JSON</td><td><code>pd.read_json</code></td><td><code>orient</code>, <code>dtype</code>, <code>convert_dates</code></td><td><code>json_normalize</code> for nested data, then standard DataFrame cleaning</td><td><code>to_json</code></td><td><pre>df.to_json("out.json", orient="records")</pre></td></tr>
+          <tr><td>TXT / TSV</td><td><code>pd.read_csv</code></td><td><code>sep</code>, <code>names</code>, <code>header</code>, <code>skiprows</code></td><td>Same as CSV cleaning, plus delimiter validation</td><td><code>to_csv</code> with <code>sep</code></td><td><pre>df.to_csv("out.txt", sep="\t")</pre></td></tr>
+          <tr><td>Excel</td><td><code>pd.read_excel</code></td><td><code>sheet_name</code>, <code>usecols</code>, <code>dtype</code>, <code>skiprows</code>, <code>nrows</code></td><td>Handle empty cells, rename columns, strip strings</td><td><code>to_excel</code></td><td><pre>df.to_excel("out.xlsx", index=False)</pre></td></tr>
+          <tr><td>SQL DB</td><td><code>pd.read_sql</code></td><td>query, connection, <code>chunksize</code></td><td>Type fixes, null handling, dedup</td><td><code>to_sql</code></td><td><pre>df.to_sql("table", engine)</pre></td></tr>
+          <tr><td>NumPy file</td><td><code>np.loadtxt</code></td><td><code>delimiter</code>, <code>dtype</code></td><td><code>np.isnan</code>, boolean filtering, type cast</td><td><code>np.savetxt</code></td><td><pre>np.savetxt("out.csv", arr)</pre></td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🧰 Data Cleaning Techniques: NumPy Array vs. Pandas Series vs. Pandas DataFrame</h4>
+        <div style="max-height: 480px; overflow-y: auto;">
+        <table>
+          <tr><th>Cleaning task</th><th>NumPy array</th><th>Pandas Series</th><th>Pandas DataFrame</th></tr>
+          <tr><td>Handling missing values</td><td>Use <code>np.nan</code> and <code>np.isnan()</code><br><pre>a[np.isnan(a)] = 0</pre></td><td><pre>s.fillna(0)
+s.dropna()</pre></td><td><pre>df.fillna(0)
+df.dropna()
+df['A'].fillna(0)</pre></td></tr>
+          <tr><td>Detecting missing values</td><td><code>np.isnan(a)</code></td><td><code>s.isna()</code> / <code>s.isnull()</code></td><td><code>df.isna()</code> / <code>df.isnull()</code></td></tr>
+          <tr><td>Removing duplicates</td><td>Manual: <code>np.unique(a)</code></td><td><code>s.drop_duplicates()</code></td><td><code>df.drop_duplicates()</code></td></tr>
+          <tr><td>Replacing values</td><td><code>a[a == old] = new</code></td><td><code>s.replace(old, new)</code></td><td><code>df.replace(old, new)</code> or <code>df['col'].replace(old, new)</code></td></tr>
+          <tr><td>Filtering / removing outliers</td><td>Boolean indexing: <code>a[a &lt; upper]</code></td><td><code>s[(s &gt; low) &amp; (s &lt; high)]</code></td><td><code>df[(df['A'] &gt; low) &amp; (df['A'] &lt; high)]</code></td></tr>
+          <tr><td>Type conversion</td><td><code>a.astype(float)</code></td><td><code>s.astype(float)</code></td><td><code>df.astype({'A': float, 'B': int})</code></td></tr>
+          <tr><td>Trimming / string cleaning</td><td>Not native — convert to object array: <code>a_str = a.astype(str)</code></td><td><code>s.str.strip()</code></td><td><code>df['col'].str.strip()</code>, <code>df['col'].str.lower()</code></td></tr>
+          <tr><td>Scaling / normalization</td><td><code>(a - a.min()) / (a.max() - a.min())</code></td><td><code>(s - s.min()) / (s.max() - s.min())</code></td><td><code>(df - df.min()) / (df.max() - df.min())</code> (column-wise)</td></tr>
+          <tr><td>Renaming columns / index</td><td>❌ Not supported</td><td><code>s.rename({'old': 'new'})</code></td><td><code>df.rename(columns={'old': 'new'}, index={0: 'row1'})</code></td></tr>
+          <tr><td>Sorting data</td><td><code>np.sort(a)</code></td><td><code>s.sort_values()</code></td><td><code>df.sort_values(by='A')</code></td></tr>
+          <tr><td>Handling categorical data</td><td>Manual encoding needed</td><td><code>pd.get_dummies(s)</code></td><td><code>pd.get_dummies(df['col'])</code></td></tr>
+        </table>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">The pattern is the same across all three — detect, then fix/remove/convert — but a plain NumPy array has no built-in <code>isna</code>/<code>fillna</code>/<code>str</code> accessor, no column names to rename, and no native categorical-encoding helper, so most of that work is either manual or requires converting to pandas first.</div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>📐 Statistical Functions: NumPy Array vs. Series vs. DataFrame</h4>
+        <div style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <tr><th>Function</th><th>NumPy array</th><th>Pandas Series</th><th>Pandas DataFrame</th></tr>
+          <tr><td>Mean</td><td><code>np.mean(arr)</code></td><td><code>ser.mean()</code></td><td><code>df.mean()</code></td></tr>
+          <tr><td>Median</td><td><code>np.median(arr)</code></td><td><code>ser.median()</code></td><td><code>df.median()</code></td></tr>
+          <tr><td>Sum</td><td><code>np.sum(arr)</code></td><td><code>ser.sum()</code></td><td><code>df.sum()</code></td></tr>
+          <tr><td>Min</td><td><code>np.min(arr)</code></td><td><code>ser.min()</code></td><td><code>df.min()</code></td></tr>
+          <tr><td>Max</td><td><code>np.max(arr)</code></td><td><code>ser.max()</code></td><td><code>df.max()</code></td></tr>
+          <tr><td>Count</td><td><code>len(arr)</code></td><td><code>ser.count()</code></td><td><code>df.count()</code></td></tr>
+          <tr><td>Std dev</td><td><code>np.std(arr)</code></td><td><code>ser.std()</code></td><td><code>df.std()</code></td></tr>
+          <tr><td>Variance</td><td><code>np.var(arr)</code></td><td><code>ser.var()</code></td><td><code>df.var()</code></td></tr>
+          <tr><td>Percentile</td><td><code>np.percentile(arr, 75)</code></td><td><code>ser.quantile(0.75)</code></td><td><code>df.quantile(0.75)</code></td></tr>
+          <tr><td>Describe summary</td><td>❌ not built-in</td><td><code>ser.describe()</code></td><td><code>df.describe()</code></td></tr>
+        </table>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;"><code>len(arr)</code> is the NumPy stand-in for <code>count()</code> since there's no missing-value concept at the array level to exclude — pandas' <code>count()</code> specifically excludes NaNs, which is the detail interviewers probe for. NumPy has no <code>describe()</code> equivalent because it isn't aware of column semantics; getting a full summary means calling each stat individually, or dropping into pandas.</div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>💻 Import → Clean → Export, Worked Examples</h4>
+        <h5 style="margin:0 0 6px; color:var(--pine-deep); font-size:13px; text-transform:uppercase; letter-spacing:0.04em;">CSV → Excel</h5>
+        <pre>import pandas as pd
+
+# IMPORT
+df = pd.read_csv("data.csv", na_values=["NA"], parse_dates=["date"])
+
+# CLEAN
+df = df.drop_duplicates()
+df["name"] = df["name"].str.strip().str.lower()
+df["amount"] = df["amount"].fillna(0)
+
+# EXPORT
+df.to_excel("clean.xlsx", index=False)</pre>
+        <h5 style="margin:16px 0 6px; color:var(--pine-deep); font-size:13px; text-transform:uppercase; letter-spacing:0.04em;">SQL database → SQL database</h5>
+        <pre>from sqlalchemy import create_engine
+engine = create_engine("mysql+pymysql://user:pass@host/db")
+
+# Import
+df = pd.read_sql("select * from sales", engine)
+
+# Clean
+df = df.dropna()
+df = df.drop_duplicates()
+
+# Export
+df.to_sql("sales_clean", engine, if_exists="replace", index=False)</pre>
+      </div>
+
+
     </div>
   </div>
 </section>
@@ -912,6 +1070,137 @@ pip install -r requirements.txt</pre>
     <h2>Coding Practice</h2>
     <p class="lead">"Write a program to..." questions — the whiteboard/live-coding staples. Each one shows a working solution plus the reasoning an interviewer is actually listening for.</p>
     <div class="flash-grid" id="code-grid"></div>
+  </div>
+</section>
+
+<section id="python-eda">
+  <div class="wrap">
+    <p class="section-label">▸ pandas end-to-end</p>
+    <h2>Exploratory Data Analysis — Python &amp; pandas</h2>
+    <p class="lead">The same staged EDA walkthrough as the SQL version of this project, done entirely in pandas: from knowing what's in the tables, to validating it, to answering business questions with groupby, merge, and window-style operations — then a full real-world case study.</p>
+
+    <div class="eda-chips">
+      <span class="eda-chip">Library <b style="color:var(--ochre)">pandas + NumPy</b></span>
+      <span class="eda-chip">Dataset <b style="color:var(--ochre)">Synthetic Superstore-style orders</b></span>
+      <span class="eda-chip"><b style="color:var(--ochre)">26</b> notebooks cells</span>
+      <span class="eda-chip"><b style="color:var(--ochre)">1</b> real-world case study</span>
+    </div>
+
+    <div class="eda-stats">
+      <div class="eda-stat"><div class="n">~48,000</div><div class="l">order line items</div></div>
+      <div class="eda-stat"><div class="n">20,000</div><div class="l">orders</div></div>
+      <div class="eda-stat"><div class="n">2,000</div><div class="l">customers</div></div>
+      <div class="eda-stat"><div class="n">300</div><div class="l">products</div></div>
+      <div class="eda-stat"><div class="n">5</div><div class="l">regions</div></div>
+    </div>
+
+    <div class="eda-why" style="margin-top:18px;"><b>About the data.</b> This is a synthetic, Superstore-style dataset generated with NumPy (seeded, so it's reproducible) rather than a real company's data. The row counts are small enough to run entirely in memory on a laptop — the point of this project is the <em>method</em>, which transfers directly to a real CSV, database export, or data warehouse table.</div>
+
+    <div class="eda-steps">
+      <div class="eda-step"><div class="k">01</div><div class="t">Understand</div><div class="d">Shape, dtypes, memory, keys.</div></div>
+      <div class="eda-step"><div class="k">02</div><div class="t">Profile</div><div class="d">Distributions, categories, NaNs, date range.</div></div>
+      <div class="eda-step"><div class="k">03</div><div class="t">Validate</div><div class="d">Duplicates, orphan keys, partial periods.</div></div>
+      <div class="eda-step"><div class="k">04</div><div class="t">Relate</div><div class="d">Merges, trends, segments, correlations.</div></div>
+      <div class="eda-step"><div class="k">05</div><div class="t">Operationalize</div><div class="d">Reusable functions and a tidy fact table.</div></div>
+    </div>
+
+    <div class="eda-card" style="margin-top:28px;">
+      <div class="eda-num">SETUP</div>
+      <h4>Generate the dataset (or swap in your own CSV)</h4>
+      <p class="eda-q">Everything below assumes these five DataFrames already exist in memory.</p>
+      <pre>import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)   # seeded -- reproducible every run
+
+n_customers, n_products, n_orders = 2_000, 300, 20_000
+
+regions = pd.DataFrame({
+    "region_id": range(1, 6),
+    "region_name": ["North America", "Europe", "Asia", "South America", "Africa"]
+})
+
+customers = pd.DataFrame({
+    "customer_id": range(1, n_customers + 1),
+    "segment": rng.choice(["Consumer", "Corporate", "Home Office"], n_customers, p=[.55, .30, .15]),
+    "region_id": rng.integers(1, 6, n_customers)
+})
+
+products = pd.DataFrame({
+    "product_id": range(1, n_products + 1),
+    "category": rng.choice(["Furniture", "Office Supplies", "Technology"], n_products),
+    "unit_price": rng.gamma(2, 50, n_products).round(2)
+})
+
+order_dates = pd.date_range("2021-01-01", "2024-07-31", freq="D")
+orders = pd.DataFrame({
+    "order_id": range(1, n_orders + 1),
+    "customer_id": rng.integers(1, n_customers + 1, n_orders),
+    "order_date": rng.choice(order_dates, n_orders),
+    "ship_mode": rng.choice(["Standard", "Second Class", "First Class", "Same Day"],
+                             n_orders, p=[.60, .20, .15, .05])
+})
+orders["commit_date"] = orders["order_date"] + pd.to_timedelta(5, unit="D")
+orders["ship_date"]   = orders["order_date"] + pd.to_timedelta(rng.integers(1, 10, n_orders), unit="D")
+
+# 1-4 line items per order
+rows = []
+for oid in orders["order_id"]:
+    for _ in range(rng.integers(1, 5)):
+        pid = rng.integers(1, n_products + 1)
+        rows.append((oid, pid, rng.integers(1, 10),
+                     rng.choice([0, .05, .10, .15, .20], p=[.4, .25, .2, .1, .05])))
+order_items = pd.DataFrame(rows, columns=["order_id", "product_id", "quantity", "discount"])
+order_items = order_items.merge(products[["product_id", "unit_price"]], on="product_id")
+order_items["net_revenue"] = (order_items["quantity"] * order_items["unit_price"]
+                               * (1 - order_items["discount"]))</pre>
+      <div class="eda-look"><b>Note:</b> <code>order_items</code> is the pandas equivalent of a line-item fact table — one row per product per order, same grain as a SQL <code>lineitem</code> table. Keep this in mind: aggregating at the order level before merging to line items will double-count, exactly as in SQL.</div>
+    </div>
+
+    <div class="eda-tabs" id="eda-tabs">
+      <button class="eda-tab active" data-eda-level="basic">Basic <small id="eda-c-basic"></small></button>
+      <button class="eda-tab" data-eda-level="intermediate">Intermediate <small id="eda-c-intermediate"></small></button>
+      <button class="eda-tab" data-eda-level="advanced">Advanced <small id="eda-c-advanced"></small></button>
+      <button class="eda-tab" data-eda-level="case">Real-world case <small id="eda-c-case"></small></button>
+    </div>
+
+    <div class="eda-panel active" id="eda-p-basic"></div>
+    <div class="eda-panel" id="eda-p-intermediate"></div>
+    <div class="eda-panel" id="eda-p-advanced"></div>
+    <div class="eda-panel" id="eda-p-case">
+      <div class="eda-scenario">
+        <div class="section-label" style="margin-bottom:4px;">▸ the situation</div>
+        <h4>A wholesale distributor asks: "Is our growth healthy?"</h4>
+        <p style="color:var(--ink-soft); font-size:14.5px;">You're the analyst at a mid-size distributor — the kind of business this synthetic dataset models: it sells furniture, office supplies, and technology to customers across five regions, shipping by several modes. The VP of Sales sends this before the quarterly review:</p>
+        <blockquote>Revenue feels flat and I keep hearing delivery complaints. Are we too dependent on a few customers or regions, and is delivery getting worse? I need a recommendation, not a data dump.</blockquote>
+        <div class="eda-grid3">
+          <div><b>Questions</b><br>1. Is revenue concentrated in a few regions or customers?<br>2. Is growth coming from new or returning customers?<br>3. Is delivery performance trending worse?</div>
+          <div><b>Metric definitions</b><br>Net revenue = quantity × unit price × (1 − discount), at line level.<br>Late = shipped after the committed date.<br>New customer = first order ever in that year.</div>
+          <div><b>Guardrails</b><br>Reconcile totals before trusting a merge.<br>Compare like-for-like periods only.<br>Report a null finding plainly.</div>
+        </div>
+        <p class="eda-fine">The company, the email, and the stakeholder are fictional, and the data is the synthetic dataset generated above. The workflow is the point: it mirrors how a real request moves from a vague question to a defensible recommendation.</p>
+      </div>
+      <div id="eda-p-case-cards"></div>
+    </div>
+
+    <div style="margin-top:36px;">
+      <p class="section-label">▸ summary</p>
+      <h3 style="color:var(--pine-deep); margin:0 0 10px;">What this demonstrates</h3>
+      <div class="eda-chips">
+        <span class="eda-chip">df.info() / dtypes</span><span class="eda-chip">value_counts(normalize=True)</span>
+        <span class="eda-chip">describe()</span><span class="eda-chip">isna().sum()</span>
+        <span class="eda-chip">groupby + merge</span><span class="eda-chip">anti-join via indicator=True</span>
+        <span class="eda-chip">resample / dt accessor</span><span class="eda-chip">pd.cut</span>
+        <span class="eda-chip">shift() for YoY</span><span class="eda-chip">rolling()</span>
+        <span class="eda-chip">groupby + rank(method=)</span><span class="eda-chip">IQR outliers</span>
+        <span class="eda-chip">qcut deciles</span><span class="eda-chip">RFM segmentation</span>
+        <span class="eda-chip">corr()</span><span class="eda-chip">pivot_table</span>
+        <span class="eda-chip">Reusable functions</span><span class="eda-chip">Merge-grain reconciliation</span>
+        <span class="eda-chip">Like-for-like windows</span><span class="eda-chip">New vs returning customers</span>
+        <span class="eda-chip">np.where</span><span class="eda-chip">Stakeholder write-up</span>
+      </div>
+      <p class="lead" style="margin-top:16px; font-size:15px;">Natural next steps: wrap the cleaned tables in a small data-access module, or move the heaviest aggregations into SQL/a warehouse once the dataset no longer fits comfortably in memory.</p>
+    </div>
   </div>
 </section>
 
@@ -1559,6 +1848,909 @@ print(result)</pre>
           <li>Using single brackets for multi-column selection: <code>df['a','b']</code> instead of <code>df[['a','b']]</code></li>
           <li>Filtering a date column before converting it with <code>pd.to_datetime()</code> — string comparison silently gives wrong results</li>
           <li>Chained indexing (<code>df[df.col>5]['col2'] = x</code>) — triggers <code>SettingWithCopyWarning</code> and may silently fail to update the original DataFrame; use <code>.loc[mask, 'col2'] = x</code> instead</li>
+        </ul>`
+    }
+  },
+  {
+    id: "visualization",
+    icon: "📊",
+    title: "Visualization",
+    tagline: "matplotlib, seaborn & plotly",
+    desc: "Choosing the right library, the right Matplotlib API, and the right chart type — plus Plotly Express vs. Graph Objects.",
+    tags: ["matplotlib", "seaborn", "plotly", "chart selection"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>Python's plotting stack splits into three layers: <strong>Matplotlib</strong> (low-level, fully controllable), <strong>Seaborn</strong> (high-level, statistical, built on Matplotlib), and <strong>Plotly</strong> (interactive, web-ready, dashboard-friendly).</p>
+        <h4>Why it matters</h4>
+        <p>Interviewers rarely ask "how do you make a bar chart" — they ask <strong>which tool you'd reach for and why</strong>. Picking Seaborn for a quick statistical look, Matplotlib for pixel-level control, or Plotly for an interactive dashboard shows you understand the trade-offs, not just the syntax.</p>
+        <h4>Uses</h4>
+        <ul>
+          <li>Matplotlib — full control over every visual element; the foundation everything else sits on</li>
+          <li>Seaborn — statistical plots (distributions, regressions, categorical comparisons) with far less code</li>
+          <li>Plotly — interactive, zoomable, hover-enabled charts for notebooks, dashboards, and web apps</li>
+        </ul>
+        <p>Open the <strong>Charts</strong> tab above for the full interactive decision diagrams on library choice, the Pyplot vs. Object-Oriented API, chart-type selection, and Plotly Express vs. Graph Objects.</p>`,
+      workflow: `
+        <h4>Decision workflow</h4>
+        <ul>
+          <li>Static, one-off, low-level control needed → <strong>Matplotlib</strong></li>
+          <li>Statistical/exploratory plot on a DataFrame, minimal code → <strong>Seaborn</strong></li>
+          <li>Needs to be interactive, hoverable, or live in a dashboard/web page → <strong>Plotly</strong></li>
+          <li>Within Matplotlib: quick single plot → <strong>Pyplot API</strong> (<code>plt.plot()</code>); subplots or reusable functions → <strong>Object-Oriented API</strong> (<code>fig, ax = plt.subplots()</code>)</li>
+          <li>Within Plotly: fast one-liner from a tidy DataFrame → <strong>Plotly Express</strong> (<code>px</code>); fine-grained trace-by-trace control → <strong>Graph Objects</strong> (<code>go</code>)</li>
+        </ul>
+        <h4>Step-by-step</h4>
+        <pre>import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+
+\# Matplotlib -- Object-Oriented API (preferred for anything reused)
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.plot(df['date'], df['sales'])
+ax.set_title("Sales Over Time")
+plt.show()
+
+\# Seaborn -- one line for a statistical view
+sns.histplot(data=df, x='sales', hue='region', kde=True)
+
+\# Plotly Express -- interactive in one line
+fig = px.line(df, x='date', y='sales', color='region')
+fig.show()</pre>`,
+      concepts: `
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Pyplot vs. OO API</strong> — Pyplot is state-based and implicit (tracks a "current" figure/axes); the OO API gives explicit <code>fig</code>/<code>ax</code> objects, which is what production code and multi-subplot layouts actually use</li>
+          <li><strong>Seaborn sits on top of Matplotlib</strong> — a Seaborn plot returns a Matplotlib <code>Axes</code>, so Matplotlib customization (<code>ax.set_xlabel()</code>, etc.) still works on it</li>
+          <li><strong>Plotly Express vs. Graph Objects</strong> — <code>px</code> is a high-level wrapper that builds a figure from a tidy DataFrame in one call; <code>go</code> builds a figure trace-by-trace with full control, and the two combine (<code>px</code> for the base, <code>go</code>-style <code>fig.update_layout()</code>/<code>update_traces()</code> to fine-tune)</li>
+          <li><strong>Chart-type selection</strong> — comparisons/trends → line or bar; distributions → histogram/box/violin; relationships → scatter; part-of-whole → stacked bar (Seaborn deliberately omits pie charts — bar length compares more accurately than angle)</li>
+        </ul>`,
+      example: `
+        <h4>Real-world example: one dataset, three libraries</h4>
+        <pre>import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+
+\# Matplotlib OO API -- precise control, e.g. for a report figure
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.bar(monthly['month'], monthly['revenue'], color='#24463a')
+ax.set_title("Monthly Revenue")
+ax.set_ylabel("Revenue ($)")
+fig.savefig("revenue_report.png", dpi=150)
+
+\# Seaborn -- quick statistical check during EDA
+sns.boxplot(data=orders, x='region', y='order_value')
+
+\# Plotly Express -- interactive chart for a live dashboard
+fig = px.scatter(orders, x='order_value', y='delivery_days',
+                  color='region', hover_data=['customer_id'])
+fig.update_layout(title="Order Value vs. Delivery Time")
+fig.show()</pre>
+        <p><strong>Why this matters:</strong> the same underlying data gets a static, print-ready chart (Matplotlib) for a report, a one-line statistical check (Seaborn) during exploration, and an interactive, hoverable chart (Plotly) for a dashboard — same skillset, three different deliverables.</p>`,
+      charts: `
+        <h4>Interactive decision diagrams</h4>
+        <p style="margin-top:-4px;">Click ⤢ Expand on any diagram below to zoom and pan.</p>
+        <div class="cheat-grid">
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>📊 Matplotlib vs. Seaborn vs. Plotly — Which Library to Use</h4>
+        <div style="overflow-x: auto;">
+<p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;"><strong>Quick decision</strong></p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Choose Visualization Purpose"] --&gt; B["Static, low-level plot?"]
+A --&gt; C["Statistical / high-level plot?"]
+A --&gt; D["Interactive / web-ready plot?"]
+
+%% ---------- MATPLOTLIB ----------
+
+B --&gt; B1["Use Matplotlib"]
+B1 --&gt; B2["Code: plt.plot(x,y); plt.show()"]
+B1 --&gt; B3["Params: color, linewidth, linestyle, label"]
+
+%% ---------- SEABORN ----------
+
+C --&gt; C1["Use Seaborn"]
+C1 --&gt; C2["Code: sns.barplot(x='A',y='B',data=df); plt.show()"]
+C1 --&gt; C3["Params: hue, palette, ci, estimator"]
+
+%% ---------- PLOTLY ----------
+
+D --&gt; D1["Use Plotly"]
+D1 --&gt; D2["Code: px.bar(df,x='A',y='B')"]
+D1 --&gt; D3["Params: color, facet, hover_data"]
+
+%% ---------- COLORS ----------
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef purpose fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef mpl fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef sns fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef plotly fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D purpose;
+class B1,B2,B3 mpl;
+class C1,C2,C3 sns;
+class D1,D2,D3 plotly;
+</div></div>
+        <p style="font-size:13px; color:var(--ink-soft); margin:18px 0 10px;"><strong>Detailed decision chain</strong></p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Python Chart Template"] --&gt; B["Decide Purpose / Chart Type"]
+
+%% ---------- MATPLOTLIB ----------
+
+B --&gt; C["Need basic, static chart?"]
+C --&gt; C1["Low-level control"]
+C1 --&gt; C2["Customize color, style, labels, etc."]
+C2 --&gt; C3["Ideal for simple static plots"]
+C3 --&gt; C4["Use Matplotlib"]
+
+%% ---------- SEABORN ----------
+
+B --&gt; D["Need high-level statistical chart?"]
+D --&gt; D1["High-level statistical plotting"]
+D1 --&gt; D2["Supports grouping, hue, palette, estimator"]
+D2 --&gt; D3["Ideal for quick informative plots"]
+D3 --&gt; D4["Use Seaborn"]
+
+%% ---------- PLOTLY ----------
+
+B --&gt; E["Need interactive / web-ready chart?"]
+E --&gt; E1["Interactive, zoomable, hover info"]
+E1 --&gt; E2["Supports facets, animation, dashboard use"]
+E2 --&gt; E3["Ideal for dashboards or exploration"]
+E3 --&gt; E4["Use Plotly"]
+
+%% ---------- COLORS ----------
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef purpose fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef mpl fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef sns fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef plotly fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E purpose;
+class C1,C2,C3,C4 mpl;
+class D1,D2,D3,D4 sns;
+class E1,E2,E3,E4 plotly;
+</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">Rule of thumb: reach for Seaborn first for a quick statistical look at tabular data, Matplotlib when you need precise control over every visual element, and Plotly when the output needs to be interactive or live in a dashboard.</div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>🎛️ Pyplot API vs. Object-Oriented API (Matplotlib)</h4>
+        <div style="overflow-x: auto;">
+<div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Choose Plotting Purpose"] --&gt; B["Quick/simple plots?"]
+A --&gt; C["Complex plots / multiple subplots?"]
+
+%% ---------- PYPLOT API ----------
+
+B --&gt; B1["Use Pyplot API"]
+B1 --&gt; B2["Simple, state-based"]
+B1 --&gt; B3["Code:&lt;br&gt;plt.plot(x,y)&lt;br&gt;plt.title('Pyplot')&lt;br&gt;plt.show()"]
+
+%% ---------- OBJECT-ORIENTED API ----------
+
+C --&gt; C1["Use Object-Oriented API"]
+C1 --&gt; C2["Explicit fig &amp; axes&lt;br&gt;full control"]
+C1 --&gt; C3["Code:&lt;br&gt;fig, ax = plt.subplots()&lt;br&gt;ax.plot(x,y)&lt;br&gt;ax.set_title('OO')&lt;br&gt;plt.show()"]
+
+%% ---------- COLORS ----------
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef purpose fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef pyplot fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef oo fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C purpose;
+class B1,B2,B3 pyplot;
+class C1,C2,C3 oo;
+</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">The pyplot API is fine for a single quick chart, but reaches its limit fast with subplots or anything reused across functions — the OO API's explicit <code>fig, ax</code> objects are what most production/notebook code actually uses.</div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>📈 Which Chart to Use in Python</h4>
+        <div style="overflow-x: auto;">
+<div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Which Chart to Use in Python"] --&gt; B["Compare Categories / Groups?"]
+A --&gt; C["Show Trend / Change Over Time?"]
+A --&gt; D["Show Distribution / Frequency?"]
+A --&gt; E["Relationship Between Two Variables?"]
+A --&gt; F["Show Summary / Outliers?"]
+A --&gt; G["Composition / Part of Whole?"]
+
+%% ---------- BAR CHART ----------
+B --&gt; B1["Bar Chart"]
+B1 --&gt; B2["Best for comparing discrete categories or groups"]
+B2 --&gt; B3["Use Matplotlib: plt.bar(), Seaborn: sns.barplot(), Plotly: px.bar()"]
+
+%% ---------- LINE CHART ----------
+C --&gt; C1["Line Chart"]
+C1 --&gt; C2["Best for continuous data trends over time"]
+C2 --&gt; C3["Use Matplotlib: plt.plot(), Seaborn: sns.lineplot(), Plotly: px.line()"]
+
+%% ---------- HISTOGRAM ----------
+D --&gt; D1["Histogram"]
+D1 --&gt; D2["Shows distribution / frequency of numeric data"]
+D2 --&gt; D3["Use Matplotlib: plt.hist(), Seaborn: sns.histplot(), Plotly: px.histogram()"]
+
+%% ---------- SCATTER PLOT ----------
+E --&gt; E1["Scatter Plot"]
+E1 --&gt; E2["Shows relationship / correlation between two numeric variables"]
+E2 --&gt; E3["Use Matplotlib: plt.scatter(), Seaborn: sns.scatterplot(), Plotly: px.scatter()"]
+
+%% ---------- BOX PLOT ----------
+F --&gt; F1["Box Plot"]
+F1 --&gt; F2["Shows summary statistics, median, quartiles, and outliers"]
+F2 --&gt; F3["Use Matplotlib: plt.boxplot(), Seaborn: sns.boxplot(), Plotly: px.box()"]
+
+%% ---------- PIE / DONUT CHART ----------
+G --&gt; G1["Pie / Donut Chart"]
+G1 --&gt; G2["Shows proportion of each category in total"]
+G2 --&gt; G3["Use Matplotlib: plt.pie(), Plotly: px.pie()"]
+
+%% ---------- COLORS ----------
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef chart fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef usage fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E,F,G chart;
+class B1,C1,D1,E1,F1,G1 chart;
+class B2,B3,C2,C3,D2,D3,E2,E3,F2,F3,G2,G3 usage;
+</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">Seaborn deliberately has no pie chart — its documentation steers users toward bar charts for part-of-whole comparisons, since humans compare bar lengths more accurately than pie-slice angles.</div>
+      </div>
+
+      <div class="cheat-card" style="grid-column: 1 / -1;">
+        <h4>⚙️ Plotly Express (px) vs. Graph Objects (go)</h4>
+        <div style="overflow-x: auto;">
+<div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Plotly: Graph Objects vs Express"] --&gt; B["Purpose / Use Case"]
+
+B --&gt; C["Quick, simple plots with minimal code?"]
+B --&gt; D["Highly customized, complex plots?"]
+
+%% ---------- PLOTLY EXPRESS ----------
+C --&gt; C1["Plotly Express (px)"]
+C1 --&gt; C2["High-level, concise API"]
+C2 --&gt; C3["Quick creation of standard charts: bar, line, scatter, histogram, box"]
+C3 --&gt; C4["Ideal for rapid exploration and interactive charts"]
+C4 --&gt; C5["Automatically handles color, facets, and labels"]
+
+%% ---------- PLOTLY GRAPH OBJECTS ----------
+D --&gt; D1["Plotly Graph Objects (go)"]
+D1 --&gt; D2["Low-level, fully customizable API"]
+D2 --&gt; D3["Explicitly define Figure, Traces, Layouts"]
+D3 --&gt; D4["Ideal for complex dashboards or advanced visualizations"]
+D4 --&gt; D5["Full control over styling, interactivity, and animation"]
+
+%% ---------- COLORS ----------
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef purpose fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef px fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef go fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D purpose;
+class C1,C2,C3,C4,C5 px;
+class D1,D2,D3,D4,D5 go;
+</div></div>
+        <p style="font-size:13px; color:var(--ink-soft); margin:16px 0 8px;"><strong>Plotly Express parameter groups</strong></p>
+<div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+graph TB
+
+Start["&lt;b&gt;PLOTLY EXPRESS&lt;/b&gt;&lt;br/&gt;Quick &amp; Easy Visualization&lt;br/&gt;&lt;br/&gt;Use for quick DataFrame charts"]:::head
+--&gt; Import["&lt;b&gt;IMPORT&lt;/b&gt;&lt;br/&gt;import plotly.express as px"]:::import
+
+Import --&gt; Params["&lt;b&gt;PARAMETER GROUPS&lt;/b&gt;"]:::params
+
+%% ================= DATA MAPPING =================
+Params --&gt; DataMap["&lt;b&gt;DATA MAPPING&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+1. x, y → Axis columns&lt;br/&gt;
+2. color → Category coloring&lt;br/&gt;
+3. size → Marker/bar size&lt;br/&gt;
+4. hover_data → Tooltip columns&lt;br/&gt;
+5. facet_col → Subplots&lt;br/&gt;
+6. animation_frame → Animation&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Sample&lt;/b&gt;&lt;br/&gt;
+px.scatter(df,&lt;br/&gt;
+x='age', y='income',&lt;br/&gt;
+color='gender', size='pop')"]:::param
+
+%% ================= STYLING =================
+Params --&gt; Styling["&lt;b&gt;STYLING&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+1. title → Chart title&lt;br/&gt;
+2. labels → Axis names&lt;br/&gt;
+3. colors → Color scales&lt;br/&gt;
+4. template → Theme&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Sample&lt;/b&gt;&lt;br/&gt;
+px.bar(df,&lt;br/&gt;
+x='dept', y='sales',&lt;br/&gt;
+title='Sales by Dept',&lt;br/&gt;
+template='seaborn')"]:::param
+
+%% ================= LAYOUT =================
+Params --&gt; Layout["&lt;b&gt;LAYOUT &amp; AXES&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+1. range_x/y → Axis limits&lt;br/&gt;
+2. log_x/y → Log scale&lt;br/&gt;
+3. width/height → Size&lt;br/&gt;
+4. category_orders → Sort order&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Sample&lt;/b&gt;&lt;br/&gt;
+px.line(df,&lt;br/&gt;
+x='date', y='revenue',&lt;br/&gt;
+range_y=[0,1000],&lt;br/&gt;
+width=900, height=500)"]:::param
+
+
+%% ===== STYLES =====
+classDef head fill:#1e88e5,stroke:#0d47a1,stroke-width:3px,color:#fff,font-size:18px;
+classDef import fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000,font-size:16px;
+classDef params fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,color:#000,font-size:16px;
+classDef param fill:#f8bbd0,stroke:#c2185b,stroke-width:2px,color:#000,font-size:15px;
+</div></div>
+        <p style="font-size:13px; color:var(--ink-soft); margin:16px 0 8px;"><strong>Plotly Graph Objects parameter groups</strong></p>
+<div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+graph TB
+
+Start["&lt;b&gt;PLOTLY GRAPH OBJECTS&lt;/b&gt;&lt;br/&gt;Detailed &amp; Fine Control&lt;br/&gt;&lt;br/&gt;Use for complex and custom charts"]:::head
+--&gt; Import["&lt;b&gt;IMPORT&lt;/b&gt;&lt;br/&gt;import plotly.graph_objects as go"]:::import
+
+Import --&gt; Params["&lt;b&gt;PARAMETER GROUPS&lt;/b&gt;"]:::params
+
+%% ================= TRACE (DATA) =================
+Params --&gt; Trace["&lt;b&gt;TRACE (DATA LEVEL)&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+1. x, y → Data arrays&lt;br/&gt;
+2. marker → Size, color, symbol&lt;br/&gt;
+3. text → Labels on marks&lt;br/&gt;
+4. mode → lines / markers&lt;br/&gt;
+5. name → Legend label&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Sample&lt;/b&gt;&lt;br/&gt;
+go.Scatter(&lt;br/&gt;
+x=df.age,&lt;br/&gt;
+y=df.income,&lt;br/&gt;
+mode='markers',&lt;br/&gt;
+marker=dict(size=10))"]:::param
+
+%% ================= STYLING =================
+Params --&gt; Styling["&lt;b&gt;STYLING&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+1. marker_color → Trace color&lt;br/&gt;
+2. line_width → Line thickness&lt;br/&gt;
+3. textposition → Label position&lt;br/&gt;
+4. opacity → Transparency&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Sample&lt;/b&gt;&lt;br/&gt;
+go.Bar(&lt;br/&gt;
+x=df.dept,&lt;br/&gt;
+y=df.sales,&lt;br/&gt;
+marker_color='orange',&lt;br/&gt;
+opacity=0.7)"]:::param
+
+%% ================= LAYOUT =================
+Params --&gt; Layout["&lt;b&gt;LAYOUT &amp; AXES&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+1. title → Chart title&lt;br/&gt;
+2. xaxis_title → X label&lt;br/&gt;
+3. yaxis_title → Y label&lt;br/&gt;
+4. width/height → Figure size&lt;br/&gt;
+5. showlegend → Legend on/off&lt;br/&gt;&lt;br/&gt;
+&lt;b&gt;Sample&lt;/b&gt;&lt;br/&gt;
+fig.update_layout(&lt;br/&gt;
+title='Sales',&lt;br/&gt;
+width=900,&lt;br/&gt;
+height=500)"]:::param
+
+
+%% ===== STYLES =====
+classDef head fill:#1565c0,stroke:#0d47a1,stroke-width:3px,color:#fff,font-size:18px;
+classDef import fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000,font-size:16px;
+classDef params fill:#d1c4e9,stroke:#7b1fa2,stroke-width:2px,color:#000,font-size:16px;
+classDef param fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000,font-size:15px;
+</div></div>
+        </div>
+        <div style="margin-top:10px; font-size:13px; color:var(--ink-soft); line-height:1.6;">Express and Graph Objects aren't mutually exclusive: a common pattern is building the base chart quickly with <code>px</code>, then calling <code>fig.update_layout()</code> / <code>fig.update_traces()</code> (Graph Objects-style methods) on the figure it returns to fine-tune it.</div>
+      </div>
+
+        </div>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Relying on the implicit Pyplot API (<code>plt.plot()</code>, <code>plt.title()</code>) for multi-subplot layouts — it tracks a single "current" axes and gets unreliable; use the OO API (<code>fig, ax = plt.subplots()</code>) instead</li>
+          <li>Forgetting that Seaborn functions return a Matplotlib <code>Axes</code> — you can still chain <code>ax.set_...()</code> calls on the result</li>
+          <li>Reaching for Plotly Graph Objects when Plotly Express would do it in one line — <code>px</code> covers most common chart types with tidy-DataFrame input</li>
+          <li>Defaulting to a pie chart for part-of-whole data — a bar chart is almost always easier to read accurately</li>
+          <li>Not calling <code>fig.show()</code> / <code>plt.show()</code>, or saving a Plotly figure as a static image without <code>kaleido</code> installed</li>
+        </ul>`
+    }
+  },
+  {
+    id: "type-missing-dummies",
+    icon: "🔧",
+    title: "Datetime, Numeric, Missing & Dummies",
+    tagline: "type conversion, missing data, encoding",
+    desc: "Convert and extract datetimes, coerce text to numbers, find and handle missing data, and build dummy variables.",
+    tags: ["to_datetime", "to_numeric", "fillna / dropna", "get_dummies"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>Six everyday cleaning steps that turn raw, text-heavy data into something you can analyze or feed to a model: <strong>convert to datetime</strong>, <strong>extract datetime parts</strong>, <strong>convert to numeric</strong>, <strong>identify missing data</strong>, <strong>handle missing data</strong>, and <strong>create dummy variables</strong>.</p>
+        <h4>Why it matters</h4>
+        <p>Raw files load as <code>object</code> (text) columns: dates are strings, amounts carry <code>$</code> and commas, blanks hide as <code>"N/A"</code>, and categories can't go into a model. Interviewers use these steps to check that you notice <strong>dtype problems before they silently break an analysis</strong>.</p>
+        <table>
+          <tr><th>Task</th><th>Main tool</th><th>One-liner</th></tr>
+          <tr><td>Convert to datetime</td><td><code>pd.to_datetime</code></td><td><code>df['d'] = pd.to_datetime(df['d'], errors='coerce')</code></td></tr>
+          <tr><td>Extract datetime parts</td><td><code>.dt</code> accessor</td><td><code>df['d'].dt.year</code>, <code>.dt.month</code>, <code>.dt.day_name()</code></td></tr>
+          <tr><td>Convert to numeric</td><td><code>pd.to_numeric</code></td><td><code>pd.to_numeric(df['x'], errors='coerce')</code></td></tr>
+          <tr><td>Identify missing</td><td><code>isna()</code></td><td><code>df.isna().sum()</code></td></tr>
+          <tr><td>Handle missing</td><td><code>dropna</code> / <code>fillna</code></td><td><code>df['x'].fillna(df['x'].median())</code></td></tr>
+          <tr><td>Dummy variables</td><td><code>pd.get_dummies</code></td><td><code>pd.get_dummies(df, columns=['city'], drop_first=True)</code></td></tr>
+        </table>
+        <p><strong>Recommended order:</strong> fix types first (datetime, numeric) &rarr; identify missing &rarr; handle missing &rarr; encode categories last. Coercing a bad value to <code>NaN</code> or <code>NaT</code> creates new missing values, so type conversion has to come before the missing-data check.</p>`,
+      datetime: `
+        <h4>1. Convert to datetime</h4>
+        <p><code>pd.to_datetime()</code> turns text into real timestamps (<code>datetime64</code>) so you can sort, subtract, and filter by time.</p>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({"order_date": ["2024-01-15", "2024-03-09", "bad date", "2024-12-31"]})
+
+\# errors="coerce" turns unparseable values into NaT (the datetime version of NaN)
+df["order_date"] = pd.to_datetime(df["order_date"], errors="coerce")
+print(df["order_date"])
+\# 0   2024-01-15
+\# 1   2024-03-09
+\# 2          NaT      &lt;- "bad date" became NaT instead of crashing
+\# 3   2024-12-31
+
+\# Be explicit about the format when you know it (faster + no guessing)
+pd.to_datetime(df["d"], format="%d/%m/%Y")
+
+\# Day-first dates like 05/03/2024 (5 March, not May 3)
+pd.to_datetime(df["d"], dayfirst=True)
+
+\# Or convert while reading the file
+df = pd.read_csv("orders.csv", parse_dates=["order_date"])</pre>
+        <p><strong>Explanation:</strong> the default <code>errors="raise"</code> stops at the first bad value, while <code>errors="coerce"</code> keeps going and marks it <code>NaT</code> so you can find and fix it afterwards. Always pass <code>format=</code> or <code>dayfirst=</code> for ambiguous dates like <code>05/03/2024</code>, because pandas otherwise assumes month-first.</p>
+        <h4>2. Extract datetime parts</h4>
+        <p>Once a column is a datetime, the <code>.dt</code> accessor exposes every component. This is the standard way to build time-based features.</p>
+        <pre>d = df["order_date"].dt
+
+df["year"]        = d.year            \# 2024
+df["month"]       = d.month           \# 1..12
+df["day"]         = d.day             \# 1..31
+df["quarter"]     = d.quarter         \# 1..4
+df["day_of_week"] = d.dayofweek       \# 0=Mon ... 6=Sun
+df["day_name"]    = d.day_name()      \# 'Monday', 'Saturday', ...
+df["hour"]        = d.hour            \# only meaningful if time is stored
+df["is_weekend"]  = d.dayofweek &gt;= 5 \# True / False
+df["month_end"]   = d.is_month_end    \# True on the last day of the month
+
+\# Date arithmetic: days since each order
+df["days_ago"] = (pd.Timestamp("2025-01-01") - df["order_date"]).dt.days
+\# 352, 298, NaN, 1
+
+\# Group by a date part
+df.groupby(df["order_date"].dt.to_period("M"))["amount"].sum()   \# monthly totals</pre>
+        <p><strong>Explanation:</strong> <code>.dt</code> only works on datetime columns, so convert first or you get <code>AttributeError: Can only use .dt accessor with datetimelike values</code>. A <code>NaT</code> row returns <code>NaN</code> for every extracted part, which is why those columns become float.</p>`,
+      numeric: `
+        <h4>3. Convert to numeric</h4>
+        <p><code>pd.to_numeric()</code> converts text to numbers. Its <code>errors</code> option controls what happens to values that can't be converted.</p>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({"amount": ["$1,200", "350", "N/A", "99.5"]})
+
+\# Step 1: strip characters that block conversion ($ and commas)
+df["amount"] = df["amount"].str.replace(r"[$,]", "", regex=True)
+\# ['1200', '350', 'N/A', '99.5']   &lt;- still text
+
+\# Step 2: convert; unparseable values become NaN
+df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
+\# [1200.0, 350.0, NaN, 99.5]   dtype: float64
+
+\# See what got coerced (rows that were text but are now NaN)
+bad_rows = df[df["amount"].isna()]
+
+\# Convert several columns at once
+df[["price", "qty"]] = df[["price", "qty"]].apply(pd.to_numeric, errors="coerce")
+
+\# Shrink memory for large integer columns
+df["qty"] = pd.to_numeric(df["qty"], downcast="integer")</pre>
+        <table>
+          <tr><th><code>errors=</code></th><th>Behavior</th><th>When to use</th></tr>
+          <tr><td><code>"raise"</code> (default)</td><td>Stops with a <code>ValueError</code> on the first bad value</td><td>When any bad value should be a hard failure</td></tr>
+          <tr><td><code>"coerce"</code></td><td>Bad values become <code>NaN</code></td><td>Most cleaning work; handle the NaNs next</td></tr>
+        </table>
+        <p><strong>Explanation:</strong> <code>astype(float)</code> crashes on <code>"N/A"</code> or <code>"$1,200"</code>, so use <code>to_numeric(errors="coerce")</code> for messy real-world columns and reserve <code>astype()</code> for data you already know is clean. Strip symbols with <code>str.replace</code> <em>before</em> converting, because <code>"$1,200"</code> would otherwise be coerced to <code>NaN</code> and the real value lost.</p>
+        <p><strong>Note:</strong> older pandas also had <code>errors="ignore"</code>, which returned the original column unchanged on failure. It is deprecated, so prefer <code>coerce</code>.</p>`,
+      missing: `
+        <h4>4. Identify missing data</h4>
+        <pre>import pandas as pd
+import numpy as np
+
+df.info()                              \# non-null count per column + dtypes
+
+df.isna().sum()                        \# missing COUNT per column
+\# order_date 1, amount 1, city 1, age 1
+
+(df.isna().mean() * 100).round(1)      \# missing PERCENT per column
+\# every column 25.0
+
+df[df.isna().any(axis=1)]              \# rows with at least one missing value
+df[df["city"].isna()]                  \# rows where one column is missing
+df.isna().sum().sum()                  \# total missing cells
+
+\# Hidden missing values: placeholders pandas does NOT treat as NaN
+df["amount"].isin(["N/A", "?", "-", "-999", ""]).sum()
+
+\# Convert placeholders to real NaN, at read time or afterwards
+df = pd.read_csv("data.csv", na_values=["N/A", "?", "-999"])
+df = df.replace(["N/A", "?", "-999", ""], np.nan)</pre>
+        <p><strong>Explanation:</strong> <code>isna()</code> returns a True/False grid; summing it counts the Trues. Check <strong>percent missing</strong>, not just counts, since 5% missing is fixable but 60% usually means dropping the column. Placeholders like <code>"N/A"</code>, <code>"?"</code> or <code>-999</code> are the sneakiest case: pandas sees them as real values and <code>isna()</code> misses them, so scan for them with <code>value_counts()</code> or <code>isin()</code>.</p>
+        <h4>5. Handle missing data</h4>
+        <pre>\# --- Option A: DROP ---
+df.dropna()                            \# drop any row with a missing value
+df.dropna(subset=["order_date"])       \# drop only if THIS column is missing
+df.dropna(thresh=3)                    \# keep rows with at least 3 non-missing values
+df.dropna(axis=1)                      \# drop columns that have missing values
+
+\# --- Option B: FILL ---
+df["age"]    = df["age"].fillna(df["age"].median())      \# numeric: median (robust to outliers)
+df["amount"] = df["amount"].fillna(df["amount"].mean())  \# numeric: mean
+df["city"]   = df["city"].fillna(df["city"].mode()[0])   \# categorical: most frequent
+df["city"]   = df["city"].fillna("Unknown")              \# or a clear label
+df["score"]  = df["score"].fillna(0)                     \# constant, only if 0 is meaningful
+
+\# Fill using the group's own statistic (smarter than one global value)
+df["age"] = df["age"].fillna(df.groupby("city")["age"].transform("median"))
+
+\# --- Option C: time-ordered data ---
+s = pd.Series([1.0, np.nan, np.nan, 4.0])
+s.ffill()          \# [1, 1, 1, 4]  carry the last value forward
+s.bfill()          \# [1, 4, 4, 4]  pull the next value backward
+s.interpolate()    \# [1, 2, 3, 4]  straight line between known points
+
+\# --- Keep the signal: flag it BEFORE filling ---
+df["amount_missing"] = df["amount"].isna().astype(int)
+df["amount"] = df["amount"].fillna(df["amount"].median())</pre>
+        <table>
+          <tr><th>Situation</th><th>Best choice</th></tr>
+          <tr><td>Few rows missing, plenty of data</td><td><code>dropna()</code></td></tr>
+          <tr><td>Numeric, skewed or has outliers</td><td>Fill with <strong>median</strong></td></tr>
+          <tr><td>Numeric, roughly symmetric</td><td>Fill with <strong>mean</strong></td></tr>
+          <tr><td>Categorical</td><td>Fill with <strong>mode</strong> or <code>"Unknown"</code></td></tr>
+          <tr><td>Time series</td><td><code>ffill</code>, <code>bfill</code>, or <code>interpolate</code></td></tr>
+          <tr><td>Missingness itself may be informative</td><td>Add a missing-indicator flag, then fill</td></tr>
+          <tr><td>Column is mostly empty (more than about 50-60%)</td><td>Drop the column</td></tr>
+        </table>
+        <p><strong>Explanation:</strong> the choice between dropping and filling depends on how much is missing and <em>why</em>. Median beats mean when outliers exist, because one huge value drags the mean. For machine learning, compute the fill value on the <strong>training set only</strong> and reuse it on the test set to avoid data leakage.</p>`,
+      dummies: `
+        <h4>6. Dummy variables (one-hot encoding)</h4>
+        <p>Models need numbers, but a column like <code>city</code> holds text. <code>pd.get_dummies()</code> creates one 0/1 column per category.</p>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({"city": ["Austin", "Dallas", "Austin", "Austin"]})
+
+pd.get_dummies(df["city"], prefix="city", dtype=int)
+\#    city_Austin  city_Dallas
+\# 0            1            0
+\# 1            0            1
+\# 2            1            0
+\# 3            1            0
+
+\# Encode specific columns inside a full DataFrame (other columns are kept)
+df = pd.get_dummies(df, columns=["city"], dtype=int)
+
+\# drop_first=True removes one column to avoid the dummy variable trap
+df = pd.get_dummies(df, columns=["city"], drop_first=True, dtype=int)
+\# keeps only city_Dallas: 0 means "Austin" (the dropped baseline)
+
+\# Treat missing values as their own category
+pd.get_dummies(pd.Series(["a", "b", None]), dummy_na=True, dtype=int)
+\#    a  b  NaN
+\# 0  1  0    0
+\# 1  0  1    0
+\# 2  0  0    1</pre>
+        <p><strong>Explanation:</strong> each category gets its own 0/1 column, so the model doesn't assume an order between cities. <code>drop_first=True</code> matters for linear and logistic regression: the full set of dummies always sums to 1, so the columns are perfectly correlated (the <strong>dummy variable trap</strong>). Dropping one removes that redundancy, and the dropped category becomes the baseline.</p>
+        <h4>Dummies vs. ordinal encoding</h4>
+        <pre>\# Ordered categories (small &lt; medium &lt; large): map to ranks instead of dummies
+size_order = {"small": 1, "medium": 2, "large": 3}
+df["size_num"] = df["size"].map(size_order)
+
+\# Keep train and test columns identical (a category may be absent in test)
+X_train = pd.get_dummies(X_train, drop_first=True, dtype=int)
+X_test  = pd.get_dummies(X_test,  drop_first=True, dtype=int)
+X_test  = X_test.reindex(columns=X_train.columns, fill_value=0)</pre>
+        <p><strong>Explanation:</strong> use dummies for <strong>nominal</strong> categories (city, color) and a mapping for <strong>ordinal</strong> ones (small/medium/large). Train and test must end up with the same dummy columns, so <code>reindex</code> test to train's columns. For production pipelines, scikit-learn's <code>OneHotEncoder(handle_unknown="ignore")</code> does this automatically.</p>`,
+      example: `
+        <h4>Real-world example: all six steps on one messy table</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({
+    "order_date": ["2024-01-15", "2024-03-09", "bad date", "2024-12-31"],
+    "amount":     ["$1,200", "350", "N/A", "99.5"],
+    "city":       ["Austin", "Dallas", None, "Austin"],
+    "age":        [25, None, 41, 33],
+})
+
+\# 1-2. Datetime: convert, then extract features
+df["order_date"] = pd.to_datetime(df["order_date"], errors="coerce")
+df["month"]      = df["order_date"].dt.month
+df["weekday"]    = df["order_date"].dt.day_name()
+
+\# 3. Numeric: strip symbols, then coerce
+df["amount"] = df["amount"].str.replace(r"[$,]", "", regex=True)
+df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
+
+\# 4. Identify missing (after conversions, which create new NaNs)
+print(df.isna().sum())
+
+\# 5. Handle missing: flag first, then fill
+df["amount_missing"] = df["amount"].isna().astype(int)
+df["amount"] = df["amount"].fillna(df["amount"].median())   \# 350.0
+df["age"]    = df["age"].fillna(df["age"].median())         \# 33.0
+df["city"]   = df["city"].fillna(df["city"].mode()[0])      \# 'Austin'
+
+\# 6. Dummies for the categorical column
+df = pd.get_dummies(df, columns=["city"], drop_first=True, dtype=int)
+print(df.columns.tolist())
+\# ['order_date', 'amount', 'age', 'month', 'weekday', 'amount_missing', 'city_Dallas']</pre>
+        <p><strong>Why this matters:</strong> the order is deliberate. Converting types first exposes hidden problems (<code>"bad date"</code> and <code>"N/A"</code> become real <code>NaT</code>/<code>NaN</code>), so the missing-data check afterwards sees the true picture. Flagging missingness <em>before</em> filling preserves information that the fill would otherwise erase, and encoding comes last so the dummies reflect the final, clean categories.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Using <code>.dt</code> on a text column &mdash; convert with <code>pd.to_datetime()</code> first</li>
+          <li>Ambiguous dates like <code>05/03/2024</code> parsed month-first by default &mdash; set <code>format=</code> or <code>dayfirst=True</code></li>
+          <li>Using <code>astype(float)</code> on messy text &mdash; it crashes; use <code>pd.to_numeric(errors="coerce")</code> and strip <code>$</code>/commas first</li>
+          <li>Counting missing values with <code>isna()</code> while placeholders like <code>"N/A"</code>, <code>"?"</code> or <code>-999</code> hide in the data &mdash; replace them with <code>np.nan</code> first</li>
+          <li>Filling with the mean when outliers exist &mdash; the median is more robust</li>
+          <li>Computing fill values on the full dataset before a train/test split &mdash; that leaks test information; fit on train only</li>
+          <li>Dropping rows blindly with <code>dropna()</code> &mdash; check how much data you lose and whether missingness is itself a signal</li>
+          <li>Forgetting <code>drop_first=True</code> for linear models (dummy variable trap) &mdash; or leaving train and test with different dummy columns</li>
+          <li>Using dummies for ordered categories &mdash; map small/medium/large to ranks instead</li>
+        </ul>`
+    }
+  },
+  {
+    id: "regex",
+    icon: "🔍",
+    title: "Regex & Text Cleaning",
+    tagline: "patterns, types, removing special characters",
+    desc: "Regex building blocks in table form with examples, Python re and pandas usage, and removing punctuation and special characters.",
+    tags: ["regex", "re module", "str.replace", "text cleaning"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>A regular expression (regex) is a compact pattern for finding, extracting, validating, or replacing text. In Python you use the built-in <code>re</code> module, and in pandas the <code>.str</code> methods (like <code>str.replace</code>, <code>str.extract</code>, <code>str.contains</code>) accept regex patterns directly.</p>
+        <h4>Why it matters</h4>
+        <p>Real data is full of messy text: phone numbers in five formats, prices with currency symbols, names with stray punctuation. Interviewers use regex questions to see whether you can &lt;strong&gt;clean and pull structure out of text&lt;/strong&gt; without writing long loops.</p>
+        <h4>The building blocks at a glance</h4>
+        <table>
+          <tr><th>Building block</th><th>What it controls</th><th>Examples</th></tr>
+          <tr><td>Character classes</td><td><strong>what</strong> to match</td><td><code>\\d</code> <code>\\w</code> <code>\\s</code> <code>[abc]</code> <code>.</code></td></tr>
+          <tr><td>Quantifiers</td><td><strong>how many</strong> times</td><td><code>*</code> <code>+</code> <code>?</code> <code>{n,m</code>}</td></tr>
+          <tr><td>Anchors / boundaries</td><td><strong>where</strong> in the text</td><td><code>^</code> <code>$</code> <code>\\b</code></td></tr>
+          <tr><td>Groups / alternation</td><td>Capture parts, choose between options</td><td><code>( )</code> <code>(?P&lt;name&gt; )</code> <code>a|b</code></td></tr>
+          <tr><td>Lookarounds</td><td>Match based on context without consuming it</td><td><code>(?=...)</code> <code>(?&lt;=...)</code></td></tr>
+          <tr><td>Greedy vs. lazy</td><td>How much a quantifier grabs</td><td><code>.+</code> vs. <code>.+?</code></td></tr>
+          <tr><td>Flags</td><td>Change matching rules</td><td><code>re.I</code> <code>re.M</code> <code>re.S</code></td></tr>
+        </table>
+        <h4>Regex or plain string methods?</h4>
+        <table>
+          <tr><th>Situation</th><th>Use</th></tr>
+          <tr><td>Fixed text, simple check</td><td><code>str.contains("abc", regex=False)</code>, <code>startswith</code>, <code>in</code> (faster, clearer)</td></tr>
+          <tr><td>Remove a known set of punctuation</td><td><code>str.translate</code> with <code>string.punctuation</code> (fastest)</td></tr>
+          <tr><td>Pattern with variation (digits, optional parts, formats)</td><td>Regex</td></tr>
+          <tr><td>Extract or capture pieces of text</td><td>Regex with groups</td></tr>
+        </table>
+        <p>&lt;strong&gt;Always write patterns as raw strings&lt;/strong&gt; (<code>r"..."</code>) so Python doesn't treat the backslash in <code>\\d</code> as an escape character.</p>`,
+      patterns: `
+        <h4>1. Character classes (what to match)</h4>
+        <table>
+          <tr><th>Pattern</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>.</code></td><td>Any character except newline</td><td><code>c.t</code> on <code>cat cot</code></td><td><code>['cat', 'cot']</code></td></tr>
+          <tr><td><code>\\d</code> / <code>\\D</code></td><td>Digit / non-digit</td><td><code>\\d+</code> on <code>Order 66 on 2024-03-09</code></td><td><code>['66', '2024', '03', '09']</code></td></tr>
+          <tr><td><code>\\w</code> / <code>\\W</code></td><td>Word char (letter, digit, underscore) / non-word</td><td><code>\\w+</code> on <code>hi_there, you!</code></td><td><code>['hi_there', 'you']</code></td></tr>
+          <tr><td><code>\\s</code> / <code>\\S</code></td><td>Whitespace / non-whitespace</td><td><code>\\s+</code> on <code>a  b&lt;TAB&gt;c</code></td><td>two whitespace runs</td></tr>
+          <tr><td><code>[abc]</code></td><td>Any one of the listed characters</td><td><code>[aeiou]</code> on <code>data</code></td><td><code>['a', 'a']</code></td></tr>
+          <tr><td><code>[^abc]</code></td><td>Any character <strong>not</strong> listed</td><td><code>[^0-9]</code> on <code>a1b2</code></td><td><code>['a', 'b']</code></td></tr>
+          <tr><td><code>[a-z]</code></td><td>A range of characters</td><td><code>[A-Z]\\w*</code> on <code>Hi There you</code></td><td><code>['Hi', 'There']</code></td></tr>
+        </table>
+        <h4>2. Quantifiers (how many)</h4>
+        <table>
+          <tr><th>Pattern</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>*</code></td><td>0 or more</td><td><code>ab*</code> on <code>a ab abbb</code></td><td><code>['a', 'ab', 'abbb']</code></td></tr>
+          <tr><td><code>+</code></td><td>1 or more</td><td><code>\\d+</code> on <code>Order 66</code></td><td><code>['66']</code></td></tr>
+          <tr><td><code>?</code></td><td>0 or 1 (optional)</td><td><code>colou?r</code> on <code>color colour</code></td><td><code>['color', 'colour']</code></td></tr>
+          <tr><td><code>{n</code>}</td><td>Exactly n</td><td><code>\\d{3}-\\d{4</code>} on <code>555-1234 and 55-123</code></td><td><code>['555-1234']</code></td></tr>
+          <tr><td><code>{n,m</code>}</td><td>Between n and m</td><td><code>\\d{2,4</code>} on <code>1 22 333 55555</code></td><td><code>['22', '333', '5555']</code></td></tr>
+        </table>
+        <h4>3. Anchors and boundaries (where)</h4>
+        <table>
+          <tr><th>Pattern</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>^</code></td><td>Start of string (or of each line with <code>re.M</code>)</td><td><code>^Hello</code> on <code>Hello world</code></td><td><code>Hello</code></td></tr>
+          <tr><td><code>$</code></td><td>End of string (or of each line)</td><td><code>world$</code> on <code>Hello world</code></td><td><code>world</code></td></tr>
+          <tr><td><code>\\b</code></td><td>Word boundary</td><td><code>\\bcat\\b</code> on <code>cat concat cat.</code></td><td><code>['cat', 'cat']</code> (skips <code>concat</code>)</td></tr>
+        </table>
+        <p>&lt;strong&gt;Tip:&lt;/strong&gt; a capital letter is the opposite of its lowercase twin: <code>\\d</code> digit vs. <code>\\D</code> non-digit, <code>\\w</code> vs. <code>\\W</code>, <code>\\s</code> vs. <code>\\S</code>. To match a special character literally, escape it: <code>\\.</code> is a real dot, <code>\\$</code> a real dollar sign.</p>`,
+      groups: `
+        <h4>4. Groups and alternation</h4>
+        <table>
+          <tr><th>Pattern</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>a|b</code></td><td>Either a or b</td><td><code>cat|dog</code> on <code>cat dog bird</code></td><td><code>['cat', 'dog']</code></td></tr>
+          <tr><td><code>( )</code></td><td>Capturing group (you can pull it out)</td><td><code>(\\d{4})-(\\d{2})-(\\d{2})</code> on <code>2024-03-09</code></td><td><code>('2024', '03', '09')</code></td></tr>
+          <tr><td><code>(?P&lt;name&gt; )</code></td><td>Named group</td><td><code>(?P&lt;year&gt;\\d{4})-(?P&lt;month&gt;\\d{2})</code> on <code>2024-03</code></td><td><code>{'year': '2024', 'month': '03'</code>}</td></tr>
+          <tr><td><code>(?: )</code></td><td>Non-capturing group (group without capturing)</td><td><code>(?:Mr|Ms)\\. (\\w+)</code> on <code>Mr. Smith, Ms. Jones</code></td><td><code>['Smith', 'Jones']</code></td></tr>
+          <tr><td><code>\\1</code></td><td>Backreference (repeat what group 1 matched)</td><td><code>(\\w)\\1</code> on <code>book keeper tree</code></td><td><code>['o', 'e', 'e']</code> (doubled letters)</td></tr>
+        </table>
+        <h4>5. Lookarounds (match based on context)</h4>
+        <p>Lookarounds check what is next to the match but do not include it in the result.</p>
+        <table>
+          <tr><th>Pattern</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>X(?=Y)</code></td><td>X followed by Y</td><td><code>\\d+(?= USD)</code> on <code>50 USD 70 EUR</code></td><td><code>['50']</code></td></tr>
+          <tr><td><code>X(?!Y)</code></td><td>X <strong>not</strong> followed by Y</td><td><code>\\b\\d+\\b(?! USD)</code> on <code>50 USD 70 EUR</code></td><td><code>['70']</code></td></tr>
+          <tr><td><code>(?&lt;=Y)X</code></td><td>X preceded by Y</td><td><code>(?&lt;=\\$)\\d+</code> on <code>$50 and 70</code></td><td><code>['50']</code></td></tr>
+          <tr><td><code>(?&lt;!Y)X</code></td><td>X <strong>not</strong> preceded by Y</td><td><code>(?&lt;!\\$)\\b\\d+</code> on <code>$50 and 70</code></td><td><code>['70']</code></td></tr>
+        </table>
+        <h4>6. Greedy vs. lazy, and flags</h4>
+        <table>
+          <tr><th>Concept</th><th>Syntax</th><th>Example</th><th>Result</th></tr>
+          <tr><td>Greedy (default: grabs as much as possible)</td><td><code>&lt;.+&gt;</code></td><td>on <code>&lt;b&gt;hi&lt;/b&gt;</code></td><td><code>['&lt;b&gt;hi&lt;/b&gt;']</code></td></tr>
+          <tr><td>Lazy (grabs as little as possible; add <code>?</code>)</td><td><code>&lt;.+?&gt;</code></td><td>on <code>&lt;b&gt;hi&lt;/b&gt;</code></td><td><code>['&lt;b&gt;', '&lt;/b&gt;']</code></td></tr>
+          <tr><td>Ignore case</td><td><code>re.I</code></td><td><code>hello</code> on <code>Hello HELLO</code></td><td><code>['Hello', 'HELLO']</code></td></tr>
+          <tr><td>Multiline (<code>^</code> and <code>$</code> work per line)</td><td><code>re.M</code></td><td><code>^\\w+</code> on two lines <code>a b</code> / <code>c d</code></td><td><code>['a', 'c']</code></td></tr>
+          <tr><td>Dot matches newline too</td><td><code>re.S</code></td><td><code>a.b</code> on <code>a&lt;newline&gt;b</code></td><td>matches</td></tr>
+        </table>
+        <p>&lt;strong&gt;Greedy is the classic trap:&lt;/strong&gt; <code>&lt;.+&gt;</code> swallows everything from the first <code>&lt;</code> to the last <code>&gt;</code>. Add <code>?</code> to make it lazy, or use a negated class like <code>&lt;[^&gt;]+&gt;</code>.</p>`,
+      functions: `
+        <h4>7. Python re functions</h4>
+        <table>
+          <tr><th>Function</th><th>What it does</th><th>Example</th><th>Result</th></tr>
+          <tr><td><code>re.match</code></td><td>Match only at the <strong>start</strong></td><td><code>re.match(r"\\d+", "ab12")</code></td><td><code>None</code></td></tr>
+          <tr><td><code>re.search</code></td><td>First match <strong>anywhere</strong></td><td><code>re.search(r"\\d+", "ab12").group()</code></td><td><code>'12'</code></td></tr>
+          <tr><td><code>re.fullmatch</code></td><td>The <strong>whole string</strong> must match</td><td><code>re.fullmatch(r"\\d{5}", "12345")</code></td><td>a match (truthy)</td></tr>
+          <tr><td><code>re.findall</code></td><td>All matches as a list</td><td><code>re.findall(r"\\d+", "a1b22")</code></td><td><code>['1', '22']</code></td></tr>
+          <tr><td><code>re.finditer</code></td><td>All matches as match objects (position info)</td><td><code>m.group()</code>, <code>m.start()</code>, <code>m.end()</code></td><td><code>'22', 4, 6</code> for the second match</td></tr>
+          <tr><td><code>re.sub</code></td><td>Replace matches</td><td><code>re.sub(r"\\s+", " ", "a   b    c")</code></td><td><code>'a b c'</code></td></tr>
+          <tr><td><code>re.split</code></td><td>Split on a pattern</td><td><code>re.split(r"[,;]\\s*", "a, b;c")</code></td><td><code>['a', 'b', 'c']</code></td></tr>
+          <tr><td><code>re.compile</code></td><td>Pre-build a pattern to reuse</td><td><code>p = re.compile(r"\\d+"); p.findall("a1b22")</code></td><td><code>['1', '22']</code></td></tr>
+        </table>
+        <pre>import re
+
+# Replacement with group references: swap user and domain
+re.sub(r"(\\w+)@(\\w+)\\.com", r"\\2:\\1", "joe@mail.com")    # 'mail:joe'
+
+# Named groups: pull out labeled pieces
+re.findall(r"(?P&lt;user&gt;[\\w.]+)@(?P&lt;dom&gt;[\\w.]+)", "a.b@x.com, c@y.org")
+# [('a.b', 'x.com'), ('c', 'y.org')]
+
+# Hashtags and URLs
+re.findall(r"#(\\w+)", "love #python and #SQL")           # ['python', 'SQL']
+re.findall(r"https?://\\S+", "see https://a.com/x and http://b.org")
+# ['https://a.com/x', 'http://b.org']</pre>
+        <p>&lt;strong&gt;match vs. search vs. fullmatch:&lt;/strong&gt; <code>match</code> anchors at the start, <code>search</code> looks anywhere, <code>fullmatch</code> requires the entire string to fit. For validation use <code>fullmatch</code>; for finding use <code>search</code> or <code>findall</code>.</p>
+        <h4>8. Regex in pandas</h4>
+        <p>Sample series: <code>s = pd.Series(["Order #123", "Ref 45", "none"])</code></p>
+        <table>
+          <tr><th>Task</th><th>Code</th><th>Result</th></tr>
+          <tr><td>Extract first number</td><td><code>s.str.extract(r"(\\d+)")</code></td><td><code>['123', '45', NaN]</code></td></tr>
+          <tr><td>Boolean filter</td><td><code>s.str.contains(r"\\d")</code></td><td><code>[True, True, False]</code></td></tr>
+          <tr><td>Whole-value check</td><td><code>s.str.fullmatch(r"\\d{5}")</code></td><td>True only when the entire value is 5 digits</td></tr>
+          <tr><td>Replace / clean</td><td><code>s.str.replace(r"\\D", "", regex=True)</code></td><td><code>['123', '45', '']</code></td></tr>
+          <tr><td>All matches per row</td><td><code>s.str.findall(r"\\d+")</code></td><td>a list of matches per row</td></tr>
+          <tr><td>Split on a pattern</td><td><code>s.str.split(r"\\s+", regex=True)</code></td><td>a list of pieces per row</td></tr>
+        </table>
+        <p>Note: <code>str.extract</code> needs &lt;strong&gt;a capture group&lt;/strong&gt; (the parentheses); without one it raises an error. Pass <code>regex=True</code> to <code>str.replace</code> explicitly, since recent pandas versions default to treating the pattern as plain text.</p>`,
+      cleaning: `
+        <h4>9. Removing special characters and punctuation</h4>
+        <p>Sample text: <code>t = "Hello, World! Price: $45.99 #sale @shop (50% off)..."</code></p>
+        <table>
+          <tr><th>Goal</th><th>Code</th><th>Result</th></tr>
+          <tr><td>Remove all punctuation and symbols (keeps letters, digits, spaces, underscore)</td><td><code>re.sub(r"[^\\w\\s]", "", t)</code></td><td><code>Hello World Price 4599 sale shop 50 off</code></td></tr>
+          <tr><td>Keep only letters, digits, spaces (also drops underscore)</td><td><code>re.sub(r"[^a-zA-Z0-9\\s]", "", t)</code></td><td><code>Hello World Price 4599 sale shop 50 off</code></td></tr>
+          <tr><td>Keep only letters and spaces (drop digits too)</td><td><code>re.sub(r"[^a-zA-Z\\s]", "", t)</code></td><td><code>Hello World Price  sale shop  off</code></td></tr>
+          <tr><td>Keep one specific character (here the dot)</td><td><code>re.sub(r"[^\\w\\s.]", "", t)</code></td><td><code>Hello World Price 45.99 sale shop 50 off...</code></td></tr>
+          <tr><td>Keep only digits and dot (clean a price)</td><td><code>re.sub(r"[^\\d.]", "", "$1,234.50")</code></td><td><code>1234.50</code></td></tr>
+          <tr><td>Keep only digits (clean a phone number)</td><td><code>re.sub(r"\\D", "", "(555) 123-4567")</code></td><td><code>5551234567</code></td></tr>
+          <tr><td>Replace with a space instead of deleting</td><td><code>re.sub(r"[^\\w\\s]", " ", "well-known, fact").split()</code></td><td><code>['well', 'known', 'fact']</code></td></tr>
+          <tr><td>Remove underscores as well as symbols</td><td><code>re.sub(r"[^\\w\\s]|_", "", "snake_case! ok")</code></td><td><code>snakecase ok</code></td></tr>
+          <tr><td>Collapse leftover extra spaces</td><td><code>re.sub(r"\\s+", " ", text).strip()</code></td><td><code>"  Hi,   there!!  "</code> becomes <code>Hi there</code></td></tr>
+          <tr><td>Remove non-ASCII characters (emoji, symbols)</td><td><code>re.sub(r"[^\\x00-\\x7F]", "", "café ☕ naïve")</code></td><td><code>caf  nave</code> (drops accented letters too)</td></tr>
+        </table>
+        <h4>Non-regex alternatives</h4>
+        <table>
+          <tr><th>Method</th><th>Code</th><th>Result</th></tr>
+          <tr><td><code>str.translate</code> with <code>string.punctuation</code> (fastest for plain punctuation)</td><td><code>t.translate(str.maketrans("", "", string.punctuation))</code></td><td><code>Hello World Price 4599 sale shop 50 off</code></td></tr>
+          <tr><td><code>isalnum()</code> / <code>isspace()</code> filter</td><td><code>"".join(c for c in t if c.isalnum() or c.isspace())</code></td><td><code>Hello World Price 4599 sale shop 50 off</code></td></tr>
+          <tr><td>Strip accents but keep the letters</td><td><code>"".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c))</code></td><td><code>café naïve</code> becomes <code>cafe naive</code></td></tr>
+        </table>
+        <p><code>string.punctuation</code> is these 32 characters: <code>!"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\\]^_\`{|}~</code></p>
+        <h4>In pandas</h4>
+        <p>Sample series: <code>s = pd.Series(["Hello, World!", "$1,234.50", "  A&amp;B  "])</code></p>
+        <table>
+          <tr><th>Task</th><th>Code</th><th>Result</th></tr>
+          <tr><td>Remove punctuation and symbols</td><td><code>s.str.replace(r"[^\\w\\s]", "", regex=True)</code></td><td><code>['Hello World', '123450', '  AB  ']</code></td></tr>
+          <tr><td>Keep only digits and dot</td><td><code>s.str.replace(r"[^\\d.]", "", regex=True)</code></td><td><code>['', '1234.50', '']</code></td></tr>
+          <tr><td>Full clean-up chain</td><td><code>s.str.replace(r"[^\\w\\s]", "", regex=True).str.strip().str.lower()</code></td><td><code>['hello world', '123450', 'ab']</code></td></tr>
+        </table>
+        <h4>Gotchas when cleaning</h4>
+        <ul>
+          <li>&lt;strong&gt;<code>\\w</code> includes the underscore&lt;/strong&gt;, so <code>[^\\w\\s]</code> keeps <code>_</code>. Use <code>[^a-zA-Z0-9\\s]</code> or add <code>|_</code> to remove it too.</li>
+          <li>&lt;strong&gt;Removing everything also removes the decimal point:&lt;/strong&gt; <code>$45.99</code> becomes <code>4599</code>, a silent data error. Keep the dot (<code>[^\\d.]</code>) when cleaning numbers.</li>
+          <li>&lt;strong&gt;Replace with a space, not nothing,&lt;/strong&gt; when punctuation separates words: deleting the hyphen in <code>well-known</code> gives <code>wellknown</code>.</li>
+          <li>&lt;strong&gt;Finish with <code>\\s+</code> then <code>.strip()</code>:&lt;/strong&gt; removing characters often leaves double spaces behind.</li>
+          <li>&lt;strong&gt;Clean numbers before <code>pd.to_numeric</code>:&lt;/strong&gt; <code>"$1,234.50"</code> needs the symbols removed first, otherwise <code>errors="coerce"</code> turns it into <code>NaN</code>.</li>
+        </ul>
+        <h4>10. Interview staples</h4>
+        <table>
+          <tr><th>Use case</th><th>Pattern</th><th>Test</th></tr>
+          <tr><td>Email (simple)</td><td><code>^[\\w.+-]+@[\\w-]+\\.[\\w.]+$</code></td><td><code>a.b@x.co</code> matches; <code>a@b</code> does not</td></tr>
+          <tr><td>5-digit ZIP</td><td><code>^\\d{5}$</code></td><td><code>12345</code> matches</td></tr>
+          <tr><td>Date YYYY-MM-DD</td><td><code>\\d{4}-\\d{2}-\\d{2</code>}</td><td><code>2024-03-09</code></td></tr>
+          <tr><td>Hashtags</td><td><code>#(\\w+)</code></td><td><code>love #python and #SQL</code> gives <code>['python', 'SQL']</code></td></tr>
+          <tr><td>URLs</td><td><code>https?://\\S+</code></td><td>finds <code>https://a.com/x</code> and <code>http://b.org</code></td></tr>
+          <tr><td>Collapse whitespace</td><td><code>\\s+</code> replaced by a single space</td><td><code>a   b</code> becomes <code>a b</code></td></tr>
+          <tr><td>Digits only (phones)</td><td><code>\\D</code> replaced by nothing</td><td><code>(555) 123-4567</code> becomes <code>5551234567</code></td></tr>
+        </table>`,
+      example: `
+        <h4>Real-world example: cleaning three messy text columns</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({
+    "name":  ["  Hello, World! ", "Café #1", "A&amp;B  Co."],
+    "price": ["$1,234.50", "€99", "N/A"],
+    "phone": ["(555) 123-4567", "555.987.6543", "bad"],
+})
+
+# Names: drop punctuation, collapse spaces, trim, lowercase
+df["name"] = (df["name"]
+    .str.replace(r"[^\\w\\s]", "", regex=True)
+    .str.replace(r"\\s+", " ", regex=True)
+    .str.strip()
+    .str.lower())
+
+# Prices: keep digits and dot, then convert (N/A becomes NaN)
+df["price"] = pd.to_numeric(
+    df["price"].str.replace(r"[^\\d.]", "", regex=True), errors="coerce")
+
+# Phones: digits only, then validate exactly 10 digits
+df["phone"] = df["phone"].str.replace(r"\\D", "", regex=True)
+df["phone_ok"] = df["phone"].str.fullmatch(r"\\d{10}")
+
+print(df)
+#           name   price       phone  phone_ok
+# 0  hello world  1234.5  5551234567      True
+# 1       café 1    99.0  5559876543      True
+# 2        ab co     NaN                 False</pre>
+        <p>&lt;strong&gt;Why this matters:&lt;/strong&gt; each column needs a different rule. Names keep letters and spaces, prices must keep the decimal point, and phones keep digits only. After cleaning, <code>fullmatch</code> validates the result, so the bad phone number is flagged instead of silently passing. Notice the order for prices: clean the symbols &lt;em&gt;first&lt;/em&gt;, convert second.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Forgetting the raw-string prefix: write <code>r"\\d+"</code>, not <code>"\\d+"</code></li>
+          <li>Using <code>re.match</code> when you meant <code>re.search</code>: <code>match</code> only checks the start of the string</li>
+          <li>Greedy matching: <code>&lt;.+&gt;</code> swallows too much; use the lazy <code>&lt;.+?&gt;</code> or <code>&lt;[^&gt;]+&gt;</code></li>
+          <li>Forgetting to escape special characters you want literally: <code>.</code> matches any character, <code>\\.</code> matches a real dot</li>
+          <li>Assuming <code>\\w</code> excludes underscore (it does not)</li>
+          <li>Stripping every non-alphanumeric character from a number column and losing the decimal point</li>
+          <li><code>str.extract</code> without a capture group (it needs parentheses)</li>
+          <li>Forgetting <code>regex=True</code> in <code>str.replace</code>; recent pandas defaults to plain-text replacement</li>
+          <li>Writing a giant email or URL regex: a simple, readable pattern is better in an interview than a perfect one</li>
+          <li>Using regex when a plain method works: <code>startswith</code>, <code>in</code>, or <code>translate</code> are faster and clearer for simple cases</li>
         </ul>`
     }
   }
@@ -2592,7 +3784,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
@@ -2612,11 +3804,19 @@ function openModal(m) {
       modalTabs.querySelectorAll(".modal-tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       modalBody.innerHTML = m.tabs[key];
+      rerenderMermaid();
     });
     modalTabs.appendChild(btn);
   });
   modalBody.innerHTML = m.tabs[Object.keys(m.tabs)[0]];
+  rerenderMermaid();
   overlay.classList.add("open");
+}
+
+function rerenderMermaid() {
+  if (window.mermaid) {
+    try { mermaid.run(); } catch (e) { /* no unrendered diagrams in this tab */ }
+  }
 }
 
 document.getElementById("modal-close").addEventListener("click", () => overlay.classList.remove("open"));
@@ -2815,8 +4015,7 @@ print(numbers)          \# [1, 2, 5, 5, 6, 9]</pre>
                 swapped = True
         if not swapped:   \# already sorted -- stop early
             break
-    return nums</pre>
-<div class="fb-explain"><strong>What's being tested:</strong> <code>sorted()</code> returns a new list while <code>.sort()</code> mutates in place and returns <code>None</code> (so <code>x = numbers.sort()</code> silently sets <code>x</code> to <code>None</code> -- a classic gotcha). Built-in is O(n log n) vs. bubble sort's O(n²); the <code>swapped</code> early-exit flag shows real algorithm understanding.</div>` },
+    return nums</pre>` },
 
   { num: "Q2", q: "Write a program to check if a string is a palindrome.", a: `<pre>def is_palindrome(s: str) -&gt; bool:
     \# Normalize: ignore case and non-alphanumeric characters
@@ -2835,8 +4034,7 @@ print(is_palindrome("hello"))                             \# False</pre>
             return False
         left += 1
         right -= 1
-    return True</pre>
-<div class="fb-explain"><strong>What's being tested:</strong> whether you handle case and punctuation/spaces up front -- "Racecar" and phrase-palindromes like "A man, a plan..." are the classic follow-up. The two-pointer version runs in O(1) extra space instead of building a reversed copy.</div>` },
+    return True</pre>` },
 
   { num: "Q3", q: "Write a program to reverse a string.", a: `<pre>s = "hello world"
 
@@ -2857,8 +4055,7 @@ print(reversed_s2)  \# "dlrow olleh"</pre>
         right -= 1
     return "".join(chars)
 
-print(reverse_string("hello world"))   \# "dlrow olleh"</pre>
-<div class="fb-explain"><strong>What's being tested:</strong> strings are immutable in Python, so any manual approach needs an intermediate structure (a list) -- you can't swap characters in place on the string itself. The two-pointer swap runs in O(n) time / O(n) space, since O(1) extra space is impossible on an immutable string.</div>` }
+print(reverse_string("hello world"))   \# "dlrow olleh"</pre>` }
 ];
 
 function renderCodeCards() {
@@ -2883,7 +4080,417 @@ function renderCodeCards() {
 }
 
 renderCodeCards();
+
+const EDA_DATA = {
+  basic: [
+    { t: "Map the schema", q: "What tables exist, and how big is each?", code: `df.info()
+
+for name, d in {"orders": orders, "order_items": order_items, "customers": customers,
+                "products": products, "regions": regions}.items():
+    print(f"{name:12s} shape={d.shape}  memory={d.memory_usage(deep=True).sum()/1024:.1f} KB")`,
+      look: "<code>df.info()</code> gives dtypes, non-null counts, and memory footprint in one call. order_items dominates and is the transaction-level table -- knowing the grain of each table before aggregating prevents double counting later, exactly like in SQL." },
+    { t: "Preview and sample", q: "What does the data actually look like?", code: `orders.head(10)
+
+# A random subset is less biased than the first N rows
+orders.sample(10, random_state=42)`,
+      look: "<code>head()</code> returns the first rows, which can be unrepresentative if the data has any ordering. <code>sample()</code> draws a random subset -- a better basis for eyeballing values -- and <code>random_state</code> makes the sample reproducible." },
+    { t: "Profile categorical columns", q: "How are orders and customers distributed across categories?", code: `(orders["ship_mode"].value_counts(normalize=True) * 100).round(2)
+
+(customers["segment"].value_counts(normalize=True) * 100).round(2)`,
+      look: "<code>value_counts(normalize=True)</code> turns counts into shares in one call -- the pandas equivalent of <code>RATIO_TO_REPORT</code>. Check for a dominant category, rare values, and unexpected labels." },
+    { t: "Summarize numeric columns", q: "What is the shape of line-item revenue?", code: `order_items["net_revenue"].describe()
+
+mean, median = order_items["net_revenue"].mean(), order_items["net_revenue"].median()
+print(f"mean={mean:.2f}  median={median:.2f}  skew={'right' if mean &gt; median else 'left/none'}")`,
+      look: "<code>describe()</code> gives count, mean, std, and quartiles together. Compare mean to median: a mean well above the median signals right skew, and a large standard deviation relative to the mean points to a wide spread worth bucketing." },
+    { t: "Check for missing values", q: "Which columns have missing values?", code: `orders.isna().sum()
+
+order_items.isna().sum()`,
+      look: "<code>isna().sum()</code> counts missing values per column in a single scan. For a wide table, run this once on the whole DataFrame instead of checking columns one at a time." },
+    { t: "Check date coverage", q: "What time period does the data cover?", code: `print(orders["order_date"].min(), "to", orders["order_date"].max())
+print((orders["order_date"].max() - orders["order_date"].min()).days, "days span")
+print(orders["order_date"].dt.to_period("M").nunique(), "distinct months")`,
+      look: "Orders run from January 2021 through July 2024, so 2024 is a partial year -- remember this when comparing years later. <code>.dt.to_period(\"M\")</code> buckets dates into months without needing a separate column." }
+  ],
+
+  intermediate: [
+    { t: "Revenue by region", q: "Where does net revenue come from?", code: `rev = (order_items
+       .merge(orders[["order_id", "customer_id"]], on="order_id")
+       .merge(customers[["customer_id", "region_id"]], on="customer_id")
+       .merge(regions, on="region_id")
+       .groupby("region_name", as_index=False)
+       .agg(orders=("order_id", "nunique"), net_revenue=("net_revenue", "sum"))
+       .sort_values("net_revenue", ascending=False))
+rev["net_revenue"] = rev["net_revenue"].round(0)
+rev`,
+      look: "Net revenue is computed at line-item level, so chaining merges up to region before grouping avoids the fan-out trap. <code>nunique()</code> on order_id (not <code>count</code>) keeps the order count correct after the merge to order_items." },
+    { t: "Monthly trend", q: "How does revenue move over time?", code: `monthly = (order_items
+    .merge(orders[["order_id", "order_date"]], on="order_id")
+    .assign(month=lambda d: d["order_date"].dt.to_period("M").dt.to_timestamp())
+    .groupby("month", as_index=False)["net_revenue"].sum())
+monthly`,
+      look: "Look for seasonality, step changes, and a ragged final month. Partial periods at the edges of the data are the most common source of false trends -- the same caveat as the SQL version." },
+    { t: "Segment share", q: "Which customer segments drive revenue, and how much per customer?", code: `order_rev = order_items.groupby("order_id", as_index=False)["net_revenue"].sum()
+
+seg = (orders.merge(customers, on="customer_id")
+             .merge(order_rev, on="order_id")
+             .groupby("segment", as_index=False)
+             .agg(customers=("customer_id", "nunique"), revenue=("net_revenue", "sum")))
+seg["pct_revenue"] = (100 * seg["revenue"] / seg["revenue"].sum()).round(2)
+seg["revenue_per_customer"] = (seg["revenue"] / seg["customers"]).round(0)
+seg.sort_values("revenue", ascending=False)`,
+      look: "Totals can hide differences in intensity. Revenue per customer separates a big segment from a high-value one -- compute the order-level revenue once, then reuse it, rather than re-merging to order_items for every question." },
+    { t: "Customers who never ordered", q: "How many customers have no orders at all?", code: `never_ordered = customers.merge(
+    orders[["customer_id"]].drop_duplicates(),
+    on="customer_id", how="left", indicator=True
+)
+never_ordered = never_ordered[never_ordered["_merge"] == "left_only"]
+len(never_ordered)`,
+      look: "<code>indicator=True</code> adds a <code>_merge</code> column flagging rows that only matched on the left side -- pandas' version of a SQL anti-join (<code>LEFT JOIN ... WHERE right.key IS NULL</code>)." },
+    { t: "Integrity checks", q: "Are keys unique, and do foreign keys resolve?", code: `# Duplicate primary keys
+dupes = orders[orders.duplicated("order_id", keep=False)]
+print(len(dupes), "duplicate order_id rows")
+
+# Orphan line items (no matching order)
+orphan_check = order_items.merge(orders[["order_id"]], on="order_id", how="left", indicator=True)
+print((orphan_check["_merge"] == "left_only").sum(), "orphan line items")`,
+      look: "Unlike a database, nothing stops a pandas pipeline from silently producing duplicate keys or unmatched foreign keys partway through a join chain -- these checks are the only guarantee, and zero is the result you want." },
+    { t: "Shipping time and late rate", q: "How long do shipments take, and which modes run late?", code: `ship = orders.copy()
+ship["transit_days"] = (ship["ship_date"] - ship["order_date"]).dt.days
+ship["is_late"] = ship["ship_date"] &gt; ship["commit_date"]
+
+(ship.groupby("ship_mode")
+     .agg(orders=("order_id", "count"),
+          avg_transit_days=("transit_days", "mean"),
+          pct_late=("is_late", "mean"))
+     .assign(pct_late=lambda d: (d["pct_late"] * 100).round(2))
+     .sort_values("pct_late", ascending=False))`,
+      look: "Subtracting two datetime columns gives a <code>Timedelta</code>; <code>.dt.days</code> pulls out the integer day count. <code>.mean()</code> on a boolean column directly gives the late rate, with no need for a manual COUNT_IF-style ratio." },
+    { t: "Bucket discounts with pd.cut", q: "Do heavier discounts coincide with bigger lines?", code: `bins = [-0.01, 0, 0.03, 0.07, 0.20]
+labels = ["0. None", "1. Low (1-3%)", "2. Medium (4-7%)", "3. High (8-20%)"]
+order_items["discount_band"] = pd.cut(order_items["discount"], bins=bins, labels=labels)
+
+(order_items.groupby("discount_band", observed=True)
+            .agg(lines=("order_id", "count"),
+                 avg_quantity=("quantity", "mean"),
+                 net_revenue=("net_revenue", "sum"))
+            .round(2))`,
+      look: "<code>pd.cut</code> is pandas' answer to a SQL CASE-based bucket. Prefixing band labels with a number keeps them sorted; if average quantity barely moves across bands, discounting isn't tied to order size in this data." }
+  ],
+
+  advanced: [
+    { t: "Year-over-year growth with shift()", q: "How does revenue change year to year?", code: `yearly = (order_items.merge(orders[["order_id", "order_date"]], on="order_id")
+                      .assign(yr=lambda d: d["order_date"].dt.year)
+                      .groupby("yr", as_index=False)["net_revenue"].sum())
+yearly["prior_year"] = yearly["net_revenue"].shift(1)
+yearly["yoy_pct"] = (100 * (yearly["net_revenue"] / yearly["prior_year"] - 1)).round(2)
+yearly`,
+      look: "<code>.shift(1)</code> is pandas' equivalent of SQL's <code>LAG()</code> -- it pulls the previous row's value down, as long as the rows are already sorted by year. 2024 is a partial year here, so its growth figure is misleading." },
+    { t: "Rolling 3-month average", q: "What is the smoothed trend behind the monthly noise?", code: `monthly = (order_items.merge(orders[["order_id", "order_date"]], on="order_id")
+                       .assign(month=lambda d: d["order_date"].dt.to_period("M").dt.to_timestamp())
+                       .groupby("month", as_index=False)["net_revenue"].sum()
+                       .sort_values("month"))
+monthly["rolling_3m_avg"] = (monthly["net_revenue"]
+                             .rolling(window=3, min_periods=1).mean().round(0))
+monthly`,
+      look: "<code>.rolling(window=3)</code> mirrors a SQL window frame of <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code>. <code>min_periods=1</code> lets the first couple of rows average fewer than three months instead of returning NaN -- worth stating if the result is charted." },
+    { t: "Top 3 customers per region with rank()", q: "Who are the biggest customers in each region?", code: `spend = (orders.merge(customers, on="customer_id")
+               .merge(regions, on="region_id")
+               .merge(order_items.groupby("order_id", as_index=False)["net_revenue"].sum(), on="order_id")
+               .groupby(["region_name", "customer_id"], as_index=False)["net_revenue"].sum())
+
+spend["rnk"] = spend.groupby("region_name")["net_revenue"].rank(method="first", ascending=False)
+top3 = spend[spend["rnk"] &lt;= 3].sort_values(["region_name", "rnk"])
+top3`,
+      look: "<code>groupby(...).rank()</code> computes a rank within each group, same idea as SQL's <code>RANK() OVER (PARTITION BY ...)</code>. Filtering to <code>rnk &lt;= 3</code> afterward replaces the <code>QUALIFY</code> clause -- pandas has no equivalent shortcut, so the filter is a normal boolean mask." },
+    { t: "Outlier detection with the IQR rule", q: "How many line items fall outside the typical range?", code: `q1, q3 = order_items["net_revenue"].quantile([0.25, 0.75])
+iqr = q3 - q1
+lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+
+is_outlier = (order_items["net_revenue"] &lt; lower) | (order_items["net_revenue"] &gt; upper)
+print(f"{is_outlier.sum()} outliers out of {len(order_items)} line items")`,
+      look: "<code>.quantile([0.25, 0.75])</code> returns both quartiles in one call. Flagging is not removing -- decide whether outliers are data errors or genuine large orders before dropping anything." },
+    { t: "Pareto analysis by customer decile", q: "Is revenue concentrated in a few customers?", code: `cust_rev = (order_items.merge(orders[["order_id", "customer_id"]], on="order_id")
+                        .groupby("customer_id", as_index=False)["net_revenue"].sum())
+cust_rev["decile"] = pd.qcut(cust_rev["net_revenue"], 10, labels=False, duplicates="drop") + 1
+
+decile = (cust_rev.groupby("decile", as_index=False)
+                   .agg(customers=("customer_id", "count"), revenue=("net_revenue", "sum"))
+                   .sort_values("decile", ascending=False))
+decile["pct_of_revenue"] = (100 * decile["revenue"] / decile["revenue"].sum()).round(2)
+decile["cumulative_pct"] = decile["pct_of_revenue"].cumsum().round(2)
+decile`,
+      look: "<code>pd.qcut</code> is pandas' equivalent of <code>NTILE()</code> -- it splits values into equal-sized buckets by rank. Compare the top decile's share to the 80/20 rule of thumb; an even spread is itself a finding, and expected on synthetic data." },
+    { t: "RFM customer segmentation", q: "Which customers are recent, frequent, and high value?", code: `last_date = orders["order_date"].max()
+order_rev = order_items.groupby("order_id", as_index=False)["net_revenue"].sum()
+
+rfm = (orders.merge(order_rev, on="order_id")
+             .groupby("customer_id")
+             .agg(recency_days=("order_date", lambda s: (last_date - s.max()).days),
+                  frequency=("order_id", "nunique"),
+                  monetary=("net_revenue", "sum")))
+
+rfm["r_score"] = pd.qcut(rfm["recency_days"], 5, labels=[5, 4, 3, 2, 1]).astype(int)
+rfm["f_score"] = pd.qcut(rfm["frequency"].rank(method="first"), 5, labels=[1, 2, 3, 4, 5]).astype(int)
+rfm["m_score"] = pd.qcut(rfm["monetary"], 5, labels=[1, 2, 3, 4, 5]).astype(int)
+
+def segment(row):
+    if row.r_score &gt;= 4 and row.f_score &gt;= 4 and row.m_score &gt;= 4:
+        return "Champions"
+    if row.r_score &gt;= 4:
+        return "Recent"
+    if row.r_score &lt;= 2 and row.m_score &gt;= 4:
+        return "At risk, high value"
+    return "Other"
+
+rfm["segment"] = rfm.apply(segment, axis=1)
+rfm["segment"].value_counts()`,
+      look: "Recency is measured from the latest date in the data, not <code>today</code>, which would make every customer look dormant. Scoring recency with reversed labels (<code>[5,4,3,2,1]</code>) gives the most recent customers the highest score without a separate sort step." },
+    { t: "Correlation between measures", q: "Do quantity, price, and discount move together?", code: `order_items[["quantity", "unit_price", "discount", "net_revenue"]].corr().round(4)`,
+      look: "<code>net_revenue</code> is derived from quantity and unit price, so a strong positive link there is expected. A near-zero discount correlation supports the bucket result from the Intermediate tab." },
+    { t: "Pivot table by category and year", q: "How does revenue split by product category each year?", code: `(order_items.merge(orders[["order_id", "order_date"]], on="order_id")
+            .merge(products[["product_id", "category"]], on="product_id")
+            .assign(yr=lambda d: d["order_date"].dt.year)
+            .pivot_table(index="yr", columns="category", values="net_revenue",
+                         aggfunc="sum", fill_value=0)
+            .round(0))`,
+      look: "<code>pivot_table</code> is pandas' <code>PIVOT</code> -- it reshapes long data into wide, filling any missing category/year combination with <code>fill_value</code> instead of leaving a gap." },
+    { t: "Package the work as a reusable function", q: "How do I turn the exploration into something others can reuse?", code: `def build_order_facts(orders, order_items, customers, products, regions):
+    """One row per order: revenue, region, segment -- analogous to a SQL view."""
+    return (order_items.groupby("order_id", as_index=False)["net_revenue"].sum()
+                        .merge(orders[["order_id", "order_date", "customer_id"]], on="order_id")
+                        .merge(customers[["customer_id", "segment", "region_id"]], on="customer_id")
+                        .merge(regions, on="region_id"))
+
+order_facts = build_order_facts(orders, order_items, customers, products, regions)
+
+# Downstream analysis becomes a one-liner
+(order_facts.assign(yr=order_facts["order_date"].dt.year)
+            .groupby(["region_name", "yr"], as_index=False)["net_revenue"].sum())`,
+      look: "A function with a clear docstring and a fixed return shape is pandas' version of a SQL view -- call it once, then every downstream question is a short query against <code>order_facts</code> instead of repeating the same five merges." }
+  ],
+
+  case: [
+    { t: "Reconcile before you merge", q: "Why does my first revenue number look too big?", why: "The quickest-looking revenue query is usually the wrong one. If an order-level total is computed first and then merged back onto the line items, summing it afterward repeats each order's total once per line -- the pandas version of the SQL fan-out. I compare the correct order-grain total against that naive, inflated total before trusting any merge.", code: `order_totals = (order_items.groupby("order_id", as_index=False)["net_revenue"].sum()
+                            .rename(columns={"net_revenue": "order_total"}))
+orders_with_total = orders.merge(order_totals, on="order_id")
+
+correct_total = orders_with_total["order_total"].sum()
+
+# The WRONG way: merging the order-level total onto line items, then summing --
+# repeats each order's total once per line item
+naive_total = orders_with_total.merge(order_items, on="order_id")["order_total"].sum()
+
+print(f"correct (order-grain) total:    {correct_total:,.0f}")
+print(f"naive (inflated) total:         {naive_total:,.0f}")
+print(f"line-item total (sanity check): {order_items['net_revenue'].sum():,.0f}")`,
+      lk: "Reading the result.", look: "The naive total comes out several times larger -- that gap is the fan-out. Decision: keep net revenue defined at line-item level, and only merge an order-grain total back on for order-level questions, never the other way around." },
+    { t: "Pick a comparable window", q: "Is revenue really flat once the periods match?", why: "The data ends in July 2024, so a full-year comparison would make the last year look like a collapse. I compare the same seven months, January to July, in every year, so each year contributes equal time.", code: `jan_jul = (order_items.merge(orders[["order_id", "order_date"]], on="order_id")
+                       .assign(yr=lambda d: d["order_date"].dt.year)
+                       .loc[lambda d: d["order_date"].dt.month &lt;= 7]
+                       .groupby("yr", as_index=False)["net_revenue"].sum())
+jan_jul`,
+      lk: "Reading the result.", look: "If the like-for-like totals are roughly level, the VP's sense that revenue is flat is supported. If they rise, the apparent dip came from the partial year, which is itself worth telling the VP." },
+    { t: "Test concentration by region", q: "Does any region carry too much of the business?", why: "Totals mostly track overall growth, so I look at each region's share of its own year instead. There are five regions, so an even split is 20% each -- I'd start to worry if one region held well over a third, or if its share moved by several points between years.", code: `conc = (order_items.merge(orders[["order_id", "order_date", "customer_id"]], on="order_id")
+                    .merge(customers[["customer_id", "region_id"]], on="customer_id")
+                    .merge(regions, on="region_id")
+                    .assign(yr=lambda d: d["order_date"].dt.year)
+                    .loc[lambda d: d["order_date"].dt.month &lt;= 7]
+                    .groupby(["yr", "region_name"], as_index=False)["net_revenue"].sum())
+
+conc["pct_of_year"] = (100 * conc["net_revenue"]
+                       / conc.groupby("yr")["net_revenue"].transform("sum")).round(2)
+conc.sort_values(["yr", "pct_of_year"], ascending=[True, False])`,
+      lk: "Reading the result.", look: "<code>groupby(...).transform(\"sum\")</code> broadcasts each year's total back onto every row of that year, so the share can be computed without a separate join. Near-even, stable shares mean there's no regional-dependency story -- on synthetic data that's the expected, and legitimate, finding." },
+    { t: "Separate new from returning customers", q: "Is growth coming from acquisition or from existing customers?", why: "Growth from new customers and growth from returning customers call for different actions -- sales effort versus account management. I label each customer by the year of their first order and split each year's activity accordingly.", code: `first_year = (orders.groupby("customer_id", as_index=False)["order_date"].min()
+                    .assign(first_yr=lambda d: d["order_date"].dt.year)[["customer_id", "first_yr"]])
+
+cust_year = (order_items.merge(orders[["order_id", "order_date", "customer_id"]], on="order_id")
+                        .assign(yr=lambda d: d["order_date"].dt.year)
+                        .loc[lambda d: d["order_date"].dt.month &lt;= 7]
+                        .groupby(["customer_id", "yr"], as_index=False)["net_revenue"].sum()
+                        .merge(first_year, on="customer_id"))
+cust_year["is_new"] = cust_year["yr"] == cust_year["first_yr"]
+
+summary = (cust_year.groupby(["yr", "is_new"], as_index=False)
+                     .agg(customers=("customer_id", "nunique"), revenue=("net_revenue", "sum"))
+                     .pivot(index="yr", columns="is_new", values=["customers", "revenue"]))
+summary.columns = ["returning_customers", "new_customers", "returning_revenue", "new_revenue"]
+summary = summary[["new_customers", "returning_customers", "new_revenue", "returning_revenue"]].round(0)
+summary`,
+      lk: "Reading the result.", look: "The first year in the data is all \"new\" by construction -- there's no earlier history -- so ignore it. From the second year on, watch the returning share; a shrinking one points to a retention problem even if total revenue looks fine." },
+    { t: "Turn complaints into a delivery rate", q: "Is delivery performance actually getting worse?", why: "\"Delivery complaints\" are anecdotes until they become a rate. I measure the share of orders shipped after the committed date, by year and ship mode, and exclude the partial final year so it can't distort the trend.", code: `late = (orders.loc[orders["order_date"] &lt; "2024-01-01"]
+              .assign(yr=lambda d: d["order_date"].dt.year,
+                      is_late=lambda d: d["ship_date"] &gt; d["commit_date"])
+              .groupby(["yr", "ship_mode"], as_index=False)
+              .agg(orders=("order_id", "count"), pct_late=("is_late", "mean")))
+late["pct_late"] = (late["pct_late"] * 100).round(2)
+late.sort_values(["yr", "pct_late"], ascending=[True, False])`,
+      lk: "Reading the result.", look: "A rate that's flat across years and modes means lateness isn't a systemic trend, so the complaints are more likely tied to specific customers or orders -- the next place to dig. With tens of thousands of rows, even a tiny difference can look statistically real, so judge whether it's operationally meaningful before reporting it." },
+    { t: "Write it up for the stakeholder", q: "What does the VP actually receive?", why: "The analysis is only useful if it ends in a decision. I send a short note that leads with the answer, gives three numbers, states the caveats, and proposes one action. The brackets are a template to fill in from your own results.", plain: true, code: `Subject: Quarterly review - growth quality and delivery
+
+Bottom line: [one sentence that answers the VP's question]
+
+1. Growth: like-for-like Jan-Jul net revenue changed [x%] vs the prior
+   year; [y%] of the activity came from returning customers.
+2. Concentration: the largest region holds [x%] of revenue (an even
+   split is 20%); the top customer decile holds [x%].
+3. Delivery: [x%] of orders arrive late, [stable / rising / falling]
+   since [year].
+
+Caveats: the final year is compared on Jan-Jul only; late means
+shipped after the committed date; revenue is net of discount.
+
+Recommendation: [one action] owned by [team], tracked by [one metric].`,
+      lk: "Why it works.", look: "The VP asked for a recommendation, not a data dump. Leading with the bottom line, naming the definitions, and committing to one action is what turns a notebook into a decision. If the data shows no problem, the recommendation can be to keep monitoring with a named metric." }
+  ]
+};
+
+function edaCard(i, item) {
+  const why = item.why ? `<div class="eda-why"><b>Analyst thinking.</b> ${item.why}</div>` : "";
+  return `
+    <div class="eda-card">
+      <div class="eda-num">${String(i + 1).padStart(2, "0")}</div>
+      <h4>${item.t}</h4>
+      <p class="eda-q">${item.q}</p>
+      ${why}
+      <pre>${item.code}</pre>
+      <div class="eda-look"><b>${item.lk || "What to look for."}</b> ${item.look}</div>
+    </div>`;
+}
+
+for (const level of Object.keys(EDA_DATA)) {
+  const targetId = level === "case" ? "eda-p-case-cards" : "eda-p-" + level;
+  document.getElementById(targetId).innerHTML = EDA_DATA[level].map((x, i) => edaCard(i, x)).join("");
+  document.getElementById("eda-c-" + level).textContent = EDA_DATA[level].length;
+}
+
+function showEdaLevel(level) {
+  document.querySelectorAll("#eda-tabs .eda-tab").forEach(t => t.classList.toggle("active", t.dataset.edaLevel === level));
+  document.querySelectorAll(".eda-panel").forEach(p => p.classList.toggle("active", p.id === "eda-p-" + level));
+}
+document.getElementById("eda-tabs").addEventListener("click", e => {
+  const t = e.target.closest(".eda-tab");
+  if (t) showEdaLevel(t.dataset.edaLevel);
+});
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "default", flowchart: { htmlLabels: true } });
+
+  let mermaidZoomLevel = 1;
+  let mermaidPan = { x: 0, y: 0 };
+  let mermaidDragging = false;
+  let mermaidDragStart = { x: 0, y: 0 };
+
+  function applyMermaidTransform() {
+    const content = document.getElementById("mermaid-modal-content");
+    if (content) content.style.transform = `translate(${mermaidPan.x}px, ${mermaidPan.y}px) scale(${mermaidZoomLevel})`;
+  }
+
+  function openMermaidModal(btn) {
+    const wrap = btn.closest(".mermaid-wrap");
+    const svg = wrap.querySelector("svg");
+    const content = document.getElementById("mermaid-modal-content");
+    content.innerHTML = svg ? svg.outerHTML : wrap.querySelector(".mermaid").innerHTML;
+
+    // Mermaid gives its SVG a `width="100%"` attribute meant for a sized
+    // parent. Inside this modal there's no such parent, so force the SVG
+    // back to its real pixel size (from its viewBox) before we scale it.
+    const clonedSvg = content.querySelector("svg");
+    let vbWidth = 800, vbHeight = 500;
+    if (clonedSvg) {
+      const vb = clonedSvg.viewBox && clonedSvg.viewBox.baseVal;
+      if (vb && vb.width && vb.height) {
+        vbWidth = vb.width;
+        vbHeight = vb.height;
+      }
+      clonedSvg.removeAttribute("width");
+      clonedSvg.removeAttribute("height");
+      clonedSvg.style.width = vbWidth + "px";
+      clonedSvg.style.height = vbHeight + "px";
+    }
+
+    document.getElementById("mermaid-modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    // Fit the diagram to the visible canvas on open, so a very wide/tall
+    // diagram starts fully visible instead of clipped or squashed.
+    const canvas = document.getElementById("mermaid-modal-canvas");
+    const canvasRect = canvas.getBoundingClientRect();
+    const fitScale = Math.min(
+      (canvasRect.width * 0.92) / vbWidth,
+      (canvasRect.height * 0.92) / vbHeight
+    );
+    mermaidZoomLevel = Math.min(Math.max(fitScale, 0.3), 8);
+    mermaidPan = { x: 0, y: 0 };
+    applyMermaidTransform();
+  }
+
+  function closeMermaidModal() {
+    document.getElementById("mermaid-modal").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function mermaidZoom(factor) {
+    mermaidZoomLevel = Math.min(Math.max(mermaidZoomLevel * factor, 0.3), 8);
+    applyMermaidTransform();
+  }
+
+  function mermaidZoomReset() {
+    mermaidZoomLevel = 1;
+    mermaidPan = { x: 0, y: 0 };
+    applyMermaidTransform();
+  }
+
+  (function () {
+    const canvas = document.getElementById("mermaid-modal-canvas");
+    if (!canvas) return;
+    canvas.addEventListener("mousedown", (e) => {
+      mermaidDragging = true;
+      mermaidDragStart = { x: e.clientX - mermaidPan.x, y: e.clientY - mermaidPan.y };
+      canvas.classList.add("dragging");
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!mermaidDragging) return;
+      mermaidPan = { x: e.clientX - mermaidDragStart.x, y: e.clientY - mermaidDragStart.y };
+      applyMermaidTransform();
+    });
+    window.addEventListener("mouseup", () => {
+      mermaidDragging = false;
+      canvas.classList.remove("dragging");
+    });
+    canvas.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        mermaidZoom(e.deltaY < 0 ? 1.1 : 0.9);
+      },
+      { passive: false }
+    );
+    window.addEventListener("keydown", (e) => {
+      const modal = document.getElementById("mermaid-modal");
+      if (!modal || !modal.classList.contains("open")) return;
+      if (e.key === "Escape") closeMermaidModal();
+      if (e.key === "+" || e.key === "=") mermaidZoom(1.25);
+      if (e.key === "-" || e.key === "_") mermaidZoom(0.8);
+    });
+  })();
+</script>
+
+<div id="mermaid-modal" class="mermaid-modal" onclick="if(event.target===this) closeMermaidModal()">
+  <div class="mermaid-modal-toolbar">
+    <span class="mermaid-modal-hint">Scroll or drag to pan &middot; +/− or scroll wheel to zoom</span>
+    <button onclick="mermaidZoom(1.25)" title="Zoom in">+</button>
+    <button onclick="mermaidZoom(0.8)" title="Zoom out">−</button>
+    <button onclick="mermaidZoomReset()" title="Reset zoom">⟳</button>
+    <button class="close-btn" onclick="closeMermaidModal()" title="Close (Esc)">✕</button>
+  </div>
+  <div class="mermaid-modal-canvas" id="mermaid-modal-canvas">
+    <div class="mermaid-modal-content" id="mermaid-modal-content"></div>
+  </div>
+</div>
 
 </body>
 </html>
