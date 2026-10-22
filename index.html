@@ -564,7 +564,7 @@
 
 <section id="modules">
   <div class="wrap">
-    <p class="section-label">▸ eleven modules</p>
+    <p class="section-label">▸ fourteen modules</p>
     <h2>Click a module to explore</h2>
     <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
     <div class="module-grid" id="module-grid"></div>
@@ -606,8 +606,28 @@
           <tr><td>Can be nested?</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td></tr>
           <tr><td>Lookup performance</td><td>Slow: O(n)</td><td>Slow: O(n)</td><td>Fast: O(1) avg</td><td>Fast: O(1) avg</td></tr>
           <tr><td>Memory usage</td><td>Higher than tuple</td><td>Lower than list</td><td>Higher (key storage)</td><td>Higher than list for small collections</td></tr>
-          <tr><td>Best used when</td><td>Collection needs to change</td><td>Data should stay constant</td><td>You need relationships between data</td><td>You need uniqueness &amp; fast membership checks</td></tr>
+          <tr><td>Common methods</td><td><code>append()</code>, <code>extend()</code>, <code>insert()</code>, <code>remove()</code>, <code>pop()</code>, <code>sort()</code></td><td>Only <code>count()</code>, <code>index()</code></td><td><code>keys()</code>, <code>values()</code>, <code>items()</code>, <code>get()</code>, <code>update()</code></td><td><code>add()</code>, <code>remove()</code>, <code>union()</code>, <code>intersection()</code></td></tr>
+<tr><td>Iteration</td><td>In order, element by element</td><td>In order (marginally faster than a list, rarely matters)</td><td>Over keys by default; use <code>.items()</code> for pairs</td><td>In arbitrary order</td></tr>
+<tr><td>Typical data convention</td><td>Usually items of the same kind (all numbers, all names)</td><td>Often a fixed record of mixed types, e.g. <code>("Alice", 25, "NYC")</code></td><td>Keys must be immutable and hashable; values can be anything</td><td>Elements must be hashable</td></tr>
+<tr><td>Modify it (code)</td><td><pre style="white-space:pre-wrap; word-break:break-word;">my_list = [10, 20, 30, 40]
+my_list.append(50)   # add
+my_list[1] = 25      # modify
+print(my_list)
+# [10, 25, 30, 40, 50]</pre></td><td><pre style="white-space:pre-wrap; word-break:break-word;">my_tuple = (10, 20, 30, 40)
+# my_tuple[1] = 25   # TypeError: tuples are immutable
+print(my_tuple[2])
+# 30</pre></td><td><pre style="white-space:pre-wrap; word-break:break-word;">my_dict = {'name': 'Alice', 'age': 25}
+my_dict['age'] = 26          # modify a value
+my_dict['country'] = 'USA'   # add a pair
+print(my_dict)
+# {'name': 'Alice', 'age': 26, 'country': 'USA'}</pre></td><td><pre style="white-space:pre-wrap; word-break:break-word;">my_set = {10, 20, 30, 40}
+my_set.add(50)   # add
+my_set.add(30)   # duplicate: ignored
+print(my_set)
+# {10, 20, 30, 40, 50}  (order may vary)</pre></td></tr>
+<tr><td>Best used when</td><td>Collection needs to change</td><td>Data should stay constant</td><td>You need relationships between data</td><td>You need uniqueness &amp; fast membership checks</td></tr>
         </table>
+        <p style="font-size:13px; color:var(--ink-soft); margin:10px 0 0; line-height:1.6;"><strong>Note on performance:</strong> tuples are slightly faster to create and iterate and use a little less memory than lists, but the gap is small, so choose by <em>mutability and intent</em>, not speed. Sets and dicts use extra memory for their hash tables; that is the price of O(1) average membership and key lookups.</p>
         </div>
       </div>
 
@@ -1345,6 +1365,273 @@ cleaned = [
           <li><strong><code>*args</code>/<code>**kwargs</code></strong> — variable positional/keyword arguments</li>
           <li><strong>File I/O</strong> — always use <code>with open(...) as f:</code></li>
         </ul>`,
+      pandasio: `
+        <h4>Importing and exporting data with pandas</h4>
+        <p style="margin-top:-4px;">Click ⤢ Expand to zoom and pan.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Pandas File IO"] --&gt; B{"Choose file type"}
+
+B --&gt; C["CSV"]
+B --&gt; D["Excel"]
+B --&gt; E["JSON"]
+B --&gt; F["Text"]
+
+%% ================= CSV =================
+
+C --&gt; C1["Import CSV&lt;br&gt;pd.read_csv file.csv&lt;br&gt;Params sep header usecols na_values"]
+C --&gt; C2["Export CSV&lt;br&gt;df.to_csv file.csv&lt;br&gt;Params index sep na_rep"]
+
+%% ================= EXCEL =================
+
+D --&gt; D1["Import Excel&lt;br&gt;pd.read_excel file.xlsx&lt;br&gt;Params sheet_name usecols skiprows"]
+D --&gt; D2["Export Excel&lt;br&gt;df.to_excel file.xlsx&lt;br&gt;Params sheet_name index"]
+
+%% ================= JSON =================
+
+E --&gt; E1["Import JSON&lt;br&gt;pd.read_json file.json&lt;br&gt;Params orient lines"]
+E --&gt; E2["Export JSON&lt;br&gt;df.to_json file.json&lt;br&gt;Params orient lines"]
+
+%% ================= TEXT =================
+
+F --&gt; F1["Import Text&lt;br&gt;pd.read_table file.txt&lt;br&gt;Params sep names encoding"]
+F --&gt; F2["Export Text&lt;br&gt;df.to_csv file.txt&lt;br&gt;Params sep header"]
+
+%% ================= COLORS =================
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+
+classDef csv fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef excel fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef json fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+classDef txt fill:#F8C471,stroke:#AF601A,stroke-width:2px,color:#000;
+
+class A head;
+class B decision;
+
+class C,C1,C2 csv;
+class D,D1,D2 excel;
+class E,E1,E2 json;
+class F,F1,F2 txt;
+</div></div>
+        <h4>Read and write functions</h4>
+        <table>
+          <tr><th>Format</th><th>Import</th><th>Export</th><th>Key parameters</th></tr>
+          <tr><td>CSV</td><td><code>pd.read_csv("file.csv")</code></td><td><code>df.to_csv("file.csv")</code></td><td><code>sep</code>, <code>header</code>, <code>usecols</code>, <code>na_values</code> / <code>index</code>, <code>sep</code>, <code>na_rep</code></td></tr>
+          <tr><td>Excel</td><td><code>pd.read_excel("file.xlsx")</code></td><td><code>df.to_excel("file.xlsx")</code></td><td><code>sheet_name</code>, <code>usecols</code>, <code>skiprows</code> / <code>sheet_name</code>, <code>index</code></td></tr>
+          <tr><td>JSON</td><td><code>pd.read_json("file.json")</code></td><td><code>df.to_json("file.json")</code></td><td><code>orient</code>, <code>lines</code></td></tr>
+          <tr><td>Text</td><td><code>pd.read_table("file.txt")</code></td><td><code>df.to_csv("file.txt", sep="\\t")</code></td><td><code>sep</code>, <code>names</code>, <code>encoding</code> / <code>sep</code>, <code>header</code></td></tr>
+        </table>
+        <h4>Examples (tested)</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({"id": [1, 2, 3],
+                   "name": ["Ana", "Ben", None],
+                   "score": [90.5, None, 70.0]})
+
+# ---- CSV ----
+df.to_csv("file.csv", index=False, na_rep="NA")      # index=False: don't write the row numbers
+pd.read_csv("file.csv", usecols=["id", "score"], na_values=["NA"])   # only these columns; "NA" -&gt; NaN
+pd.read_csv("file.csv", sep=",", header=0)           # header=0: first row holds column names
+
+# ---- Excel (needs the openpyxl package) ----
+df.to_excel("file.xlsx", sheet_name="Scores", index=False)
+pd.read_excel("file.xlsx", sheet_name="Scores", usecols="A:B")   # columns A to B only
+pd.read_excel("file.xlsx", sheet_name="Scores", skiprows=1)      # skip the first row
+
+# ---- JSON ----
+df.to_json("file.json", orient="records")
+# [{"id":1,"name":"Ana","score":90.5},{"id":2,"name":"Ben","score":null}, ...]
+pd.read_json("file.json", orient="records")
+
+df.to_json("file.jsonl", orient="records", lines=True)   # one JSON object per line
+pd.read_json("file.jsonl", lines=True)                   # read that format back
+
+# ---- Text (tab-separated) ----
+df.to_csv("file.txt", sep="\\t", header=True, index=False)
+pd.read_table("file.txt")                                # read_table defaults to sep="\\t"
+pd.read_table("file.txt", sep="\\t", names=["a", "b", "c"], header=0, encoding="utf-8")</pre>
+        <table>
+          <tr><th>Parameter</th><th>What it does</th></tr>
+          <tr><td><code>sep</code></td><td>Delimiter between fields (<code>','</code>, <code>'\\t'</code>, <code>';'</code>, <code>'|'</code>)</td></tr>
+          <tr><td><code>header</code></td><td>Which row holds column names (<code>None</code> if there is no header row)</td></tr>
+          <tr><td><code>names</code></td><td>Supply your own column names</td></tr>
+          <tr><td><code>usecols</code></td><td>Load only the listed columns (faster, less memory)</td></tr>
+          <tr><td><code>na_values</code> / <code>na_rep</code></td><td>Extra strings to read as NaN / what to write for NaN</td></tr>
+          <tr><td><code>skiprows</code></td><td>Number of rows to skip at the top</td></tr>
+          <tr><td><code>index</code></td><td>Write the row index as a column? Usually <code>False</code></td></tr>
+          <tr><td><code>sheet_name</code></td><td>Which Excel sheet to read or write</td></tr>
+          <tr><td><code>orient</code></td><td>JSON layout: <code>records</code>, <code>columns</code>, <code>index</code>, <code>split</code>, <code>values</code></td></tr>
+          <tr><td><code>lines</code></td><td>JSON Lines format: one record per line (good for large files)</td></tr>
+          <tr><td><code>encoding</code></td><td>Character encoding, such as <code>utf-8</code> or <code>latin-1</code></td></tr>
+        </table>
+        <p><strong>Tips:</strong> there is no <code>to_table</code>, so text files are written with <code>to_csv(sep=...)</code>. Always pass <code>index=False</code> when exporting unless the index carries meaning, otherwise reading the file back adds an extra <code>Unnamed: 0</code> column. If a CSV fails with a <code>UnicodeDecodeError</code>, try <code>encoding="latin-1"</code>. Excel needs <code>openpyxl</code> installed (<code>pip install openpyxl</code>).</p>`,
+      controlflow: `
+        <h4>Control flow &amp; iteration concepts</h4>
+        <table>
+          <tr><th>Keyword / Concept</th><th>Definition</th><th>Sample code</th><th>Output</th></tr>
+          <tr><td><strong>Control Flow</strong></td><td>The order in which instructions in a program are executed.</td><td><pre>x = 10
+if x &gt; 5:
+    print("Greater than 5")
+print("Done")</pre></td><td>Greater than 5, Done</td></tr>
+          <tr><td><strong>if statement</strong></td><td>Runs the indented block only when the condition evaluates to True.</td><td><pre>age = 18
+if age &gt;= 18:
+    print("Eligible to vote")</pre></td><td>Eligible to vote</td></tr>
+          <tr><td><strong>Nested if</strong></td><td>An if statement inside another if statement.</td><td><pre>num = 10
+if num &gt; 0:
+    if num % 2 == 0:
+        print("Positive even number")</pre></td><td>Positive even number</td></tr>
+          <tr><td><strong>if-else statement</strong></td><td>Executes one block if the condition is True, otherwise executes the else block.</td><td><pre>num = 3
+if num % 2 == 0:
+    print("Even")
+else:
+    print("Odd")</pre></td><td>Odd</td></tr>
+          <tr><td><strong>else statement</strong></td><td>An optional statement that runs when the if condition is False.</td><td><pre>marks = 40
+if marks &gt;= 50:
+    print("Pass")
+else:
+    print("Fail")</pre></td><td>Fail</td></tr>
+          <tr><td><strong>if-elif-else statement</strong></td><td>Checks multiple conditions and handles several outcomes; the first True branch wins.</td><td><pre>score = 85
+if score &gt;= 90:
+    print("Grade A")
+elif score &gt;= 75:
+    print("Grade B")
+else:
+    print("Grade C")</pre></td><td>Grade B</td></tr>
+          <tr><td><strong>Iteration</strong></td><td>Repetition of similar computations to automate tasks and reduce errors.</td><td><pre>for i in range(3):
+    print("Hello")</pre></td><td>Hello, Hello, Hello</td></tr>
+          <tr><td><strong>Definite Iteration</strong></td><td>Iteration where the number of repetitions is known in advance.</td><td><pre>for i in range(5):
+    print(i)</pre></td><td>0, 1, 2, 3, 4</td></tr>
+          <tr><td><strong>Indefinite Iteration</strong></td><td>Iteration that continues until a condition is met.</td><td><pre>x = 1
+while x &lt;= 3:
+    print(x)
+    x += 1</pre></td><td>1, 2, 3</td></tr>
+          <tr><td><strong>for loop</strong></td><td>Iterates over an iterable, once per element.</td><td><pre>for ch in "Python":
+    print(ch)</pre></td><td>P, y, t, h, o, n</td></tr>
+          <tr><td><strong>Iterable</strong></td><td>An object that can return its elements one at a time.</td><td><pre>items = [1, 2, 3]
+for item in items:
+    print(item)</pre></td><td>1, 2, 3</td></tr>
+          <tr><td><strong>while loop</strong></td><td>Repeats execution as long as a condition remains True.</td><td><pre>count = 0
+while count &lt; 3:
+    print(count)
+    count += 1</pre></td><td>0, 1, 2</td></tr>
+          <tr><td><strong>break</strong></td><td>Exits the loop immediately.</td><td><pre>for i in range(5):
+    if i == 3:
+        break
+    print(i)</pre></td><td>0, 1, 2</td></tr>
+          <tr><td><strong>continue</strong></td><td>Skips the current iteration and moves to the next loop cycle.</td><td><pre>for i in range(5):
+    if i == 2:
+        continue
+    print(i)</pre></td><td>0, 1, 3, 4</td></tr>
+        </table>
+        <h4>Difference between <code>if</code> and <code>while</code></h4>
+        <table>
+          <tr><th>Feature</th><th><code>if</code> statement</th><th><code>while</code> loop</th></tr>
+          <tr><td>Purpose</td><td>Used for <strong>decision making</strong></td><td>Used for <strong>repetition (looping)</strong></td></tr>
+          <tr><td>Execution</td><td>Executes the block <strong>once</strong> if the condition is <code>True</code></td><td>Executes the block <strong>repeatedly</strong> as long as the condition is <code>True</code></td></tr>
+          <tr><td>Condition check</td><td>Checked <strong>one time</strong></td><td>Checked <strong>before every iteration</strong></td></tr>
+          <tr><td>Use case</td><td>When you want to <strong>choose</strong> between actions</td><td>When you want to <strong>repeat</strong> actions</td></tr>
+          <tr><td>Looping</td><td>❌ No looping</td><td>✅ Looping</td></tr>
+          <tr><td>Risk of infinite execution</td><td>❌ No</td><td>⚠️ Yes (if the condition never becomes False)</td></tr>
+          <tr><td>Code</td><td><pre>age = 20
+if age &gt;= 18:
+    print("Eligible to vote")</pre><em>Output: Eligible to vote</em></td><td><pre>count = 1
+while count &lt;= 3:
+    print(count)
+    count += 1</pre><em>Output: 1, 2, 3</em></td></tr>
+        </table>
+        <p><strong>Remember:</strong> <code>if</code> asks a question once; <code>while</code> keeps asking until the answer changes. A <code>while</code> loop must change something inside its body (like <code>count += 1</code>), otherwise it never ends. Use <code>for</code> when you know what you're looping over, and <code>while</code> when you only know the stopping condition.</p>`,
+      commonerrors: `
+        <h4>Common Python errors: beginner guide</h4>
+        <p>When Python finds a problem in your code, it raises an <strong>exception</strong>. Read the <strong>last line</strong> of the error first: it names the error type and gives the message. The line number above it shows where Python noticed the problem. Click ⤢ Expand on the chart to zoom and pan.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Python raises an Exception"] --&gt; B{"What kind of problem?"}
+
+B --&gt; G1["Code structure&lt;br&gt;(before it runs)"]
+B --&gt; G2["Names and imports"]
+B --&gt; G3["Wrong type or value"]
+B --&gt; G4["Lookup problems"]
+B --&gt; G5["Runtime / system"]
+
+G1 --&gt; S1["SyntaxError&lt;br&gt;Invalid grammar&lt;br&gt;Fix: add colon, quotes, brackets"]
+G1 --&gt; S2["IndentationError&lt;br&gt;Block not indented&lt;br&gt;Fix: indent 4 spaces"]
+G1 --&gt; S3["unicodeescape error&lt;br&gt;Backslashes in Windows path&lt;br&gt;Fix: r-string, double slash, or forward slash"]
+
+G2 --&gt; N1["NameError&lt;br&gt;Name not defined&lt;br&gt;Fix: define it first, check spelling"]
+G2 --&gt; N2["ModuleNotFoundError&lt;br&gt;Module not found&lt;br&gt;Fix: pip install, check typo and venv"]
+G2 --&gt; N3["ImportError&lt;br&gt;Name not inside module&lt;br&gt;Fix: use the correct name"]
+G2 --&gt; N4["AttributeError&lt;br&gt;Object lacks that method&lt;br&gt;Fix: use the right type or method"]
+
+G3 --&gt; T1["TypeError&lt;br&gt;Wrong types together&lt;br&gt;Fix: convert, e.g. str 30"]
+G3 --&gt; T2["ValueError&lt;br&gt;Right type, bad value&lt;br&gt;Fix: pass a valid value"]
+
+G4 --&gt; L1["IndexError&lt;br&gt;List position missing&lt;br&gt;Fix: stay within len minus 1"]
+G4 --&gt; L2["KeyError&lt;br&gt;Dict key missing&lt;br&gt;Fix: use dict.get key"]
+
+G5 --&gt; R1["ZeroDivisionError&lt;br&gt;Divided by zero&lt;br&gt;Fix: check divisor is not 0"]
+G5 --&gt; R2["FileNotFoundError&lt;br&gt;File path wrong&lt;br&gt;Fix: check path and name"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef cat fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef err fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+classDef name fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B decision;
+class G1,G2,G3,G4,G5 cat;
+class S1,S2,S3,T1,T2,L1,L2,R1,R2 err;
+class N1,N2,N3,N4 name;
+</div></div>
+        <h4>Error reference</h4>
+        <table>
+          <tr><th>Error</th><th>What it means</th><th>Example that triggers it</th><th>Error message</th><th>Common reasons</th><th>Fix</th></tr>
+          <tr><td><strong>NameError</strong></td><td>Python can't find a variable or function name</td><td><code>print(total)</code></td><td><code>name 'total' is not defined</code></td><td>Never defined; misspelled; used before assigning</td><td><pre>total = 100
+print(total)</pre></td></tr>
+          <tr><td><strong>SyntaxError</strong></td><td>Python can't understand your code's grammar</td><td><pre>if x == 5
+    print(x)</pre></td><td><code>expected ':'</code></td><td>Missing colon; missing brackets or quotes; bad indentation</td><td><pre>if x == 5:
+    print(x)</pre></td></tr>
+          <tr><td><strong>IndentationError</strong></td><td>Blocks of code need correct spacing</td><td><pre>if x &gt; 5:
+print(x)</pre></td><td><code>expected an indented block after 'if' statement on line 1</code></td><td>Block body not indented; mixed tabs and spaces</td><td><pre>if x &gt; 5:
+    print(x)</pre></td></tr>
+          <tr><td><strong>TypeError</strong></td><td>Wrong data types used together</td><td><code>print("Age: " + 30)</code></td><td><code>can only concatenate str (not "int") to str</code></td><td>Mixing str and int; calling something that isn't callable</td><td><code>print("Age: " + str(30))</code></td></tr>
+          <tr><td><strong>ValueError</strong></td><td>Correct type, but invalid value</td><td><code>int("abc")</code></td><td><code>invalid literal for int() with base 10: 'abc'</code></td><td>Text that isn't a number; out-of-range value</td><td><code>int("123")</code></td></tr>
+          <tr><td><strong>IndexError</strong></td><td>List position doesn't exist</td><td><pre>nums = [10, 20]
+print(nums[5])</pre></td><td><code>list index out of range</code></td><td>Index at or beyond len(list)</td><td><code>print(nums[1])</code></td></tr>
+          <tr><td><strong>KeyError</strong></td><td>Dictionary key doesn't exist</td><td><pre>data = {"name": "Alex"}
+print(data["age"])</pre></td><td><code>'age'</code></td><td>Misspelled key; key never added</td><td><code>print(data.get("age"))</code></td></tr>
+          <tr><td><strong>ModuleNotFoundError</strong></td><td>Python can't find the module</td><td><code>import numpyy</code></td><td><code>No module named 'numpyy'</code></td><td>Typo in name; library not installed; wrong virtual environment</td><td><code>pip install numpy</code></td></tr>
+          <tr><td><strong>ImportError</strong></td><td>Module exists, but that name isn't in it</td><td><code>from math import power</code></td><td><code>cannot import name 'power' from 'math'</code></td><td>Wrong function name; name renamed or removed</td><td><code>from math import pow</code></td></tr>
+          <tr><td><strong>AttributeError</strong></td><td>Object doesn't have that attribute or method</td><td><pre>x = 10
+x.append(5)</pre></td><td><code>'int' object has no attribute 'append'</code></td><td>Wrong type (an int isn't a list); misspelled method</td><td><pre>lst = []
+lst.append(5)</pre></td></tr>
+          <tr><td><strong>ZeroDivisionError</strong></td><td>You divided by zero</td><td><code>10 / 0</code></td><td><code>division by zero</code></td><td>Divisor variable is 0</td><td><pre>if y != 0:
+    print(10 / y)</pre></td></tr>
+          <tr><td><strong>FileNotFoundError</strong></td><td>Python can't find the file you tried to open</td><td><code>open("missing_file.txt")</code></td><td><code>[Errno 2] No such file or directory: 'missing_file.txt'</code></td><td>Wrong name or path; wrong working directory</td><td>Use the correct path, or check os.path.exists(path) first</td></tr>
+          <tr><td><strong>Windows path error (unicodeescape)</strong></td><td>A backslash in a path is read as an escape character</td><td><code>open("C:\\Users\\Praveena\\data.csv")</code></td><td><code>(unicode error) 'unicodeescape' codec can't decode bytes ... truncated \\UXXXXXXXX escape</code></td><td>\\U, \\x, \\N in the path start an escape sequence</td><td><pre>open(r"C:\\Users\\Praveena\\data.csv")      # raw string
+open("C:\\\\Users\\\\Praveena\\\\data.csv")    # double slashes
+open("C:/Users/Praveena/data.csv")         # forward slashes</pre></td></tr>
+        </table>
+        <p><strong>Notes:</strong> a <code>SyntaxError</code> (and its cousin <code>IndentationError</code>) is raised when Python reads the file, <strong>before any line runs</strong>, so nothing prints. The Windows path error is also a <code>SyntaxError</code>, and only appears when the path contains <code>\\U</code>, <code>\\x</code>, <code>\\N</code> or <code>\\u</code>.</p>
+        <h4>Handling errors with try / except</h4>
+        <pre>try:
+    int("abc")
+except ValueError as e:
+    print("Bad value:", e)
+# Bad value: invalid literal for int() with base 10: 'abc'
+
+# Catch several kinds, or handle a specific missing-file case
+try:
+    open("missing_file.txt")
+except FileNotFoundError:
+    print("File not found, check the path")
+except (TypeError, ValueError) as e:
+    print("Problem with the input:", e)</pre>
+        <p>Catch the <strong>specific</strong> error you expect (such as <code>ValueError</code>), not a bare <code>except:</code>, so real bugs aren't hidden.</p>`,
       example: `
         <h4>Real-world example</h4>
         <p>A vendor's daily CSV export has inconsistent column names and date formats week to week. A small script normalizes column names, tries multiple date formats with fallback parsing, and logs (rather than silently drops) rows that fail — all Fundamentals-level Python, exactly what shows up constantly in DA/DE roles.</p>
@@ -1421,6 +1708,38 @@ print(df.groupby("region")["revenue"].mean())</pre>`,
           <li><strong>Correlation ≠ causation</strong> — a hypothesis to investigate, not a conclusion</li>
           <li><strong>Outlier detection</strong> — IQR bounds, z-score thresholds, domain bounds</li>
         </ul>`,
+      edacharts: `
+        <p style="margin-top:0;">Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>Exploration Functions</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Exploration"]:::head
+
+A --&gt; C1["value_counts() - frequency"]:::fn
+C1 --&gt; C1c["df.col.value_counts()"]:::code
+
+A --&gt; C2["value_counts(normalize) - percent"]:::fn
+C2 --&gt; C2c["df.col.value_counts(normalize=True)"]:::code
+
+A --&gt; C3["nlargest() - top N"]:::fn
+C3 --&gt; C3c["df.nlargest(5,'sales')"]:::code
+
+A --&gt; C4["idxmax() - index of max"]:::fn
+C4 --&gt; C4c["df.sales.idxmax()"]:::code
+
+
+%% ===== STYLES =====
+
+classDef head fill:#0b5394,stroke:#000,stroke-width:3px,color:#fff,font-size:20px;
+classDef fn fill:#d0e0e3,stroke:#134f5c,stroke-width:2px,color:#000,font-size:17px;
+classDef code fill:#fce5cd,stroke:#b45f06,stroke-width:2px,color:#000,font-size:16px;
+</div></div>
+        <pre>df["sales"].value_counts()                 # {80: 2, 150: 1, 120: 1}
+df["sales"].value_counts(normalize=True)   # {80: 0.5, 150: 0.25, 120: 0.25}
+df.nlargest(2, "sales")                    # the 2 rows with the highest sales
+df["sales"].idxmax()                       # index label of the maximum (0)</pre>
+        <p><code>idxmax()</code> returns the <strong>index label</strong> of the max, not the max value itself. Pair it with <code>.loc</code> to fetch the whole row: <code>df.loc[df['sales'].idxmax()]</code>.</p>`,
       example: `
         <h4>Real-world example</h4>
         <p>An analyst investigates a 15% average-order-value drop. Proper EDA finds it's concentrated in one region, traces it to a batch of $0 test orders mixed into production data, and recomputes AOV excluding them — the "drop" mostly disappears. The real story was a data quality issue, not a business trend.</p>
@@ -1491,6 +1810,78 @@ df["region"] = df["region"].fillna("unknown").str.strip().str.title()</pre>`,
           <li><strong>Type coercion failure mode</strong> — <code>errors="coerce"</code> silently makes <code>NaN</code></li>
           <li><strong>Idempotency</strong> — same input should always produce the same output</li>
         </ul>`,
+      cleancharts: `
+        <p style="margin-top:0;">Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>Data Cleaning &amp; Sampling</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Sampling &amp; Data Cleaning"]:::head
+
+A --&gt; B["Sampling"]:::cat
+A --&gt; C["Data Cleaning"]:::cat
+
+%% ===== SAMPLING =====
+
+B --&gt; B1["sample() — random rows"]:::fn
+B1 --&gt; B1c["df.sample(n=5)"]:::code
+
+B --&gt; B2["sample(frac) — random fraction"]:::fn
+B2 --&gt; B2c["df.sample(frac=0.2)"]:::code
+
+%% ===== CLEANING =====
+
+C --&gt; C1["drop_duplicates() — remove duplicates"]:::fn
+C1 --&gt; C1c["df.drop_duplicates(subset=['id'])"]:::code
+
+C --&gt; C2["infer_objects() — fix object dtypes"]:::fn
+C2 --&gt; C2c["df.infer_objects()"]:::code
+
+C --&gt; C3["convert_dtypes() — best dtypes"]:::fn
+C3 --&gt; C3c["df.convert_dtypes()"]:::code
+
+C --&gt; C4["where() — keep if condition"]:::fn
+C4 --&gt; C4c["df.where(df &gt; 0, 0)"]:::code
+
+C --&gt; C5["mask() — replace if condition"]:::fn
+C5 --&gt; C5c["df.mask(df &lt; 0, 0)"]:::code
+
+
+classDef head fill:#1565c0,stroke:#0d47a1,stroke-width:3px,color:#fff,font-size:20px;
+classDef cat fill:#ffe599,stroke:#b45f06,stroke-width:2px,color:#000,font-size:18px;
+classDef fn fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000,font-size:17px;
+classDef code fill:#fff3cd,stroke:#b7791f,stroke-width:2px,color:#000,font-size:16px;
+</div></div>
+        <h4>Handling Very Large Datasets</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+%% ==== HEAD ==== 
+A["Very Large Dataset&lt;br&gt;(doesn't fit into memory)"]:::head --&gt; B{"Choose strategy to handle large data"}:::decision
+
+%% ==== STRATEGIES ==== 
+B --&gt; C["Optimize Data Types&lt;br&gt;&lt;br&gt;Sample:&lt;br&gt;df['col'] = df['col'].astype('category')&lt;br&gt;df['num'] = df['num'].astype('float32')"]:::method
+B --&gt; D["Load Data in Chunks&lt;br&gt;&lt;br&gt;Sample:&lt;br&gt;for chunk in pd.read_csv('data.csv', chunksize=100000):&lt;br&gt;&amp;nbsp;&amp;nbsp;process(chunk)"]:::method
+B --&gt; E["Select Columns / Rows&lt;br&gt;&lt;br&gt;Sample:&lt;br&gt;df = pd.read_csv('data.csv', usecols=['col1','col2'])&lt;br&gt;df = df.query('col3 &gt; 0')"]:::method
+B --&gt; F["Use External Storage / Libraries&lt;br&gt;&lt;br&gt;Sample:&lt;br&gt;import dask.dataframe as dd&lt;br&gt;df = dd.read_csv('data.csv')"]:::method
+B --&gt; G["Save Intermediate Results&lt;br&gt;&lt;br&gt;Sample:&lt;br&gt;df.to_parquet('chunk1.parquet')&lt;br&gt;# Load later with pd.read_parquet()"]:::method
+
+%% ==== COLORS ====
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000,font-size:18px;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000,font-size:16px;
+classDef method fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000,font-size:16px;
+</div></div>
+        <pre>df.sample(n=5, random_state=42)       # random_state makes the sample reproducible
+df.sample(frac=0.2, random_state=42)  # 20% of the rows
+
+df.drop_duplicates(subset=["id"])     # keeps the first row for each id
+df.where(df &gt; 0, 0)                   # keep values where True, else replace with 0
+df.mask(df &lt; 0, 0)                    # the opposite: replace values where True
+
+# Large files: process in chunks, never loading everything at once
+total = 0
+for chunk in pd.read_csv("data.csv", chunksize=100_000):
+    total += chunk["amount"].sum()</pre>
+        <p><code>where</code> and <code>mask</code> are mirror images: <code>where(cond, other)</code> keeps values where the condition is True, <code>mask(cond, other)</code> replaces them. Parquet files (<code>to_parquet</code>) need the <code>pyarrow</code> package installed and are far smaller and faster than CSV.</p>`,
       example: `
         <h4>Real-world example</h4>
         <p>A nightly pipeline ingests order data from three regional systems with different date/currency/status formats. Pre-processing parses each region's format explicitly, standardizes status codes to one vocabulary, and quarantines (rather than crashes on) rows that fail — often 70%+ of the real engineering effort in a pipeline.</p>
@@ -1575,6 +1966,127 @@ df = pd.get_dummies(df, columns=["category"])</pre>`,
           <li><strong>Scaling</strong> — matters for distance/gradient-based models, not tree-based ones</li>
           <li><strong>Aggregation features</strong> — powerful but leakage-prone if not time-aware</li>
         </ul>`,
+      fecharts: `
+        <p style="margin-top:0;">Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>Transform Functions</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Transform"]:::head
+
+A --&gt; B1["assign() - create columns in chain"]:::fn
+B1 --&gt; B1c["df.assign(total=df.a+df.b)"]:::code
+
+A --&gt; B2["pipe() - apply custom function"]:::fn
+B2 --&gt; B2c["df.pipe(my_func)"]:::code
+
+A --&gt; B3["map() - map values via dict"]:::fn
+B3 --&gt; B3c["df.col.map(mapping_dict)"]:::code
+
+A --&gt; B4["cut() - numeric bins"]:::fn
+B4 --&gt; B4c["pd.cut(df.age, bins=5)"]:::code
+
+A --&gt; B5["qcut() - quantile bins"]:::fn
+B5 --&gt; B5c["pd.qcut(df.score, 4)"]:::code
+
+
+%% ===== STYLES =====
+
+classDef head fill:#0b5394,stroke:#000,stroke-width:3px,color:#fff,font-size:20px;
+classDef fn fill:#d0e0e3,stroke:#134f5c,stroke-width:2px,color:#000,font-size:17px;
+classDef code fill:#fce5cd,stroke:#b45f06,stroke-width:2px,color:#000,font-size:16px;
+</div></div>
+        <h4>Conditional Mapping &amp; Smart Evaluation</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Conditional &amp; Evaluation"]:::head
+
+A --&gt; B["Conditional Mapping"]:::cat
+A --&gt; C["Smart Evaluation"]:::cat
+
+%% =====================
+%% CONDITIONAL
+%% =====================
+B --&gt; B1["np.where() - vector conditional column"]:::fn
+B1 --&gt; B1c["Sample: df flag = np.where(df.sales &gt; 100, 'High', 'Low')"]:::code
+
+B --&gt; B2["Series.map() - conditional lookup"]:::fn
+B2 --&gt; B2c["Sample: df grade = df.score map 90-&gt;A, 80-&gt;B"]:::code
+
+B --&gt; B3["replace() - rule based replace"]:::fn
+B3 --&gt; B3c["Sample: df replace NY -&gt; New York"]:::code
+
+%% =====================
+%% SMART EVAL
+%% =====================
+C --&gt; C1["query() - SQL style filtering"]:::fn
+C1 --&gt; C1c["Sample: df query sales&gt;100 and region=West"]:::code
+
+C --&gt; C2["eval() - fast expression compute"]:::fn
+C2 --&gt; C2c["Sample: df eval total = price * qty"]:::code
+
+%% =====================
+%% STYLES
+classDef head fill:#0b5394,stroke:#000,stroke-width:3px,color:#fff,font-size:20px;
+classDef cat fill:#ffe599,stroke:#b45f06,stroke-width:2px,color:#000,font-size:18px;
+classDef fn fill:#cfe2f3,stroke:#1c4587,stroke-width:2px,color:#000,font-size:17px;
+classDef code fill:#fce5cd,stroke:#b45f06,stroke-width:2px,color:#000,font-size:16px;
+</div></div>
+        <h4>Encoding &amp; Ranking</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Encoding &amp; Ranking"]:::head
+
+A --&gt; B["Encoding"]:::cat
+A --&gt; C["Ranking"]:::cat
+
+%% =====================
+%% ENCODING
+%% =====================
+B --&gt; B1["get_dummies() - one hot encoding"]:::fn
+B1 --&gt; B1c["Sample: pd.get_dummies(df city)"]:::code
+
+B --&gt; B2["factorize() - integer encode"]:::fn
+B2 --&gt; B2c["Sample: df code = pd.factorize(df.city)[0]"]:::code
+
+%% =====================
+%% RANKING
+%% =====================
+C --&gt; C1["rank() - numeric ranking"]:::fn
+C1 --&gt; C1c["Sample: df r = df.sales.rank()"]:::code
+
+C --&gt; C2["rank(method dense) - dense rank"]:::fn
+C2 --&gt; C2c["Sample: df.sales.rank(method=dense)"]:::code
+
+C --&gt; C3["groupby().rank() - rank per group"]:::fn
+C3 --&gt; C3c["Sample: df.groupby(dept).sales.rank()"]:::code
+
+%% =====================
+%% STYLES
+classDef head fill:#0b5394,stroke:#000,stroke-width:3px,color:#fff,font-size:20px;
+classDef cat fill:#ffe599,stroke:#b45f06,stroke-width:2px,color:#000,font-size:18px;
+classDef fn fill:#cfe2f3,stroke:#1c4587,stroke-width:2px,color:#000,font-size:17px;
+classDef code fill:#fce5cd,stroke:#b45f06,stroke-width:2px,color:#000,font-size:16px;
+</div></div>
+        <pre>import numpy as np, pandas as pd
+
+df["total"]   = df["a"] + df["b"]                       # or df.assign(total=lambda d: d.a + d.b)
+df["flag"]    = np.where(df["sales"] &gt; 100, "High", "Low")   # ['High','Low','High','Low']
+df["grade"]   = df["score"].map({90: "A", 80: "B"})     # 85 has no key, so it becomes NaN
+df["city"]    = df["city"].replace({"NY": "New York"})
+df.query("sales &gt; 100 and region == 'West'")
+df.eval("total = price * qty")
+
+pd.cut(ages, bins=[0, 18, 40, 100], labels=["young", "mid", "senior"])   # fixed-width bins
+pd.qcut(df["score"], 2, labels=["low", "high"])                          # equal-count bins
+
+codes, uniques = pd.factorize(df["city"])    # codes [0, 1, 0, 2], uniques ['NY','LA','SF']
+df["sales"].rank()                           # ties get the average rank: [4.0, 1.5, 3.0, 1.5]
+df["sales"].rank(method="dense")             # no gaps after ties:        [3.0, 1.0, 2.0, 1.0]
+df.groupby("dept")["sales"].rank()           # rank restarts within each group</pre>
+        <p><code>Series.map</code> with a dict returns <strong>NaN</strong> for any value not in the dict, while <code>replace</code> leaves unmatched values unchanged. <code>factorize</code> gives integer codes with no one-hot columns, but it implies an order, so use it for tree models or labels rather than linear models.</p>`,
       example: `
         <h4>Real-world example</h4>
         <p>A churn dashboard turns raw <code>signup_date</code>/<code>last_login_date</code>/event logs into <code>days_since_last_login</code>, <code>login_frequency_last_30_days</code>, <code>tenure_months</code>, and an engagement trend — only after this engineering do the variables actually correlate with churn risk in an interpretable way.</p>
@@ -1655,6 +2167,64 @@ else:
           <li><strong>Type I vs. Type II error</strong> — false positive (rejecting a true null) vs. false negative (failing to reject a false null)</li>
           <li><strong>Distributions</strong> — normal, binomial, Poisson, and which real-world scenarios each models</li>
         </ul>`,
+      correlation: `
+        <p style="margin-top:0;">Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>Correlation Methods</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["DataFrame df with two numeric columns"] --&gt; B{"Choose correlation method"}
+
+B --&gt; C["Pearson"]
+B --&gt; D["Spearman"]
+B --&gt; E["Kendall"]
+
+%% ---------- DESCRIPTION ----------
+C --&gt; C1["Measures linear relationship"]
+C1 --&gt; C2["Value between -1 and 1"]
+C2 --&gt; C3["Use when both columns are continuous and normally distributed"]
+
+D --&gt; D1["Measures monotonic relationship"]
+D1 --&gt; D2["Value between -1 and 1"]
+D2 --&gt; D3["Use when data is ordinal or not normally distributed"]
+
+E --&gt; E1["Measures ordinal association"]
+E1 --&gt; E2["Value between -1 and 1"]
+E2 --&gt; E3["Use for small datasets or ordinal data"]
+
+%% ---------- SAMPLE CODE ----------
+C --&gt; C_code["Sample: df['col1'].corr(df['col2'], method='pearson')"]
+D --&gt; D_code["Sample: df['col1'].corr(df['col2'], method='spearman')"]
+E --&gt; E_code["Sample: df['col1'].corr(df['col2'], method='kendall')"]
+
+%% ---------- COLORS ----------
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef method fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef desc fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef code fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E method;
+class C1,C2,C3,D1,D2,D3,E1,E2,E3 desc;
+class C_code,D_code,E_code code;
+</div></div>
+        <h4>Comparing the three methods</h4>
+        <table>
+          <tr><th>Method</th><th>Measures</th><th>Use when</th><th>Sensitive to outliers?</th></tr>
+          <tr><td><code>pearson</code> (default)</td><td>Linear relationship</td><td>Both columns continuous and roughly normal</td><td>Yes</td></tr>
+          <tr><td><code>spearman</code></td><td>Monotonic relationship (works on ranks)</td><td>Ordinal data, non-normal data, or outliers present</td><td>Less so</td></tr>
+          <tr><td><code>kendall</code></td><td>Ordinal association (concordant vs. discordant pairs)</td><td>Small datasets or many tied ranks</td><td>Less so</td></tr>
+        </table>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({"x": [1, 2, 3, 4, 5], "y": [2, 4, 5, 4, 5]})
+
+df["x"].corr(df["y"], method="pearson")    # 0.775
+df["x"].corr(df["y"], method="spearman")   # 0.738
+df["x"].corr(df["y"], method="kendall")    # 0.671
+
+df.corr(method="spearman")                 # full correlation matrix for all numeric columns</pre>
+        <p>All three return a value between -1 (perfect negative) and +1 (perfect positive); 0 means no relationship of that kind. <strong>Correlation is not causation</strong>, and Pearson can be near 0 for a strong curved relationship.</p>`,
       example: `
         <h4>Real-world example</h4>
         <p>A product team runs an A/B test on a new checkout flow. Before trusting the "8% lift in conversion," a data scientist checks: was the sample size large enough to detect an effect this size (power analysis)? Is the result significant at the pre-registered threshold, not after peeking at the data multiple times? Are there confounds (e.g. the test ran only on weekdays)? Only after these checks does the lift get reported as real.</p>
@@ -1821,6 +2391,687 @@ df.loc[df['A'] > 10]                  \# boolean mask -- loc only, not iloc</pre
           <li><strong>Double brackets</strong> for multi-column selection — <code>df[['a','b']]</code> returns a DataFrame, <code>df['a','b']</code> raises an error</li>
           <li><strong><code>.query()</code></strong> reads like SQL and avoids repeated <code>df['col']</code> references, at the cost of being slightly less flexible for dynamic column names</li>
         </ul>`,
+      diagram: `
+        <h4>Selection methods flowchart</h4>
+        <p style="margin-top:-4px;">Click &#10530; Expand to zoom and pan.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Pandas Selection Methods"] --&gt; B{"Need single value&lt;br&gt;or multiple values?"}
+
+B --&gt; C["Multiple rows or cols"]
+B --&gt; D["Single scalar value"]
+
+%% -------- MULTI --------
+C --&gt; E{"Use labels&lt;br&gt;or positions?"}
+
+E --&gt; F["Labels → loc"]
+E --&gt; G["Positions → iloc"]
+
+F --&gt; F1["Row and column names&lt;br&gt;df.loc['A','salary']"]
+F --&gt; F2["Label slice allowed&lt;br&gt;df.loc['A':'C']"]
+
+G --&gt; G1["Integer positions&lt;br&gt;df.iloc[0,1]"]
+G --&gt; G2["Position slice&lt;br&gt;df.iloc[0:3]"]
+
+%% -------- SCALAR --------
+D --&gt; H{"Use labels&lt;br&gt;or positions?"}
+
+H --&gt; I["Labels → at"]
+H --&gt; J["Positions → iat"]
+
+I --&gt; I1["Fast scalar label lookup&lt;br&gt;df.at['A','salary']"]
+
+J --&gt; J1["Fast scalar position lookup&lt;br&gt;df.iat[0,1]"]
+
+%% ===== COLOR CLASSES =====
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef label fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef pos fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef fast fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E,H decision;
+class F,F1,F2,I,I1 label;
+class G,G1,G2,J,J1 pos;
+class I,J fast;
+</div></div>
+        <table>
+          <tr><th>Method</th><th>Lookup by</th><th>Returns</th><th>Slice allowed?</th></tr>
+          <tr><td><code>loc</code></td><td>Labels</td><td>Rows/columns</td><td>Yes (end-inclusive)</td></tr>
+          <tr><td><code>iloc</code></td><td>Integer positions</td><td>Rows/columns</td><td>Yes (end-exclusive)</td></tr>
+          <tr><td><code>at</code></td><td>Labels</td><td>One scalar (fastest)</td><td>No</td></tr>
+          <tr><td><code>iat</code></td><td>Integer positions</td><td>One scalar (fastest)</td><td>No</td></tr>
+        </table>`,
+      filtering: `
+        <p style="margin-top:0;">One chart per filtering category, with the pandas code for each. Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>Numeric Filtering</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Numeric Filtering"] --&gt; B["Greater or less"]
+A --&gt; C["Range filter"]
+A --&gt; D["Top values"]
+
+B --&gt; B1["df[df.col &gt; 10]"]
+C --&gt; C1["df[df.col.between(5,20)]"]
+D --&gt; D1["df.nlargest(5,'col')"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef type fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D type;
+class B1,C1,D1 ex;
+</div></div>
+        <h4>String Filtering</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["String Filtering"] --&gt; B["Contains"]
+A --&gt; C["Starts with"]
+A --&gt; D["Ends with"]
+A --&gt; E["Regex"]
+
+B --&gt; B1["df.col.str.contains('abc')"]
+C --&gt; C1["df.col.str.startswith('A')"]
+D --&gt; D1["df.col.str.endswith('x')"]
+E --&gt; E1["df.col.str.contains('^A')"]
+
+classDef head fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef type fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E type;
+class B1,C1,D1,E1 ex;
+</div></div>
+        <h4>Date Filtering</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Date Filtering"] --&gt; B["After date"]
+A --&gt; C["Year filter"]
+A --&gt; D["Month filter"]
+A --&gt; E["Between dates"]
+
+B --&gt; B1["df[df.date &gt; '2024-01-01']"]
+C --&gt; C1["df[df.date.dt.year == 2024]"]
+D --&gt; D1["df[df.date.dt.month == 1]"]
+E --&gt; E1["df[df.date.between(d1,d2)]"]
+
+classDef head fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+classDef type fill:#F8C471,stroke:#AF601A,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E type;
+class B1,C1,D1,E1 ex;
+</div></div>
+        <h4>Conditional Filtering</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Conditional Filtering"] --&gt; B["AND condition"]
+A --&gt; C["OR condition"]
+A --&gt; D["NOT condition"]
+
+B --&gt; B1["(c1&gt;10) &amp; (c2=='A')"]
+C --&gt; C1["(c1&gt;10) | (c2=='A')"]
+D --&gt; D1["~(df.col &gt; 10)"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef type fill:#82E0AA,stroke:#196F3D,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D type;
+class B1,C1,D1 ex;
+</div></div>
+        <h4>Index Filtering</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Index Filtering"] --&gt; B["Label based"]
+A --&gt; C["Position based"]
+A --&gt; D["Boolean mask"]
+
+B --&gt; B1["df.loc['A':'D']"]
+C --&gt; C1["df.iloc[0:5]"]
+D --&gt; D1["df.loc[df.col &gt; 10]"]
+
+classDef head fill:#BB8FCE,stroke:#5B2C6F,stroke-width:2px,color:#000;
+classDef type fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D type;
+class B1,C1,D1 ex;
+</div></div>
+        <h4>Null &amp; Boolean Filtering</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Null and Boolean Filtering"] --&gt; B["Is null"]
+A --&gt; C["Not null"]
+A --&gt; D["True rows"]
+A --&gt; E["False rows"]
+
+B --&gt; B1["df.col.isna()"]
+C --&gt; C1["df.col.notna()"]
+D --&gt; D1["df[df.flag]"]
+E --&gt; E1["df[~df.flag]"]
+
+classDef head fill:#FAD7A0,stroke:#B9770E,stroke-width:2px,color:#000;
+classDef type fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D,E type;
+class B1,C1,D1,E1 ex;
+</div></div>
+        <h4>Pandas Filtering: Rows vs. Columns</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Pandas Filtering"] --&gt; B{"Filter Target"}
+
+B --&gt; C["Row Filtering"]
+B --&gt; D["Column Filtering"]
+
+%% -------- ROW FILTERING --------
+
+C --&gt; C1["Boolean rows&lt;br&gt;df[df col &gt; 50]"]
+C --&gt; C2["Multiple cond&lt;br&gt;df[(A&gt;10)&amp;(B&lt;5)]"]
+C --&gt; C3["Row labels&lt;br&gt;df.loc[r1:r5]"]
+C --&gt; C4["Row position&lt;br&gt;df.iloc[0:5]"]
+
+%% -------- COLUMN FILTERING --------
+
+D --&gt; D1["Select cols&lt;br&gt;df[[A,B]]"]
+D --&gt; D2["By name match&lt;br&gt;df.filter like='sales'"]
+D --&gt; D3["Regex cols&lt;br&gt;df.filter regex='^A'"]
+D --&gt; D4["By position&lt;br&gt;df.iloc[:,0:3]"]
+
+%% -------- COLORS --------
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef rows fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef cols fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+
+class A head;
+class B decision;
+class C,C1,C2,C3,C4 rows;
+class D,D1,D2,D3,D4 cols;
+</div></div>`,
+      indexing: `
+        <h4>Indexing cheat sheet: <code>iloc</code>, <code>loc</code>, <code>iat</code>, <code>at</code></h4>
+        <ul><li><code>iloc</code> and <code>loc</code> are the primary ways to access rows and columns.</li><li><code>.iat</code> and <code>.at</code> are faster alternatives for accessing <strong>single values</strong>.</li></ul>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:9%">Method</th><th style="width:16%">Type of indexing</th><th style="width:20%">Access / selection</th><th style="width:32%">Example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong><code>iloc</code></strong></td><td>Integer position based</td><td>Select by row and column positions</td><td><code>df.iloc[0, 1]</code> → first row, second column<br><code>df.iloc[0:5, 0:3]</code> → rows 0–4, cols 0–2</td><td>Works like NumPy indexing, <strong>exclusive of end</strong> for slices</td></tr>
+          <tr><td><strong><code>loc</code></strong></td><td>Label-based</td><td>Select by row and column labels</td><td><code>df.loc[0, 'col1']</code> → row with index 0, column 'col1'<br><code>df.loc[0:5, ['col1','col2']]</code> → rows 0–5 <strong>inclusive</strong>, selected columns</td><td>Inclusive slicing for labels; works with boolean masks: <code>df.loc[df['col']&gt;10]</code></td></tr>
+          <tr><td><strong><code>iat</code></strong></td><td>Integer position based, scalar only</td><td>Access single value by row and column positions</td><td><code>df.iat[0, 1]</code> → first row, second column</td><td>Faster than <code>iloc</code> for single values; scalar access only</td></tr>
+          <tr><td><strong><code>at</code></strong></td><td>Label-based, scalar only</td><td>Access single value by row and column label</td><td><code>df.at[0, 'col1']</code> → row 0, column 'col1'</td><td>Faster than <code>loc</code> for single values; scalar access only</td></tr>
+        </table>
+        <h4>Comparison summary</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Feature</th><th style="width:20%"><code>iloc</code></th><th style="width:20%"><code>loc</code></th><th style="width:20%"><code>iat</code></th><th style="width:20%"><code>at</code></th></tr>
+          <tr><td>Index type</td><td>Integer positions</td><td>Labels</td><td>Integer positions</td><td>Labels</td></tr>
+          <tr><td>Scalar access</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr><td>Slice access</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+          <tr><td>Boolean mask</td><td>⚠️ Only a plain list/array, not a Series</td><td>✅</td><td>❌</td><td>❌</td></tr>
+          <tr><td>Fastest for single value</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+          <tr><td>Syntax examples</td><td><code>df.iloc[0:3, 0:2]</code></td><td><code>df.loc[0:3, ['A','B']]</code></td><td><code>df.iat[1,2]</code></td><td><code>df.at[1,'B']</code></td></tr>
+        </table>
+        <p><strong>Remember:</strong> position = <code>i</code> (<code>iloc</code>/<code>iat</code>), label = no <code>i</code> (<code>loc</code>/<code>at</code>). Slices exclude the end for <code>iloc</code> but include it for <code>loc</code>. <code>iloc</code> does accept a plain list or array of booleans, but not a boolean Series (it raises an error), so use <code>loc</code> for masks built from a column.</p>
+        <h4>Example 1: all four methods</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'A': [10,20,30],
+    'B': [40,50,60],
+    'C': [70,80,90]
+}, index=[100,101,102])</pre><pre style="margin-bottom:2px"># iloc - integer position
+df.iloc[0,1]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(40)</pre>
+        <pre style="margin-bottom:2px"># iloc - rows 0-1, cols 0-1
+df.iloc[0:2, 0:2]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      A   B
+100  10  40
+101  20  50</pre>
+        <pre style="margin-bottom:2px"># loc - label-based
+df.loc[100,'B']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(40)</pre>
+        <pre style="margin-bottom:2px"># loc - rows 100-101, cols A &amp; C
+df.loc[100:101,['A','C']]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      A   C
+100  10  70
+101  20  80</pre>
+        <pre style="margin-bottom:2px"># iat - scalar by position
+df.iat[1,2]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(80)</pre>
+        <pre style="margin-bottom:2px"># at - scalar by label
+df.at[101,'C']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(80)</pre>
+        
+        <h4>Example 2: Name / Age / City table</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Name': ['Alice','Bob','Charlie'],
+    'Age': [25,30,35],
+    'City': ['NY','LA','Chicago']
+})</pre><pre style="margin-bottom:2px"># iloc: one value by position
+df.iloc[1, 2]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">'LA'</pre>
+        <pre style="margin-bottom:2px"># iloc: first two rows, first two columns
+df.iloc[0:2, 0:2]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name  Age
+0  Alice   25
+1    Bob   30</pre>
+        <pre style="margin-bottom:2px"># loc: one value by label
+df.loc[1, 'City']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">'LA'</pre>
+        <pre style="margin-bottom:2px"># loc: first two rows (labels 0 and 1), Name and Age
+df.loc[0:1, ['Name','Age']]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name  Age
+0  Alice   25
+1    Bob   30</pre>
+        <pre style="margin-bottom:2px"># iat: single value by position
+df.iat[0, 1]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(25)</pre>
+        <pre style="margin-bottom:2px"># at: single value by label
+df.at[0, 'Age']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(25)</pre>
+        `,
+      colrow: `
+        <h4>Column filtering</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Select Single Column</strong></td><td>Get a single column as Series</td><td><code>df['col']</code> or <code>df.col</code></td><td>Returns a Series</td></tr>
+          <tr><td><strong>Select Multiple Columns</strong></td><td>Get multiple columns as DataFrame</td><td><code>df[['col1', 'col2']]</code></td><td>Keep double brackets for DataFrame</td></tr>
+          <tr><td><strong>Select Columns by Condition</strong></td><td>Select columns based on dtype or condition</td><td><code>df.select_dtypes(include='number')</code></td><td>Can use <code>exclude</code> as well</td></tr>
+          <tr><td><strong>Filter Columns by Name Pattern</strong></td><td>Columns whose names match a pattern</td><td><code>df.filter(like='sales')</code></td><td>Returns DataFrame with columns containing substring</td></tr>
+          <tr><td><strong>Filter Columns with Regex</strong></td><td>Columns matching regex pattern</td><td><code>df.filter(regex='^A.*Z$')</code></td><td>Returns DataFrame with matching column names</td></tr>
+          <tr><td><strong>Drop Columns</strong></td><td>Remove columns from DataFrame</td><td><code>df.drop(columns=['col1','col2'])</code></td><td>Returns new DataFrame; <code>inplace</code> option available</td></tr>
+          <tr><td><strong>Filter Columns by Null Values</strong></td><td>Select columns with missing values</td><td><code>df.loc[:, df.isna().any()]</code></td><td>Returns columns that have at least one NaN</td></tr>
+          <tr><td><strong>Filter Columns by Non-Null</strong></td><td>Columns without missing values</td><td><code>df.loc[:, df.notna().all()]</code></td><td>Returns columns with no NaN</td></tr>
+          <tr><td><strong>Filter Columns by Data Type</strong></td><td>Select numeric, object, datetime, etc.</td><td><code>df.select_dtypes(include=['int','float'])</code></td><td>Can combine types as list</td></tr>
+          <tr><td><strong>Rename Columns</strong></td><td>Change column names</td><td><code>df.rename(columns={'old':'new'})</code></td><td>Can rename single or multiple columns</td></tr>
+        </table>
+        <h4>Example: column filtering</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Name': ['Alice','Bob','Charlie'],
+    'Age': [25,30,35],
+    'Salary': [50000,60000,70000],
+    'Dept': ['HR','IT','Sales']
+})</pre><pre style="margin-bottom:2px"># Select single column
+df['Age']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">0    25
+1    30
+2    35</pre>
+        <pre style="margin-bottom:2px"># Select multiple columns
+df[['Name','Salary']]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Salary
+0    Alice   50000
+1      Bob   60000
+2  Charlie   70000</pre>
+        <pre style="margin-bottom:2px"># Select numeric columns only
+df.select_dtypes(include='number')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">   Age  Salary
+0   25   50000
+1   30   60000
+2   35   70000</pre>
+        <pre style="margin-bottom:2px"># Filter columns whose name contains 'a'
+df.filter(like='a')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Salary
+0    Alice   50000
+1      Bob   60000
+2  Charlie   70000</pre>
+        <pre style="margin-bottom:2px"># Filter columns with regex (names starting with 'S')
+df.filter(regex='^S')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">   Salary
+0   50000
+1   60000
+2   70000</pre>
+        <pre style="margin-bottom:2px"># Drop a column
+df.drop(columns=['Dept'])</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary
+0    Alice   25   50000
+1      Bob   30   60000
+2  Charlie   35   70000</pre>
+        <pre style="margin-bottom:2px"># Columns with missing values (none here, so no columns)
+df.loc[:, df.isna().any()]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">Empty DataFrame (no columns), index: [0, 1, 2]</pre>
+        <pre style="margin-bottom:2px"># Rename columns
+df.rename(columns={'Salary':'Income','Dept':'Department'})</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Income Department
+0    Alice   25   50000         HR
+1      Bob   30   60000         IT
+2  Charlie   35   70000      Sales</pre>
+        
+        <h4>Row filtering</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Filter by Column Value</strong></td><td>Select rows where column equals a value</td><td><code>df[df['col'] == value]</code></td><td>Returns rows where condition is True</td></tr>
+          <tr><td><strong>Filter by Multiple Conditions</strong></td><td>Combine conditions using <code>&amp;</code> (and) or <code>|</code> (or)</td><td><code>df[(df['col1'] &gt; 10) &amp; (df['col2'] &lt; 50)]</code></td><td>Parentheses are required</td></tr>
+          <tr><td><strong>Filter by Column in List</strong></td><td>Rows where column is in a list of values</td><td><code>df[df['col'].isin([val1, val2])]</code></td><td>Use <code>~</code> for NOT in list: <code>df[~df['col'].isin([...])]</code></td></tr>
+          <tr><td><strong>Filter by Null / Non-Null</strong></td><td>Rows with missing or non-missing values</td><td><code>df[df['col'].isna()]</code><br><code>df[df['col'].notna()]</code></td><td>Useful for data cleaning</td></tr>
+          <tr><td><strong>Filter by String Methods</strong></td><td>Rows based on string pattern</td><td><code>df[df['col'].str.contains('abc')]</code></td><td>Also <code>startswith</code>, <code>endswith</code>, <code>match</code>, <code>fullmatch</code></td></tr>
+          <tr><td><strong>Filter by Datetime</strong></td><td>Filter rows by date range</td><td><code>df[df['date'] &gt; '2023-01-01']</code></td><td>Parse column as datetime using <code>pd.to_datetime()</code></td></tr>
+          <tr><td><strong>Filter Top/Bottom Values</strong></td><td>Select largest/smallest rows</td><td><code>df.nlargest(5, 'col')</code><br><code>df.nsmallest(5, 'col')</code></td><td>Useful for rankings or extremes</td></tr>
+          <tr><td><strong>Filter by Boolean Column</strong></td><td>Filter rows where boolean column is True/False</td><td><code>df[df['col_bool']]</code></td><td>Works directly if column is boolean</td></tr>
+          <tr><td><strong>Query Method</strong></td><td>SQL-like row filtering</td><td><code>df.query('col1 &gt; 10 and col2 &lt; 50')</code></td><td>Cleaner for multiple conditions</td></tr>
+          <tr><td><strong>Filter by Index</strong></td><td>Filter rows by index labels or positions</td><td><code>df.loc[0:5]</code> or <code>df.iloc[0:5]</code></td><td><code>.loc</code> includes end label; <code>.iloc</code> is exclusive</td></tr>
+        </table>
+        <h4>Example: row filtering</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Name': ['Alice','Bob','Charlie','David'],
+    'Age': [25,30,35,40],
+    'Salary': [50000,60000,70000,80000],
+    'Dept': ['HR','IT','Sales','IT'],
+    'JoiningDate': pd.to_datetime(['2020-01-01','2019-05-20','2021-07-15','2018-10-10'])
+})</pre><pre style="margin-bottom:2px"># Filter by single value
+df[df['Dept'] == 'IT']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name  Age  Salary Dept JoiningDate
+1    Bob   30   60000   IT  2019-05-20
+3  David   40   80000   IT  2018-10-10</pre>
+        <pre style="margin-bottom:2px"># Filter by multiple conditions
+df[(df['Age'] &gt; 30) &amp; (df['Salary'] &gt; 60000)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+2  Charlie   35   70000  Sales  2021-07-15
+3    David   40   80000     IT  2018-10-10</pre>
+        <pre style="margin-bottom:2px"># Filter by list of values
+df[df['Dept'].isin(['HR','Sales'])]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+0    Alice   25   50000     HR  2020-01-01
+2  Charlie   35   70000  Sales  2021-07-15</pre>
+        <pre style="margin-bottom:2px"># Filter rows with non-missing values
+df[df['Salary'].notna()]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+0    Alice   25   50000     HR  2020-01-01
+1      Bob   30   60000     IT  2019-05-20
+2  Charlie   35   70000  Sales  2021-07-15
+3    David   40   80000     IT  2018-10-10</pre>
+        <pre style="margin-bottom:2px"># Filter rows using string method
+df[df['Name'].str.contains('a', case=False)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+0    Alice   25   50000     HR  2020-01-01
+2  Charlie   35   70000  Sales  2021-07-15
+3    David   40   80000     IT  2018-10-10</pre>
+        <pre style="margin-bottom:2px"># Filter by date
+df[df['JoiningDate'] &gt; '2020-01-01']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+2  Charlie   35   70000  Sales  2021-07-15</pre>
+        <pre style="margin-bottom:2px"># Filter top 2 salaries
+df.nlargest(2, 'Salary')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+3    David   40   80000     IT  2018-10-10
+2  Charlie   35   70000  Sales  2021-07-15</pre>
+        <pre style="margin-bottom:2px"># Using query
+df.query('Age &gt; 30 and Salary &gt; 60000')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age  Salary   Dept JoiningDate
+2  Charlie   35   70000  Sales  2021-07-15
+3    David   40   80000     IT  2018-10-10</pre>
+        `,
+      strdate: `
+        <h4>String filtering</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Filter by Column Values</strong></td><td>Select rows where a column equals a value</td><td><code>df[df['col'] == value]</code></td><td>Returns DataFrame with matching rows</td></tr>
+          <tr><td><strong>Filter by Multiple Conditions</strong></td><td>Combine conditions using <code>&amp;</code> (and) or <code>|</code> (or)</td><td><code>df[(df['col1'] &gt; 10) &amp; (df['col2'] &lt; 50)]</code></td><td>Use parentheses for each condition</td></tr>
+          <tr><td><strong><code>str.contains()</code></strong></td><td>Filter rows where a column contains a substring</td><td><code>df[df['col'].str.contains('abc')]</code></td><td>Case-sensitive by default. Use <code>case=False</code> to ignore case</td></tr>
+          <tr><td><strong><code>str.startswith()</code></strong></td><td>Filter rows where column strings start with a pattern</td><td><code>df[df['col'].str.startswith('A')]</code></td><td>Accepts tuple for multiple prefixes</td></tr>
+          <tr><td><strong><code>str.endswith()</code></strong></td><td>Filter rows where column strings end with a pattern</td><td><code>df[df['col'].str.endswith('Z')]</code></td><td>Accepts tuple for multiple suffixes</td></tr>
+          <tr><td><strong><code>str.match()</code></strong></td><td>Filter rows where the regex matches from the <strong>start</strong> of the string</td><td><code>df[df['col'].str.match('^A.*Z$')]</code></td><td>Anchors at the start only (add <code>$</code> to pin the end). There is no <code>regex=</code> argument — it is always a regex</td></tr>
+          <tr><td><strong><code>str.fullmatch()</code></strong></td><td>Filter rows where the <strong>entire</strong> string matches a regex</td><td><code>df[df['col'].str.fullmatch('Hello')]</code></td><td>Exact match, including regex patterns</td></tr>
+          <tr><td><strong><code>str.len()</code></strong></td><td>Filter rows based on string length</td><td><code>df[df['col'].str.len() &gt; 5]</code></td><td>Returns a numeric Series for comparison</td></tr>
+          <tr><td><strong><code>str.isnumeric()</code></strong></td><td>Filter rows where string is numeric</td><td><code>df[df['col'].str.isnumeric()]</code></td><td>Useful for cleaning string numbers</td></tr>
+          <tr><td><strong><code>str.isalpha()</code></strong></td><td>Filter rows where string is alphabetic</td><td><code>df[df['col'].str.isalpha()]</code></td><td>Filters only letters, no numbers or spaces</td></tr>
+          <tr><td><strong><code>str.lower()</code> / <code>str.upper()</code></strong></td><td>Convert string case before filtering</td><td><code>df[df['col'].str.lower() == 'abc']</code></td><td>Useful for case-insensitive comparisons</td></tr>
+          <tr><td><strong><code>str.strip()</code></strong></td><td>Remove leading/trailing whitespaces</td><td><code>df[df['col'].str.strip() == 'abc']</code></td><td>Important to clean messy data</td></tr>
+          <tr><td><strong><code>str.replace()</code></strong></td><td>Replace pattern before filtering</td><td><code>df[df['col'].str.replace('-','') == '12345']</code></td><td>Literal by default (<code>regex=False</code>); pass <code>regex=True</code> for a regex</td></tr>
+        </table>
+        <h4>Example: string filtering</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Name': ['Alice', 'Bob', 'Charlie', 'ALICE', 'bob123', '  Alice  '],
+    'City': ['New York','Boston','Los Angeles','new york','BOSTON','Chicago']
+})</pre><pre style="margin-bottom:2px"># Case-insensitive contains
+df[df['Name'].str.contains('alice', case=False)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">        Name      City
+0      Alice  New York
+3      ALICE  new york
+5    Alice     Chicago</pre>
+        <pre style="margin-bottom:2px"># Starts with 'B'
+df[df['Name'].str.startswith('B')]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Name    City
+1  Bob  Boston</pre>
+        <pre style="margin-bottom:2px"># Ends with 'e'
+df[df['Name'].str.endswith('e')]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name         City
+0    Alice     New York
+2  Charlie  Los Angeles</pre>
+        <pre style="margin-bottom:2px"># Strip whitespace and match
+df[df['Name'].str.strip() == 'Alice']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">        Name      City
+0      Alice  New York
+5    Alice     Chicago</pre>
+        <pre style="margin-bottom:2px"># Regex match (capital letter then lowercase letters, whole string)
+df[df['Name'].str.match('^[A-Z][a-z]+$')]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name         City
+0    Alice     New York
+1      Bob       Boston
+2  Charlie  Los Angeles</pre>
+        <pre style="margin-bottom:2px"># Convert to lowercase before filtering
+df[df['City'].str.lower() == 'boston']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">     Name    City
+1     Bob  Boston
+4  bob123  BOSTON</pre>
+        
+        <p><strong>Watch out:</strong> a column with missing values makes <code>.str</code> methods return <code>NaN</code> for those rows in older pandas (or <code>object</code> columns), and a mask containing <code>NaN</code> raises an error. Pass <code>na=False</code> where supported (<code>contains</code>, <code>startswith</code>, <code>endswith</code>, <code>match</code>), or use <code>.fillna(False)</code> on the mask.</p>
+        <h4>Date filtering</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Filter by Exact Date</strong></td><td>Rows where date column equals a specific date</td><td><code>df[df['date'] == '2023-01-01']</code></td><td>Convert column to datetime first using <code>pd.to_datetime()</code></td></tr>
+          <tr><td><strong>Filter by Date Range</strong></td><td>Rows within a start and end date</td><td><code>df[(df['date'] &gt;= '2023-01-01') &amp; (df['date'] &lt;= '2023-12-31')]</code></td><td>Use <code>&amp;</code> for AND, parentheses required</td></tr>
+          <tr><td><strong>Filter by Month</strong></td><td>Rows in a specific month</td><td><code>df[df['date'].dt.month == 1]</code></td><td><code>.dt.month</code> returns month (1–12)</td></tr>
+          <tr><td><strong>Filter by Year</strong></td><td>Rows in a specific year</td><td><code>df[df['date'].dt.year == 2023]</code></td><td><code>.dt.year</code> returns year as int</td></tr>
+          <tr><td><strong>Filter by Day</strong></td><td>Rows on a specific day of month</td><td><code>df[df['date'].dt.day == 15]</code></td><td><code>.dt.day</code> returns day of month</td></tr>
+          <tr><td><strong>Filter by Weekday</strong></td><td>Rows for specific weekdays</td><td><code>df[df['date'].dt.weekday == 0]</code></td><td>0=Monday, 6=Sunday; <code>.dt.day_name()</code> for name</td></tr>
+          <tr><td><strong>Filter by Quarter</strong></td><td>Rows in a specific quarter</td><td><code>df[df['date'].dt.quarter == 1]</code></td><td><code>.dt.quarter</code> returns 1–4</td></tr>
+          <tr><td><strong>Filter by Hour / Minute / Second</strong></td><td>Time-based filtering for datetime</td><td><code>df[df['date'].dt.hour &gt;= 9]</code></td><td>Works if column has datetime with time</td></tr>
+          <tr><td><strong>Filter using Timedelta</strong></td><td>Rows relative to current date</td><td><code>df[df['date'] &gt;= pd.Timestamp.today() - pd.Timedelta(days=30)]</code></td><td>Select last 30 days, weeks, etc. (Timedelta has no calendar months — use <code>pd.DateOffset(months=1)</code>)</td></tr>
+          <tr><td><strong>Filter using between()</strong></td><td>Shortcut for range filtering</td><td><code>df[df['date'].between('2023-01-01','2023-03-31')]</code></td><td>Inclusive of start and end dates</td></tr>
+        </table>
+        <h4>Example: date filtering</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Event': ['A','B','C','D','E'],
+    'Date': pd.to_datetime(['2023-01-01','2023-02-15','2023-03-10','2023-03-25','2023-04-05'])
+})</pre><pre style="margin-bottom:2px"># Filter by exact date
+df[df['Date'] == '2023-03-10']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Event       Date
+2     C 2023-03-10</pre>
+        <pre style="margin-bottom:2px"># Filter by date range
+df[(df['Date'] &gt;= '2023-02-01') &amp; (df['Date'] &lt;= '2023-03-31')]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Event       Date
+1     B 2023-02-15
+2     C 2023-03-10
+3     D 2023-03-25</pre>
+        <pre style="margin-bottom:2px"># Filter by month
+df[df['Date'].dt.month == 3]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Event       Date
+2     C 2023-03-10
+3     D 2023-03-25</pre>
+        <pre style="margin-bottom:2px"># Filter by year
+df[df['Date'].dt.year == 2023]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Event       Date
+0     A 2023-01-01
+1     B 2023-02-15
+2     C 2023-03-10
+3     D 2023-03-25
+4     E 2023-04-05</pre>
+        <pre style="margin-bottom:2px"># Filter by weekday (Monday=0)
+df[df['Date'].dt.weekday == 0]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">Empty DataFrame
+Columns: [Event, Date]
+Index: []</pre>
+        <pre style="margin-bottom:2px"># Filter last 30 days (empty here: the sample dates are all in 2023)
+df[df['Date'] &gt;= pd.Timestamp.today() - pd.Timedelta(days=30)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">Empty DataFrame
+Columns: [Event, Date]
+Index: []</pre>
+        <pre style="margin-bottom:2px"># Using between
+df[df['Date'].between('2023-02-01','2023-03-31')]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Event       Date
+1     B 2023-02-15
+2     C 2023-03-10
+3     D 2023-03-25</pre>
+        `,
+      numnull: `
+        <h4>Numeric filtering</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Equal to</strong></td><td>Select rows where numeric column equals a value</td><td><code>df[df['col'] == 10]</code></td><td>Exact match</td></tr>
+          <tr><td><strong>Not Equal to</strong></td><td>Rows not equal to a value</td><td><code>df[df['col'] != 10]</code></td><td><code>!=</code> operator</td></tr>
+          <tr><td><strong>Greater Than</strong></td><td>Rows greater than a value</td><td><code>df[df['col'] &gt; 50]</code></td><td>Single column numeric comparison</td></tr>
+          <tr><td><strong>Greater Than or Equal</strong></td><td>Rows ≥ a value</td><td><code>df[df['col'] &gt;= 50]</code></td><td>Use <code>&gt;=</code> operator</td></tr>
+          <tr><td><strong>Less Than</strong></td><td>Rows &lt; a value</td><td><code>df[df['col'] &lt; 100]</code></td><td>Single column</td></tr>
+          <tr><td><strong>Less Than or Equal</strong></td><td>Rows ≤ a value</td><td><code>df[df['col'] &lt;= 100]</code></td><td>Use <code>&lt;=</code> operator</td></tr>
+          <tr><td><strong>Between / Range</strong></td><td>Rows within a numeric range</td><td><code>df[df['col'].between(50, 100)]</code></td><td>Inclusive of start and end</td></tr>
+          <tr><td><strong>Top N Values</strong></td><td>Largest N values in column</td><td><code>df.nlargest(5, 'col')</code></td><td>Returns top 5 rows by column</td></tr>
+          <tr><td><strong>Bottom N Values</strong></td><td>Smallest N values in column</td><td><code>df.nsmallest(5, 'col')</code></td><td>Returns bottom 5 rows by column</td></tr>
+          <tr><td><strong>Multiple Numeric Conditions</strong></td><td>Combine conditions</td><td><code>df[(df['col1'] &gt; 10) &amp; (df['col2'] &lt; 50)]</code></td><td>Use parentheses and <code>&amp;</code> / <code>|</code></td></tr>
+          <tr><td><strong>Filter Using Absolute Value</strong></td><td>Filter by magnitude</td><td><code>df[df['col'].abs() &gt; 10]</code></td><td>Useful for positive/negative thresholds</td></tr>
+          <tr><td><strong>Filter by Percentile / Quantile</strong></td><td>Select rows above/below threshold</td><td><code>df[df['col'] &gt; df['col'].quantile(0.9)]</code></td><td>Top 10% values</td></tr>
+        </table>
+        <h4>Example: numeric filtering</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Employee': ['A','B','C','D','E'],
+    'Age': [25,30,35,40,45],
+    'Salary': [50000,60000,70000,80000,90000]
+})</pre><pre style="margin-bottom:2px"># Equal
+df[df['Age'] == 30]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+1        B   30   60000</pre>
+        <pre style="margin-bottom:2px"># Not equal
+df[df['Salary'] != 70000]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+0        A   25   50000
+1        B   30   60000
+3        D   40   80000
+4        E   45   90000</pre>
+        <pre style="margin-bottom:2px"># Greater than
+df[df['Age'] &gt; 30]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+2        C   35   70000
+3        D   40   80000
+4        E   45   90000</pre>
+        <pre style="margin-bottom:2px"># Between / range
+df[df['Salary'].between(60000, 80000)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+1        B   30   60000
+2        C   35   70000
+3        D   40   80000</pre>
+        <pre style="margin-bottom:2px"># Top 3 salaries
+df.nlargest(3, 'Salary')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+4        E   45   90000
+3        D   40   80000
+2        C   35   70000</pre>
+        <pre style="margin-bottom:2px"># Bottom 2 ages
+df.nsmallest(2, 'Age')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+0        A   25   50000
+1        B   30   60000</pre>
+        <pre style="margin-bottom:2px"># Multiple conditions
+df[(df['Age'] &gt; 30) &amp; (df['Salary'] &lt; 90000)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary
+2        C   35   70000
+3        D   40   80000</pre>
+        <pre style="margin-bottom:2px"># Absolute value
+df['Change'] = [-5, 10, -20, 15, -30]
+df[df['Change'].abs() &gt; 15]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary  Change
+2        C   35   70000     -20
+4        E   45   90000     -30</pre>
+        <pre style="margin-bottom:2px"># Top 10% salary (strictly above the 90th percentile)
+df[df['Salary'] &gt; df['Salary'].quantile(0.9)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Employee  Age  Salary  Change
+4        E   45   90000     -30</pre>
+        
+        <h4>Nulls &amp; boolean columns</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Filter Null Values</strong></td><td>Select rows where column is null (NaN)</td><td><code>df[df['col'].isna()]</code></td><td>Returns rows where the column has missing values</td></tr>
+          <tr><td><strong>Filter Non-Null Values</strong></td><td>Select rows where column is not null</td><td><code>df[df['col'].notna()]</code></td><td>Useful for cleaning and preprocessing</td></tr>
+          <tr><td><strong>Filter Multiple Columns for Nulls</strong></td><td>Rows with any column null</td><td><code>df[df[['col1','col2']].isna().any(axis=1)]</code></td><td><code>axis=1</code> to check across columns</td></tr>
+          <tr><td><strong>Filter Multiple Columns for Non-Null</strong></td><td>Rows where all columns not null</td><td><code>df[df[['col1','col2']].notna().all(axis=1)]</code></td><td><code>all(axis=1)</code> ensures no NaNs in selected columns</td></tr>
+          <tr><td><strong>Filter by Boolean Column True</strong></td><td>Select rows where boolean column is True</td><td><code>df[df['col_bool']]</code></td><td>Column must be of boolean type (<code>True</code>/<code>False</code>)</td></tr>
+          <tr><td><strong>Filter by Boolean Column False</strong></td><td>Select rows where boolean column is False</td><td><code>df[~df['col_bool']]</code></td><td>Use <code>~</code> to invert boolean mask</td></tr>
+          <tr><td><strong>Combined Boolean &amp; Null Filter</strong></td><td>Filter by multiple conditions</td><td><code>df[df['col_bool'] &amp; df['col'].notna()]</code></td><td>Combine boolean &amp; null checks</td></tr>
+        </table>
+        <h4>Example: nulls and booleans</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    'Name': ['Alice','Bob','Charlie','David','Eve'],
+    'Age': [25, np.nan, 35, 40, np.nan],
+    'Salary': [50000, 60000, np.nan, 80000, 90000],
+    'Remote': [True, False, True, False, True]
+})</pre><pre style="margin-bottom:2px"># Rows where Age is null
+df[df['Age'].isna()]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Name  Age   Salary  Remote
+1  Bob  NaN  60000.0   False
+4  Eve  NaN  90000.0    True</pre>
+        <pre style="margin-bottom:2px"># Rows where Salary is not null
+df[df['Salary'].notna()]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name   Age   Salary  Remote
+0  Alice  25.0  50000.0    True
+1    Bob   NaN  60000.0   False
+3  David  40.0  80000.0   False
+4    Eve   NaN  90000.0    True</pre>
+        <pre style="margin-bottom:2px"># Rows where Age OR Salary is null
+df[df[['Age','Salary']].isna().any(axis=1)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name   Age   Salary  Remote
+1      Bob   NaN  60000.0   False
+2  Charlie  35.0      NaN    True
+4      Eve   NaN  90000.0    True</pre>
+        <pre style="margin-bottom:2px"># Rows where Age AND Salary are both present
+df[df[['Age','Salary']].notna().all(axis=1)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name   Age   Salary  Remote
+0  Alice  25.0  50000.0    True
+3  David  40.0  80000.0   False</pre>
+        <pre style="margin-bottom:2px"># Rows where Remote is True
+df[df['Remote']]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name   Age   Salary  Remote
+0    Alice  25.0  50000.0    True
+2  Charlie  35.0      NaN    True
+4      Eve   NaN  90000.0    True</pre>
+        <pre style="margin-bottom:2px"># Rows where Remote is False
+df[~df['Remote']]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name   Age   Salary  Remote
+1    Bob   NaN  60000.0   False
+3  David  40.0  80000.0   False</pre>
+        <pre style="margin-bottom:2px"># Boolean and non-null combined
+df[df['Remote'] &amp; df['Salary'].notna()]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name   Age   Salary  Remote
+0  Alice  25.0  50000.0    True
+4    Eve   NaN  90000.0    True</pre>
+        
+        <h4>Multi-condition filtering</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Filter type</th><th style="width:24%">Description</th><th style="width:31%">Syntax / example</th><th style="width:23%">Notes</th></tr>
+          <tr><td><strong>Numeric + Numeric</strong></td><td>Combine multiple numeric conditions</td><td><code>df[(df['Age'] &gt; 30) &amp; (df['Salary'] &lt; 80000)]</code></td><td>Use <code>&amp;</code> for AND, <code>|</code> for OR; parentheses required</td></tr>
+          <tr><td><strong>Numeric + String</strong></td><td>Combine numeric and string conditions</td><td><code>df[(df['Age'] &gt; 30) &amp; (df['Dept'] == 'IT')]</code></td><td>Works for mixed types</td></tr>
+          <tr><td><strong>Numeric + Boolean</strong></td><td>Filter numeric column and boolean column</td><td><code>df[(df['Salary'] &gt; 60000) &amp; (df['Remote'])]</code></td><td>Boolean column must be <code>True</code>/<code>False</code></td></tr>
+          <tr><td><strong>Numeric + Nulls</strong></td><td>Filter numeric column and check for missing values</td><td><code>df[(df['Age'] &gt; 30) &amp; (df['Salary'].notna())]</code></td><td>Combine <code>.notna()</code> or <code>.isna()</code> with numeric conditions</td></tr>
+          <tr><td><strong>String + Nulls</strong></td><td>Filter string column and not-null rows</td><td><code>df[(df['Name'].str.contains('a', case=False)) &amp; (df['Dept'].notna())]</code></td><td>Useful when filtering cleaned text columns</td></tr>
+          <tr><td><strong>Datetime + Numeric</strong></td><td>Filter rows by date and numeric conditions</td><td><code>df[(df['JoiningDate'] &gt; '2020-01-01') &amp; (df['Salary'] &gt; 70000)]</code></td><td>Ensure datetime column is parsed using <code>pd.to_datetime()</code></td></tr>
+          <tr><td><strong>Boolean + String + Numeric</strong></td><td>Complex multi-condition filter</td><td><code>df[(df['Remote']) &amp; (df['Dept'] == 'IT') &amp; (df['Salary'] &gt; 60000)]</code></td><td>Combine as many conditions as needed</td></tr>
+          <tr><td><strong>Using query()</strong></td><td>SQL-like multi-condition filtering</td><td><code>df.query('Age &gt; 30 and Dept == "IT" and Salary &gt; 60000')</code></td><td>Cleaner syntax for multiple conditions; avoids parentheses</td></tr>
+          <tr><td><strong>Using ~ for NOT conditions</strong></td><td>Exclude certain rows</td><td><code>df[(df['Dept'] != 'HR') &amp; (~df['Name'].str.contains('Bob'))]</code></td><td><code>~</code> negates a boolean mask</td></tr>
+        </table>
+        <h4>Example: multi-condition filtering</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+
+df = pd.DataFrame({
+    'Name': ['Alice','Bob','Charlie','David','Eve'],
+    'Age': [25,30,35,40,45],
+    'Salary': [50000.0,60000,70000,80000,90000],
+    'Dept': ['HR','IT','Sales','IT','HR'],
+    'JoiningDate': pd.to_datetime(['2020-01-01','2019-05-20','2021-07-15','2018-10-10','2022-02-02']),
+    'Remote': [True, False, True, False, True]
+})</pre><pre style="margin-bottom:2px"># Numeric + String
+df[(df['Age'] &gt; 30) &amp; (df['Dept'] == 'IT')]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name  Age   Salary Dept JoiningDate  Remote
+3  David   40  80000.0   IT  2018-10-10   False</pre>
+        <pre style="margin-bottom:2px"># Numeric + Boolean
+df[(df['Salary'] &gt; 60000) &amp; (df['Remote'])]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age   Salary   Dept JoiningDate  Remote
+2  Charlie   35  70000.0  Sales  2021-07-15    True
+4      Eve   45  90000.0     HR  2022-02-02    True</pre>
+        <pre style="margin-bottom:2px"># Numeric + Nulls (set one Salary to NaN first)
+df.loc[2,'Salary'] = None
+df[(df['Age'] &gt; 30) &amp; (df['Salary'].notna())]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name  Age   Salary Dept JoiningDate  Remote
+3  David   40  80000.0   IT  2018-10-10   False
+4    Eve   45  90000.0   HR  2022-02-02    True</pre>
+        <pre style="margin-bottom:2px"># String + Nulls
+df[(df['Name'].str.contains('a', case=False)) &amp; (df['Dept'].notna())]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age   Salary   Dept JoiningDate  Remote
+0    Alice   25  50000.0     HR  2020-01-01    True
+2  Charlie   35      NaN  Sales  2021-07-15    True
+3    David   40  80000.0     IT  2018-10-10   False</pre>
+        <pre style="margin-bottom:2px"># Datetime + Numeric
+df[(df['JoiningDate'] &gt; '2020-01-01') &amp; (df['Salary'] &gt; 70000)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Name  Age   Salary Dept JoiningDate  Remote
+4  Eve   45  90000.0   HR  2022-02-02    True</pre>
+        <pre style="margin-bottom:2px"># Boolean + String + Numeric
+df[(df['Remote']) &amp; (df['Dept'] == 'HR') &amp; (df['Salary'] &gt; 50000)]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">  Name  Age   Salary Dept JoiningDate  Remote
+4  Eve   45  90000.0   HR  2022-02-02    True</pre>
+        <pre style="margin-bottom:2px"># Using query
+df.query('Age &gt; 30 and Dept == "IT" and Salary &gt; 60000')</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">    Name  Age   Salary Dept JoiningDate  Remote
+3  David   40  80000.0   IT  2018-10-10   False</pre>
+        <pre style="margin-bottom:2px"># Using ~ for NOT conditions
+df[(df['Dept'] != 'HR') &amp; (~df['Name'].str.contains('Bob'))]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">      Name  Age   Salary   Dept JoiningDate  Remote
+2  Charlie   35      NaN  Sales  2021-07-15    True
+3    David   40  80000.0     IT  2018-10-10   False</pre>
+        
+        <p><strong>Remember:</strong> use <code>&amp;</code>, <code>|</code>, <code>~</code> (not <code>and</code>/<code>or</code>/<code>not</code>) and wrap every condition in parentheses, because <code>&amp;</code> binds tighter than comparison operators. <code>query()</code> is the exception: inside its string you write <code>and</code>/<code>or</code>.</p>`,
       example: `
         <h4>Real-world example: multi-condition filter, two ways</h4>
         <pre>import pandas as pd
@@ -2269,6 +3520,115 @@ classDef param fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000,font-size
       </div>
 
         </div>`,
+      chartstyles: `
+        <h4>Chart styles: object-oriented API vs. pyplot</h4>
+        <p>Every chart element can be set two ways: on an <code>ax</code>/<code>fig</code> object (object-oriented, preferred for anything reused) or through the <code>plt</code> shortcut (quick and implicit). The names differ in a few places: the object versions use <code>set_</code> prefixes, for example <code>ax.set_title()</code> but <code>plt.title()</code>.</p>
+        <table>
+          <tr><th>Element</th><th>Purpose</th><th>Object (OO) function</th><th>pyplot function</th></tr>
+          <tr><td>Figure</td><td>Create the figure (the whole canvas)</td><td><code>fig = plt.figure()</code> or <code>fig, ax = plt.subplots()</code></td><td><code>plt.figure()</code></td></tr>
+          <tr><td>Figure title</td><td>Overall title above all charts</td><td><code>fig.suptitle()</code></td><td><code>plt.suptitle()</code></td></tr>
+          <tr><td>Chart title</td><td>Title of one chart (axes)</td><td><code>ax.set_title()</code></td><td><code>plt.title()</code></td></tr>
+          <tr><td>Axes (grid of charts)</td><td>Sets how many charts and how they are laid out</td><td><code>fig, axes = plt.subplots(2, 2)</code> or <code>fig.add_subplot()</code></td><td><code>plt.subplots(2, 2)</code> or <code>plt.subplot(2, 2, 1)</code></td></tr>
+          <tr><td>X-axis label</td><td>Label of the x-axis</td><td><code>ax.set_xlabel()</code></td><td><code>plt.xlabel()</code></td></tr>
+          <tr><td>Y-axis label</td><td>Label of the y-axis</td><td><code>ax.set_ylabel()</code></td><td><code>plt.ylabel()</code></td></tr>
+          <tr><td>Legend</td><td>Explains what each line or marker means (uses <code>label=</code>)</td><td><code>ax.legend()</code></td><td><code>plt.legend()</code></td></tr>
+          <tr><td>X-axis limit</td><td>Range shown on the x-axis</td><td><code>ax.set_xlim()</code></td><td><code>plt.xlim()</code></td></tr>
+          <tr><td>Y-axis limit</td><td>Range shown on the y-axis</td><td><code>ax.set_ylim()</code></td><td><code>plt.ylim()</code></td></tr>
+          <tr><td>X-axis ticks</td><td>Positions (and labels) of ticks on the x-axis</td><td><code>ax.set_xticks()</code></td><td><code>plt.xticks()</code></td></tr>
+          <tr><td>Y-axis ticks</td><td>Positions (and labels) of ticks on the y-axis</td><td><code>ax.set_yticks()</code></td><td><code>plt.yticks()</code></td></tr>
+          <tr><td>Vertical line</td><td>Reference line at an x value</td><td><code>ax.axvline()</code></td><td><code>plt.axvline()</code></td></tr>
+          <tr><td>Horizontal line</td><td>Reference line at a y value</td><td><code>ax.axhline()</code></td><td><code>plt.axhline()</code></td></tr>
+          <tr><td>Text</td><td>Add a text note at a position</td><td><code>ax.text()</code></td><td><code>plt.text()</code></td></tr>
+          <tr><td>Spines (borders)</td><td>The four borders around the plot</td><td><code>ax.spines['side']</code></td><td>no direct form; use <code>plt.gca().spines['side']</code></td></tr>
+          <tr><td>Markers</td><td>Points on the chart</td><td><code>ax.scatter()</code> or <code>ax.plot(marker='o')</code></td><td><code>plt.scatter()</code> or <code>plt.plot(marker='o')</code></td></tr>
+          <tr><td>Line</td><td>Connected line</td><td><code>ax.plot()</code></td><td><code>plt.plot()</code></td></tr>
+          <tr><td>Grid</td><td>Background grid lines</td><td><code>ax.grid()</code></td><td><code>plt.grid()</code></td></tr>
+        </table>
+        <p><strong>Remember:</strong> <code>plt.subtitle()</code> does not exist, so a chart title is <code>plt.title()</code> and the overall figure title is <code>plt.suptitle()</code>. There is also no <code>plt.spines</code>; get the current axes first with <code>plt.gca()</code>.</p>
+        <h4>Customization options</h4>
+        <table>
+          <tr><th>Property</th><th>Purpose</th><th>Syntax</th></tr>
+          <tr><td><code>color</code></td><td>Change the color</td><td><code>color='red'</code></td></tr>
+          <tr><td><code>linewidth</code></td><td>Change the line width</td><td><code>linewidth=2</code></td></tr>
+          <tr><td><code>linestyle</code></td><td>Change the line format</td><td><code>linestyle='--'</code> (also <code>':'</code>, <code>'-.'</code>)</td></tr>
+          <tr><td><code>marker</code></td><td>Shape of each data point</td><td><code>marker='o'</code></td></tr>
+          <tr><td><code>fontsize</code></td><td>Size of the text</td><td><code>fontsize=12</code></td></tr>
+          <tr><td><code>fontweight</code></td><td>Boldness of the text</td><td><code>fontweight='bold'</code></td></tr>
+          <tr><td><code>set_position()</code></td><td>Move an element (such as a spine)</td><td><code>ax.spines['bottom'].set_position(('data', 0))</code></td></tr>
+          <tr><td><code>set_visible()</code></td><td>Show or hide an element</td><td><code>ax.spines['top'].set_visible(False)</code></td></tr>
+          <tr><td><code>shrink</code></td><td>Scale down a colorbar or an annotation arrow (not the whole chart)</td><td><code>plt.colorbar(sc, shrink=0.5)</code></td></tr>
+          <tr><td><code>figsize</code></td><td>Size of the whole figure in inches</td><td><code>plt.subplots(figsize=(8, 4))</code></td></tr>
+        </table>
+        <h4>Putting it together (tested)</h4>
+        <pre>import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4]
+y = [1, 4, 9, 16]
+
+# ---- Object-oriented style ----
+fig, ax = plt.subplots(figsize=(6, 4))
+fig.suptitle("Overall title")
+ax.plot(x, y, color="red", linewidth=2, linestyle="--", marker="o", label="squares")
+ax.set_title("Chart title")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_xlim(0, 5)
+ax.set_ylim(0, 20)
+ax.set_xticks([1, 2, 3, 4])
+ax.axvline(2.5, color="gray")                    # vertical reference line
+ax.axhline(10, color="gray", linestyle=":")      # horizontal reference line
+ax.text(3, 5, "note", fontsize=12, fontweight="bold")
+ax.grid(True)
+ax.legend()
+plt.show()
+
+# ---- Same chart in pyplot style ----
+plt.figure(figsize=(6, 4))
+plt.suptitle("Overall title")
+plt.plot(x, y, color="red", linewidth=2, linestyle="--", marker="o", label="squares")
+plt.title("Chart title")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.xlim(0, 5)
+plt.ylim(0, 20)
+plt.xticks([1, 2, 3, 4])
+plt.axvline(2.5, color="gray")
+plt.axhline(10, color="gray", linestyle=":")
+plt.text(3, 5, "note", fontsize=12, fontweight="bold")
+plt.grid(True)
+plt.legend()
+plt.show()</pre>
+        <h4>Spines</h4>
+        <p>Spines are the borders around the plot area (top, bottom, left, right). Customizing them is a quick way to get a cleaner, more professional look, such as hiding the top and right borders or moving the axes to cross at zero.</p>
+        <table>
+          <tr><th>Goal</th><th>Code</th></tr>
+          <tr><td>Hide a spine</td><td><code>ax.spines['top'].set_visible(False)</code></td></tr>
+          <tr><td>Move a spine to a data value</td><td><code>ax.spines['bottom'].set_position(('data', 0))</code></td></tr>
+          <tr><td>Move a spine outward from the plot</td><td><code>ax.spines['left'].set_position(('outward', 10))</code></td></tr>
+          <tr><td>Change a spine's color</td><td><code>ax.spines['left'].set_color('green')</code></td></tr>
+          <tr><td>Change a spine's thickness</td><td><code>ax.spines['left'].set_linewidth(2)</code></td></tr>
+        </table>
+        <pre>import matplotlib.pyplot as plt
+
+# simple chart
+fig, ax = plt.subplots()
+
+# Hide the top and right spines
+ax.spines['top'].set_visible(False)       # show/hide a spine
+ax.spines['right'].set_visible(False)
+
+# Move the bottom spine to y = 0 (data coordinates)
+ax.spines['bottom'].set_position(('data', 0))   # move a spine to a different location
+
+# Change the color and width of the left spine
+ax.spines['left'].set_color('green')
+ax.spines['left'].set_linewidth(2)
+
+# Plot data
+ax.plot([1, 2, 3, 4], [1, 4, 9, 16])
+
+plt.show()</pre>
+        <p><strong>Note:</strong> <code>set_position(('data', 0))</code> moves the spine to the value 0 on the data scale, which only looks "centered" if 0 is in the middle of your axis range. Valid sides are <code>'top'</code>, <code>'bottom'</code>, <code>'left'</code> and <code>'right'</code>.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -2477,6 +3837,54 @@ X_train = pd.get_dummies(X_train, drop_first=True, dtype=int)
 X_test  = pd.get_dummies(X_test,  drop_first=True, dtype=int)
 X_test  = X_test.reindex(columns=X_train.columns, fill_value=0)</pre>
         <p><strong>Explanation:</strong> use dummies for <strong>nominal</strong> categories (city, color) and a mapping for <strong>ordinal</strong> ones (small/medium/large). Train and test must end up with the same dummy columns, so <code>reindex</code> test to train's columns. For production pipelines, scikit-learn's <code>OneHotEncoder(handle_unknown="ignore")</code> does this automatically.</p>`,
+      missingchart: `
+        <p style="margin-top:0;">Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>Handle Missing Values in a DataFrame</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["DataFrame df with missing values"]:::head
+
+A --&gt; B{"Check for missing values?"}
+
+B --&gt; C["Yes: Identify missing values"]
+B --&gt; D["No: Continue processing"]
+
+C --&gt; C1["Use df.isnull() or df.isna() to find missing values&lt;br/&gt;Use df.info() or df.describe() to inspect"]:::code
+
+C --&gt; E["&lt;b&gt;Choose strategy to handle missing values&lt;/b&gt;"]:::decision
+
+%% ---------- DROP MISSING ----------
+E --&gt; F["&lt;b&gt;Drop Missing Values&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+• df.dropna() - drop rows with NaN&lt;br/&gt;
+• df.dropna(axis=1) - drop columns with NaN&lt;br/&gt;
+• subset parameter to drop selectively"]:::method
+
+%% ---------- FILL MISSING ----------
+E --&gt; G["&lt;b&gt;Fill Missing Values&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;
+• df.fillna(value) - replace NaN with a value&lt;br/&gt;
+• df.fillna(method='ffill') - forward fill&lt;br/&gt;
+• df.fillna(method='bfill') - backward fill&lt;br/&gt;
+• df.fillna(df.mean()) - fill with column mean"]:::method
+
+%% ---------- ADVANCED IMPUTATION ----------
+E --&gt; H["&lt;b&gt;Advanced Imputation&lt;/b&gt;&lt;br/&gt;
+• sklearn.impute.SimpleImputer&lt;br/&gt;
+• df.interpolate()&lt;br/&gt;
+• Predict missing values using ML models"]:::method
+
+%% =====================
+%% STYLES
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000,font-size:16px;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000,font-size:16px;
+classDef method fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000,font-size:15px;
+classDef code fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000,font-size:15px;
+</div></div>
+        <p><strong>Version note:</strong> the chart shows <code>df.fillna(method='ffill')</code> and <code>method='bfill'</code>. That form was deprecated and has been <strong>removed in recent pandas versions</strong> (it raises a <code>TypeError</code>). Use <code>df.ffill()</code> and <code>df.bfill()</code> instead.</p>
+        <pre>df.ffill()           # forward fill  (replaces fillna(method="ffill"))
+df.bfill()           # backward fill (replaces fillna(method="bfill"))
+df.fillna(df.mean(numeric_only=True))   # fill numeric columns with their mean</pre>
+        <p>See the <strong>Missing Data</strong> tab for the full code walkthrough of identifying and handling missing values.</p>`,
       example: `
         <h4>Real-world example: all six steps on one messy table</h4>
         <pre>import pandas as pd
@@ -2538,7 +3946,7 @@ print(df.columns.tolist())
         <h4>What it is</h4>
         <p>A regular expression (regex) is a compact pattern for finding, extracting, validating, or replacing text. In Python you use the built-in <code>re</code> module, and in pandas the <code>.str</code> methods (like <code>str.replace</code>, <code>str.extract</code>, <code>str.contains</code>) accept regex patterns directly.</p>
         <h4>Why it matters</h4>
-        <p>Real data is full of messy text: phone numbers in five formats, prices with currency symbols, names with stray punctuation. Interviewers use regex questions to see whether you can &lt;strong&gt;clean and pull structure out of text&lt;/strong&gt; without writing long loops.</p>
+        <p>Real data is full of messy text: phone numbers in five formats, prices with currency symbols, names with stray punctuation. Interviewers use regex questions to see whether you can <strong>clean and pull structure out of text</strong> without writing long loops.</p>
         <h4>The building blocks at a glance</h4>
         <table>
           <tr><th>Building block</th><th>What it controls</th><th>Examples</th></tr>
@@ -2558,7 +3966,7 @@ print(df.columns.tolist())
           <tr><td>Pattern with variation (digits, optional parts, formats)</td><td>Regex</td></tr>
           <tr><td>Extract or capture pieces of text</td><td>Regex with groups</td></tr>
         </table>
-        <p>&lt;strong&gt;Always write patterns as raw strings&lt;/strong&gt; (<code>r"..."</code>) so Python doesn't treat the backslash in <code>\\d</code> as an escape character.</p>`,
+        <p><strong>Always write patterns as raw strings</strong> (<code>r"..."</code>) so Python doesn't treat the backslash in <code>\\d</code> as an escape character.</p>`,
       patterns: `
         <h4>1. Character classes (what to match)</h4>
         <table>
@@ -2587,7 +3995,7 @@ print(df.columns.tolist())
           <tr><td><code>$</code></td><td>End of string (or of each line)</td><td><code>world$</code> on <code>Hello world</code></td><td><code>world</code></td></tr>
           <tr><td><code>\\b</code></td><td>Word boundary</td><td><code>\\bcat\\b</code> on <code>cat concat cat.</code></td><td><code>['cat', 'cat']</code> (skips <code>concat</code>)</td></tr>
         </table>
-        <p>&lt;strong&gt;Tip:&lt;/strong&gt; a capital letter is the opposite of its lowercase twin: <code>\\d</code> digit vs. <code>\\D</code> non-digit, <code>\\w</code> vs. <code>\\W</code>, <code>\\s</code> vs. <code>\\S</code>. To match a special character literally, escape it: <code>\\.</code> is a real dot, <code>\\$</code> a real dollar sign.</p>`,
+        <p><strong>Tip:</strong> a capital letter is the opposite of its lowercase twin: <code>\\d</code> digit vs. <code>\\D</code> non-digit, <code>\\w</code> vs. <code>\\W</code>, <code>\\s</code> vs. <code>\\S</code>. To match a special character literally, escape it: <code>\\.</code> is a real dot, <code>\\$</code> a real dollar sign.</p>`,
       groups: `
         <h4>4. Groups and alternation</h4>
         <table>
@@ -2616,7 +4024,7 @@ print(df.columns.tolist())
           <tr><td>Multiline (<code>^</code> and <code>$</code> work per line)</td><td><code>re.M</code></td><td><code>^\\w+</code> on two lines <code>a b</code> / <code>c d</code></td><td><code>['a', 'c']</code></td></tr>
           <tr><td>Dot matches newline too</td><td><code>re.S</code></td><td><code>a.b</code> on <code>a&lt;newline&gt;b</code></td><td>matches</td></tr>
         </table>
-        <p>&lt;strong&gt;Greedy is the classic trap:&lt;/strong&gt; <code>&lt;.+&gt;</code> swallows everything from the first <code>&lt;</code> to the last <code>&gt;</code>. Add <code>?</code> to make it lazy, or use a negated class like <code>&lt;[^&gt;]+&gt;</code>.</p>`,
+        <p><strong>Greedy is the classic trap:</strong> <code>&lt;.+&gt;</code> swallows everything from the first <code>&lt;</code> to the last <code>&gt;</code>. Add <code>?</code> to make it lazy, or use a negated class like <code>&lt;[^&gt;]+&gt;</code>.</p>`,
       functions: `
         <h4>7. Python re functions</h4>
         <table>
@@ -2643,7 +4051,7 @@ re.findall(r"(?P&lt;user&gt;[\\w.]+)@(?P&lt;dom&gt;[\\w.]+)", "a.b@x.com, c@y.or
 re.findall(r"#(\\w+)", "love #python and #SQL")           # ['python', 'SQL']
 re.findall(r"https?://\\S+", "see https://a.com/x and http://b.org")
 # ['https://a.com/x', 'http://b.org']</pre>
-        <p>&lt;strong&gt;match vs. search vs. fullmatch:&lt;/strong&gt; <code>match</code> anchors at the start, <code>search</code> looks anywhere, <code>fullmatch</code> requires the entire string to fit. For validation use <code>fullmatch</code>; for finding use <code>search</code> or <code>findall</code>.</p>
+        <p><strong>match vs. search vs. fullmatch:</strong> <code>match</code> anchors at the start, <code>search</code> looks anywhere, <code>fullmatch</code> requires the entire string to fit. For validation use <code>fullmatch</code>; for finding use <code>search</code> or <code>findall</code>.</p>
         <h4>8. Regex in pandas</h4>
         <p>Sample series: <code>s = pd.Series(["Order #123", "Ref 45", "none"])</code></p>
         <table>
@@ -2655,7 +4063,7 @@ re.findall(r"https?://\\S+", "see https://a.com/x and http://b.org")
           <tr><td>All matches per row</td><td><code>s.str.findall(r"\\d+")</code></td><td>a list of matches per row</td></tr>
           <tr><td>Split on a pattern</td><td><code>s.str.split(r"\\s+", regex=True)</code></td><td>a list of pieces per row</td></tr>
         </table>
-        <p>Note: <code>str.extract</code> needs &lt;strong&gt;a capture group&lt;/strong&gt; (the parentheses); without one it raises an error. Pass <code>regex=True</code> to <code>str.replace</code> explicitly, since recent pandas versions default to treating the pattern as plain text.</p>`,
+        <p>Note: <code>str.extract</code> needs <strong>a capture group</strong> (the parentheses); without one it raises an error. Pass <code>regex=True</code> to <code>str.replace</code> explicitly, since recent pandas versions default to treating the pattern as plain text.</p>`,
       cleaning: `
         <h4>9. Removing special characters and punctuation</h4>
         <p>Sample text: <code>t = "Hello, World! Price: $45.99 #sale @shop (50% off)..."</code></p>
@@ -2690,11 +4098,11 @@ re.findall(r"https?://\\S+", "see https://a.com/x and http://b.org")
         </table>
         <h4>Gotchas when cleaning</h4>
         <ul>
-          <li>&lt;strong&gt;<code>\\w</code> includes the underscore&lt;/strong&gt;, so <code>[^\\w\\s]</code> keeps <code>_</code>. Use <code>[^a-zA-Z0-9\\s]</code> or add <code>|_</code> to remove it too.</li>
-          <li>&lt;strong&gt;Removing everything also removes the decimal point:&lt;/strong&gt; <code>$45.99</code> becomes <code>4599</code>, a silent data error. Keep the dot (<code>[^\\d.]</code>) when cleaning numbers.</li>
-          <li>&lt;strong&gt;Replace with a space, not nothing,&lt;/strong&gt; when punctuation separates words: deleting the hyphen in <code>well-known</code> gives <code>wellknown</code>.</li>
-          <li>&lt;strong&gt;Finish with <code>\\s+</code> then <code>.strip()</code>:&lt;/strong&gt; removing characters often leaves double spaces behind.</li>
-          <li>&lt;strong&gt;Clean numbers before <code>pd.to_numeric</code>:&lt;/strong&gt; <code>"$1,234.50"</code> needs the symbols removed first, otherwise <code>errors="coerce"</code> turns it into <code>NaN</code>.</li>
+          <li><strong><code>\\w</code> includes the underscore</strong>, so <code>[^\\w\\s]</code> keeps <code>_</code>. Use <code>[^a-zA-Z0-9\\s]</code> or add <code>|_</code> to remove it too.</li>
+          <li><strong>Removing everything also removes the decimal point:</strong> <code>$45.99</code> becomes <code>4599</code>, a silent data error. Keep the dot (<code>[^\\d.]</code>) when cleaning numbers.</li>
+          <li><strong>Replace with a space, not nothing,</strong> when punctuation separates words: deleting the hyphen in <code>well-known</code> gives <code>wellknown</code>.</li>
+          <li><strong>Finish with <code>\\s+</code> then <code>.strip()</code>:</strong> removing characters often leaves double spaces behind.</li>
+          <li><strong>Clean numbers before <code>pd.to_numeric</code>:</strong> <code>"$1,234.50"</code> needs the symbols removed first, otherwise <code>errors="coerce"</code> turns it into <code>NaN</code>.</li>
         </ul>
         <h4>10. Interview staples</h4>
         <table>
@@ -2737,7 +4145,7 @@ print(df)
 # 0  hello world  1234.5  5551234567      True
 # 1       café 1    99.0  5559876543      True
 # 2        ab co     NaN                 False</pre>
-        <p>&lt;strong&gt;Why this matters:&lt;/strong&gt; each column needs a different rule. Names keep letters and spaces, prices must keep the decimal point, and phones keep digits only. After cleaning, <code>fullmatch</code> validates the result, so the bad phone number is flagged instead of silently passing. Notice the order for prices: clean the symbols &lt;em&gt;first&lt;/em&gt;, convert second.</p>`,
+        <p><strong>Why this matters:</strong> each column needs a different rule. Names keep letters and spaces, prices must keep the decimal point, and phones keep digits only. After cleaning, <code>fullmatch</code> validates the result, so the bad phone number is flagged instead of silently passing. Notice the order for prices: clean the symbols <em>first</em>, convert second.</p>`,
       tips: `
         <h4>Common mistakes → exam tips</h4>
         <ul class="tip-list">
@@ -2751,6 +4159,628 @@ print(df)
           <li>Forgetting <code>regex=True</code> in <code>str.replace</code>; recent pandas defaults to plain-text replacement</li>
           <li>Writing a giant email or URL regex: a simple, readable pattern is better in an interview than a perfect one</li>
           <li>Using regex when a plain method works: <code>startswith</code>, <code>in</code>, or <code>translate</code> are faster and clearer for simple cases</li>
+        </ul>`
+    }
+  },
+  {
+    id: "joins",
+    icon: "🔗",
+    title: "Joins & Merging",
+    tagline: "join, merge, concat",
+    desc: "Combining tables: join types, join vs. merge vs. concat, key setup, suffixes, validation, and a full options flowchart.",
+    tags: ["merge", "join", "how=", "validate"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p>Combining two tables on a shared key. pandas gives you three tools: <code>merge</code> (join on columns, like SQL), <code>join</code> (join on the index, a convenience wrapper around merge), and <code>concat</code> (stack tables on top of or beside each other, no key matching).</p>
+        <h4>Why it matters</h4>
+        <p>Joins are one of the most-tested topics because mistakes are silent: a wrong join type quietly drops rows, and duplicate keys quietly multiply them. Interviewers want to see you pick the right type and <strong>check row counts afterward</strong>.</p>
+        <h4>Join types (<code>how=</code>)</h4>
+        <table>
+          <tr><th>how</th><th>Keeps</th><th>SQL equivalent</th><th>Unmatched rows get</th></tr>
+          <tr><td><code>inner</code> (merge default)</td><td>Only keys present in <strong>both</strong> tables</td><td><code>INNER JOIN</code></td><td>dropped</td></tr>
+          <tr><td><code>left</code> (<code>join</code> default)</td><td>All left rows + matching right rows</td><td><code>LEFT JOIN</code></td><td><code>NaN</code> in right columns</td></tr>
+          <tr><td><code>right</code></td><td>All right rows + matching left rows</td><td><code>RIGHT JOIN</code></td><td><code>NaN</code> in left columns</td></tr>
+          <tr><td><code>outer</code></td><td>All rows from both tables</td><td><code>FULL OUTER JOIN</code></td><td><code>NaN</code> on the missing side</td></tr>
+        </table>
+        <h4>merge vs. join vs. concat</h4>
+        <table>
+          <tr><th>Tool</th><th>Matches on</th><th>Default how</th><th>Use when</th></tr>
+          <tr><td><code>pd.merge(df1, df2, on='k')</code></td><td>Columns (any names via <code>left_on</code>/<code>right_on</code>)</td><td><code>inner</code></td><td>Keys are ordinary columns</td></tr>
+          <tr><td><code>df1.join(df2)</code></td><td>Index of both (or a column of df1 via <code>on=</code>)</td><td><code>left</code></td><td>Keys are already the index</td></tr>
+          <tr><td><code>pd.concat([df1, df2])</code></td><td>No key; aligns on index/columns</td><td><code>outer</code> (union)</td><td>Stacking rows (<code>axis=0</code>) or adding columns side by side (<code>axis=1</code>)</td></tr>
+        </table>`,
+      diagram: `
+        <h4>Join options flowchart</h4>
+        <p style="margin-top:-4px;">Click &#10530; Expand to zoom and pan.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Start join operation"] --&gt; B["df.join(other)"]
+
+%% Key selection
+B --&gt; C{"Join keys setup"}
+
+C --&gt; D["Index keys (default)"]
+D --&gt; D1["Set index in both tables"]
+D1 --&gt; D2["Example: df1.set_index('id').join(df2.set_index('id'))"]
+
+C --&gt; E["Multi-index join"]
+E --&gt; E1["Set multi-level index in both tables"]
+E1 --&gt; E2["Example: df1.set_index(['id','dept']).join(df2.set_index(['id','dept']))"]
+
+C --&gt; F["Column-based join using merge"]
+F --&gt; F1["Use merge if keys are columns"]
+F1 --&gt; F2["Example: pd.merge(df1, df2, left_on='emp_id', right_on='id')"]
+
+%% How parameter
+B --&gt; G{"Choose how parameter"}
+
+G --&gt; G1["inner"]
+G1 --&gt; G1a["Keep matches only"]
+G1a --&gt; G1b["Example: df1.join(df2, how='inner')"]
+
+G --&gt; G2["left"]
+G2 --&gt; G2a["Keep all left rows"]
+G2a --&gt; G2b["Example: df1.join(df2, how='left')"]
+
+G --&gt; G3["right"]
+G3 --&gt; G3a["Keep all right rows"]
+G3a --&gt; G3b["Example: df1.join(df2, how='right')"]
+
+G --&gt; G4["outer"]
+G4 --&gt; G4a["Keep all rows"]
+G4a --&gt; G4b["Example: df1.join(df2, how='outer')"]
+
+%% Suffixes
+B --&gt; H["lsuffix / rsuffix parameter"]
+H --&gt; H1["Handle overlapping column names"]
+H1 --&gt; H2["Example: df1.join(df2, lsuffix='_left', rsuffix='_right')"]
+
+%% Sort
+B --&gt; I["sort parameter"]
+I --&gt; I1["Sort join keys True / False"]
+I1 --&gt; I2["Example: df1.join(df2, sort=True)"]
+
+%% Validate
+B --&gt; J["validate parameter"]
+J --&gt; J1["Check join type rules"]
+J1 --&gt; J2["Example: df1.join(df2, validate='one_to_one')"]
+
+%% ===== COLOR CLASSES WITH BLACK TEXT =====
+
+classDef start fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef key fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef how fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef extra fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+
+class A,B start;
+class C,D,D1,D2,E,E1,E2,F,F1,F2 key;
+class G,G1,G1a,G1b,G2,G2a,G2b,G3,G3a,G3b,G4,G4a,G4b how;
+class H,H1,H2,I,I1,I2,J,J1,J2 extra;
+</div></div>
+        <p><strong>Reading the chart:</strong> <code>df.join()</code> is index-based. If your keys are columns, use <code>pd.merge</code> instead (or call <code>set_index</code> first). The other branches are the options you can tune: <code>how</code> for which rows survive, <code>lsuffix</code>/<code>rsuffix</code> for overlapping column names, <code>sort</code> for key ordering, and <code>validate</code> to catch unexpected duplicate keys.</p>`,
+      example: `
+        <h4>Worked example: employees and departments</h4>
+        <pre>import pandas as pd
+
+emp = pd.DataFrame({"emp_id": [1, 2, 3],
+                    "name": ["Ana", "Ben", "Cy"],
+                    "dept_id": [10, 20, 30]})
+dept = pd.DataFrame({"dept_id": [10, 20, 40],
+                     "dept": ["HR", "IT", "Ops"]})
+
+# INNER: only matching keys
+emp.merge(dept, on="dept_id")
+#    emp_id name  dept_id dept
+# 0       1  Ana       10   HR
+# 1       2  Ben       20   IT
+
+# LEFT: keep every employee (Cy has no department -&gt; NaN)
+emp.merge(dept, on="dept_id", how="left")
+#    emp_id name  dept_id dept
+# 0       1  Ana       10   HR
+# 1       2  Ben       20   IT
+# 2       3   Cy       30  NaN
+
+# OUTER: keep everything from both sides
+emp.merge(dept, on="dept_id", how="outer")
+#    emp_id name  dept_id dept
+# 0     1.0  Ana       10   HR
+# 1     2.0  Ben       20   IT
+# 2     3.0   Cy       30  NaN
+# 3     NaN  NaN       40  Ops
+
+# JOIN: same idea, but keys must be the index
+emp.set_index("dept_id").join(dept.set_index("dept_id"), how="left")
+
+# Different key names in each table
+pd.merge(emp, dept, left_on="emp_id", right_on="dept_id")
+
+# Overlapping column names: add suffixes
+a = pd.DataFrame({"id": [1, 2], "v": [1, 2]}).set_index("id")
+b = pd.DataFrame({"id": [1, 2], "v": [3, 4]}).set_index("id")
+a.join(b, lsuffix="_left", rsuffix="_right")
+#     v_left  v_right
+# id
+# 1        1        3
+# 2        2        4
+
+# Anti-join: rows in emp with NO match in dept
+r = emp.merge(dept, on="dept_id", how="left", indicator=True)
+r[r["_merge"] == "left_only"]          # Cy (dept_id 30)
+
+# Catch bad keys early
+emp.merge(dups, on="dept_id", validate="one_to_one")
+# MergeError: Merge keys are not unique in right dataset</pre>
+        <p><strong>Why this matters:</strong> the same two tables give 2, 3, or 4 rows depending on <code>how</code>. After any join, compare row counts to what you expected, and use <code>validate</code> or <code>indicator=True</code> to prove the join did what you think.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Using <code>df.join()</code> on tables whose keys are columns: <code>join</code> matches on the <strong>index</strong>, so use <code>pd.merge(..., on=...)</code> or <code>set_index</code> first</li>
+          <li>Forgetting the defaults differ: <code>merge</code> is <code>inner</code>, <code>join</code> is <code>left</code></li>
+          <li>Duplicate keys multiplying rows: two matching rows on each side give four output rows; use <code>validate="one_to_one"</code> or <code>"one_to_many"</code> to catch it</li>
+          <li>Not checking row counts before and after a join; a silent inner join can drop rows you needed</li>
+          <li>Overlapping column names without <code>lsuffix</code>/<code>rsuffix</code>: <code>join</code> raises an error, while <code>merge</code> silently adds <code>_x</code>/<code>_y</code></li>
+          <li>Joining on keys with different dtypes (int vs. string) or stray whitespace; clean and convert the key columns first</li>
+          <li>Mixing up <code>concat</code> and <code>merge</code>: <code>concat</code> stacks tables with no key matching</li>
+          <li>NaN keys match each other in pandas (unlike SQL, where NULL never equals NULL); drop or fill them first if that's not what you want</li>
+        </ul>`
+    }
+  },
+  {
+    id: "groupby",
+    icon: "🧮",
+    title: "GroupBy & Pivot",
+    tagline: "aggregate, transform, pivot",
+    desc: "Split-apply-combine: aggregation, transform vs. filter vs. apply, time grouping, pivot tables, and five reference flowcharts.",
+    tags: ["groupby", "agg", "transform", "pivot_table"],
+    tabs: {
+      overview: `
+        <h4>What it is</h4>
+        <p><code>groupby</code> splits a DataFrame into groups, applies a calculation to each group, and combines the results (split-apply-combine). <code>pivot_table</code> and <code>resample</code> are the reshaping and time-based cousins.</p>
+        <h4>Why it matters</h4>
+        <p>"Total by department", "average per month", "top performer in each team": nearly every business question is a group-by. Interviewers focus on <strong>which method returns what shape</strong>.</p>
+        <h4>Which method, which output shape?</h4>
+        <table>
+          <tr><th>Method</th><th>Returns</th><th>Typical use</th></tr>
+          <tr><td><code>.agg()</code> / <code>.sum()</code> / <code>.mean()</code></td><td>One row per group</td><td>Totals, averages, counts per group</td></tr>
+          <tr><td><code>.transform()</code></td><td>Same length as the original data</td><td>Add a group statistic as a column (e.g. dept mean beside each employee)</td></tr>
+          <tr><td><code>.filter()</code></td><td>A subset of the original rows (whole groups kept or dropped)</td><td>Keep only groups meeting a condition (e.g. size of at least 5)</td></tr>
+          <tr><td><code>.apply()</code></td><td>Anything (flexible but slower)</td><td>Custom per-group logic</td></tr>
+          <tr><td><code>.idxmax()</code></td><td>Index label of the max in each group</td><td>Top row per group</td></tr>
+          <tr><td><code>.rolling()</code></td><td>Same length, windowed values per group</td><td>Moving averages within each group</td></tr>
+          <tr><td><code>.resample('ME')</code></td><td>One row per time bucket</td><td>Monthly / weekly totals on a datetime index</td></tr>
+          <tr><td><code>pd.pivot_table()</code></td><td>Wide table (index by columns)</td><td>Cross-tab summaries like region by product</td></tr>
+        </table>
+        <h4>groupby vs. pivot_table</h4>
+        <p>They compute the same aggregates; <code>pivot_table</code> just lays one grouping key across the columns. <code>df.pivot_table(index='A', columns='B', values='V', aggfunc='sum')</code> equals <code>df.groupby(['A','B'])['V'].sum().unstack()</code>.</p>`,
+      charts: `
+        <p style="margin-top:0;">Click ⤢ Expand on any chart to zoom and pan.</p>
+        <h4>GroupBy Operations Map (detailed)</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Input DataFrame df"] --&gt; B["Group by columns using groupby"]
+
+B --&gt; C["Aggregate using agg"]
+C --&gt; C1["Single agg: sum, mean, count"]
+C --&gt; C2["Multiple agg on sales and units"]
+C --&gt; C3["Named agg: total sales, avg sales"]
+
+B --&gt; D["Transform using transform"]
+D --&gt; D1["Broadcast group stats to rows"]
+
+B --&gt; E["Filter using filter"]
+E --&gt; E1["Keep only groups meeting condition"]
+
+B --&gt; F["Apply using apply"]
+F --&gt; F1["Custom function per group"]
+
+B --&gt; G["Time based grouping"]
+G --&gt; G1["Use Grouper or resample"]
+
+B --&gt; H["Pivot table"]
+H --&gt; H1["Cross tab style aggregation"]
+
+B --&gt; I["Row level operations"]
+I --&gt; I1["Row with max or min per group"]
+I --&gt; I2["Rolling or expanding stats per group"]
+
+B --&gt; J["Output"]
+J --&gt; J1["Tidy DataFrame or Series with group keys"]
+J --&gt; J2["Flatten MultiIndex with reset index or unstack"]
+
+%% ===== COLOR CLASSES WITH BLACK TEXT =====
+
+classDef start fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef operation fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef example fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef time fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef row fill:#F5B041,stroke:#B9770E,stroke-width:2px,color:#000;
+classDef output fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+
+class A start;
+class B operation;
+class C,D,E,F operation;
+class C1,C2,C3,D1,E1,F1 example;
+class G,H time;
+class G1,H1 example;
+class I row;
+class I1,I2 example;
+class J output;
+class J1,J2 example;
+</div></div>
+        <h4>GroupBy Paths to Output (simple)</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    A[Input DataFrame]:::start --&gt; B[Group by columns using groupby]:::groupby
+
+    B --&gt; C[Aggregate using agg]:::agg
+    B --&gt; D[Transform using transform]:::transform
+    B --&gt; E[Filter groups using filter]:::filter
+    B --&gt; F[Apply custom function using apply]:::apply
+    B --&gt; H[Time-based grouping using Grouper or resample]:::time
+    B --&gt; I[Pivot table for cross-tab aggregation]:::pivot
+
+    C --&gt; G[Output summary DataFrame or Series]:::output
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    H --&gt; G
+    I --&gt; G
+
+    %% Styling with black text
+    classDef start fill:#f9f,stroke:#333,stroke-width:2px,color:#000;
+    classDef groupby fill:#ffeb99,stroke:#333,stroke-width:2px,color:#000;
+    classDef agg fill:#99ff99,stroke:#333,stroke-width:2px,color:#000;
+    classDef transform fill:#66ccff,stroke:#333,stroke-width:2px,color:#000;
+    classDef filter fill:#ff9966,stroke:#333,stroke-width:2px,color:#000;
+    classDef apply fill:#cc99ff,stroke:#333,stroke-width:2px,color:#000;
+    classDef time fill:#ffcc66,stroke:#333,stroke-width:2px,color:#000;
+    classDef pivot fill:#66ffcc,stroke:#333,stroke-width:2px,color:#000;
+    classDef output fill:#ffffff,stroke:#333,stroke-width:2px,color:#000;
+</div></div>
+                <h4>GroupBy Aggregation</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["DataFrame df"] --&gt; B["groupby columns"]
+B --&gt; C["Aggregate agg"]
+
+C --&gt; C1["Single agg&lt;br&gt;df.groupby dept sales.sum"]
+C --&gt; C2["Multi agg&lt;br&gt;groupby dept agg sum mean"]
+C --&gt; C3["Named agg&lt;br&gt;agg total sum avg mean"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef op fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C op;
+class C1,C2,C3 ex;
+</div></div>
+        <h4>Transform vs. Filter vs. Apply</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["groupby object"] --&gt; B["Transform"]
+A --&gt; C["Filter"]
+A --&gt; D["Apply"]
+
+B --&gt; B1["transform&lt;br&gt;groupby dept salary transform mean"]
+C --&gt; C1["filter&lt;br&gt;groupby dept filter size gt 5"]
+D --&gt; D1["apply&lt;br&gt;groupby dept apply custom"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef op fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C,D op;
+class B1,C1,D1 ex;
+</div></div>
+        <h4>Time Grouping &amp; Pivot</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["groupby data"] --&gt; B["Time grouping"]
+A --&gt; C["Pivot table"]
+
+B --&gt; B1["resample&lt;br&gt;df.resample M sum"]
+C --&gt; C1["pivot table&lt;br&gt;pd.pivot_table sum"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef op fill:#F8C471,stroke:#AF601A,stroke-width:2px,color:#000;
+classDef ex fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+
+class A head;
+class B,C op;
+class B1,C1 ex;
+</div></div>
+        <h4>Row-Level Ops &amp; Output Shape</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Grouped result"] --&gt; B["Row level ops"]
+A --&gt; C["Output shape"]
+
+B --&gt; B1["idxmax&lt;br&gt;groupby dept idxmax"]
+B --&gt; B2["rolling&lt;br&gt;groupby dept rolling mean"]
+
+C --&gt; C1["Series out&lt;br&gt;groupby sum"]
+C --&gt; C2["flatten&lt;br&gt;reset_index"]
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef op fill:#F5B041,stroke:#B9770E,stroke-width:2px,color:#000;
+classDef out fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+
+class A head;
+class B op;
+class C out;
+class B1,B2,C1,C2 op;
+</div></div>
+        <h4>Pivot Data (pivot_table)</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["pivot_table() in Pandas"]:::head
+
+A --&gt; B["&lt;b&gt;Purpose&lt;/b&gt;&lt;br/&gt;
+1. Summarize data and aggregate values&lt;br/&gt;
+2. Reshape data from long to wide format&lt;br/&gt;
+3. Handle multiple aggregation functions&lt;br/&gt;
+4. Manage missing values using fill_value"]:::info
+
+A --&gt; C["&lt;b&gt;Key Parameters&lt;/b&gt;&lt;br/&gt;
+1. data - DataFrame to pivot&lt;br/&gt;
+2. index - column(s) to become new index&lt;br/&gt;
+3. columns - column(s) to become new columns&lt;br/&gt;
+4. values - column(s) to aggregate&lt;br/&gt;
+5. aggfunc - aggregation function(s), e.g., sum, mean&lt;br/&gt;
+6. fill_value - value to replace missing data&lt;br/&gt;
+7. margins - include row/column totals if True"]:::info
+
+A --&gt; D["&lt;b&gt;Scenarios / Use Cases&lt;/b&gt;&lt;br/&gt;
+1. Sales summary by region and product&lt;br/&gt;
+2. Average test scores per class and subject&lt;br/&gt;
+3. Pivot survey responses to wide format&lt;br/&gt;
+4. Aggregate financial data with multiple functions&lt;br/&gt;
+5. Detect missing combinations and fill with fill_value"]:::info
+
+A --&gt; E["&lt;b&gt;Example Code&lt;/b&gt;&lt;br/&gt;
+pd.pivot_table(df,&lt;br/&gt; index='Region',&lt;br/&gt; columns='Product',&lt;br/&gt; values='Sales',&lt;br/&gt; aggfunc='sum',&lt;br/&gt; fill_value=0)"]:::code
+
+%% =====================
+%% STYLES
+classDef head fill:#1565c0,stroke:#0d47a1,stroke-width:3px,color:#fff,font-size:18px;
+classDef info fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000,font-size:15px;
+classDef code fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000,font-size:15px;
+</div></div>
+        <p>The charts abbreviate syntax to keep boxes short. The <strong>Example</strong> and <strong>Recipes</strong> tabs have the real, runnable code.</p>`,
+      recipes: `
+        <h4>Grouping and aggregating in pandas: recipes</h4>
+        <p>Sample data used for the results column:</p>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({
+    "city":  ["NY", "NY", "LA", "LA", "SF", "SF"],
+    "rep":   ["Ann", "Bob", "Ann", "Cy", "Bob", "Cy"],
+    "sales": [100, 200, 150, 50, 300, 120],
+    "units": [1, 2, 3, 1, 4, 2],
+    "date":  pd.to_datetime(["2024-01-05", "2024-02-10", "2024-01-15",
+                             "2024-01-20", "2024-02-01", "2024-03-03"]),
+})</pre>
+        <table>
+          <tr><th style="width:15%">Task</th><th style="width:37%">Code / method</th><th style="width:24%">Description</th><th style="width:24%">Result on sample data</th></tr>
+          <tr><td><strong>Basic groupby</strong></td><td style="word-break:break-word;"><code>df.groupby("city")["sales"].sum()</code></td><td>Sum of sales per city (Series)</td><td>LA 200, NY 300, SF 420</td></tr>
+          <tr><td><strong>Keep keys as columns</strong></td><td style="word-break:break-word;"><code>df.groupby("city", as_index=False)["sales"].sum()</code></td><td>Returns a DataFrame with the city column preserved</td><td>columns city, sales (3 rows)</td></tr>
+          <tr><td><strong>Multiple aggregations</strong></td><td style="word-break:break-word;"><code>df.groupby("city").agg({"sales": ["sum", "mean"], "units": "sum"})</code></td><td>Several aggregates across several columns (two-level column headers)</td><td>NY: sales sum 300, mean 150.0; units sum 3</td></tr>
+          <tr><td><strong>Named aggregation (recommended)</strong></td><td style="word-break:break-word;"><code>df.groupby("city").agg(total_sales=("sales", "sum"), avg_sales=("sales", "mean"))</code></td><td>Clear, flat column names in the output</td><td>NY: total_sales 300, avg_sales 150.0</td></tr>
+          <tr><td><strong>Count / size / unique</strong></td><td><pre style="white-space:pre-wrap; word-break:break-word;">df.groupby("city").size()
+df.groupby("city")["sales"].count()
+df.groupby("city")["rep"].nunique()</pre></td><td>Row counts, non-null counts, distinct values</td><td>2, 2, 2 for each city</td></tr>
+          <tr><td><strong>Filter groups</strong></td><td style="word-break:break-word;"><code>df.groupby("city").filter(lambda g: g["sales"].sum() &gt; 250)</code></td><td>Keep only groups meeting the condition</td><td>NY and SF rows kept; LA (total 200) dropped</td></tr>
+          <tr><td><strong>Transform (broadcast to original rows)</strong></td><td style="word-break:break-word;"><code>df["city_avg"] = df.groupby("city")["sales"].transform("mean")</code></td><td>Adds a column with group-level stats aligned to the rows</td><td>city_avg: 150, 150, 100, 100, 210, 210</td></tr>
+          <tr><td><strong>Apply (arbitrary function)</strong></td><td style="word-break:break-word;"><code>df.groupby("city").apply(lambda g: g.nlargest(2, "sales"))</code></td><td>Flexible; returns rows per group, indexed by (city, original row)</td><td>top 2 sales rows for each city</td></tr>
+          <tr><td><strong>Multi-column aggregation</strong></td><td style="word-break:break-word;"><code>df.groupby(["city", "rep"]).agg(total_sales=("sales", "sum"), avg_units=("units", "mean"))</code></td><td>Group by two keys and aggregate several columns</td><td>6 rows, e.g. NY/Bob: 200, 2.0</td></tr>
+          <tr><td><strong>Time-based grouping</strong></td><td style="word-break:break-word;"><code>df.groupby(["city", pd.Grouper(key="date", freq="ME")])["sales"].sum()</code></td><td>Aggregate per city per month (use "ME"; the old "M" now raises an error)</td><td>LA Jan 200; NY Jan 100, Feb 200; SF Feb 300, Mar 120</td></tr>
+          <tr><td><strong>Pivot table</strong></td><td style="word-break:break-word;"><code>df.pivot_table(index="city", columns="rep", values="sales", aggfunc="sum", fill_value=0)</code></td><td>Cross-tab / heatmap-style summary</td><td>3 x 3 table, e.g. NY: Ann 100, Bob 200, Cy 0</td></tr>
+          <tr><td><strong>Rolling per group</strong></td><td style="word-break:break-word;"><code>df.groupby("city")["sales"].apply(lambda s: s.rolling(3, min_periods=1).sum())</code></td><td>Rolling sum within each group</td><td>LA 150, 200; NY 100, 300; SF 300, 420</td></tr>
+          <tr><td><strong>Row with max / min per group</strong></td><td style="word-break:break-word;"><code>df.loc[df.groupby("city")["sales"].idxmax()]</code></td><td>Returns the rows holding each group's max (use idxmin for min)</td><td>LA row 2 (150), NY row 1 (200), SF row 4 (300)</td></tr>
+          <tr><td><strong>MultiIndex to flat table</strong></td><td style="word-break:break-word;"><code>df.groupby(["city", "rep"])["sales"].sum().unstack(fill_value=0)</code></td><td>Converts the MultiIndex result into a wide DataFrame</td><td>same 3 x 3 table as the pivot</td></tr>
+          <tr><td><strong>Top N groups</strong></td><td style="word-break:break-word;"><code>df.groupby("city")["sales"].sum().nlargest(3)</code></td><td>Top 3 cities by total sales</td><td>SF 420, NY 300, LA 200</td></tr>
+          <tr><td><strong>Sort groups by size</strong></td><td style="word-break:break-word;"><code>df.groupby("city").size().sort_values(ascending=False)</code></td><td>Row counts per group, largest first</td><td>all cities tie at 2 in this sample</td></tr>
+        </table>
+        <p><strong>Notes:</strong> <code>size()</code> counts rows including missing values, while <code>count()</code> counts non-null values only. <code>as_index=False</code> (or <code>.reset_index()</code>) keeps the group keys as ordinary columns. Prefer <strong>named aggregation</strong> over the dict form: it gives flat, readable column names. Month grouping uses <code>freq="ME"</code> in current pandas; older code with <code>"M"</code> now raises an error.</p>`,
+      example: `
+        <h4>Worked example</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({
+    "dept":   ["HR", "HR", "IT", "IT", "IT", "Ops"],
+    "salary": [50, 60, 70, 80, 90, 55],
+    "sales":  [10, 20, 30, 40, 50, 5],
+    "date":   pd.to_datetime(["2024-01-05", "2024-01-20", "2024-02-03",
+                              "2024-02-18", "2024-03-02", "2024-03-15"]),
+})
+
+# --- Aggregation ---
+df.groupby("dept")["salary"].sum()                       # HR 110, IT 240, Ops 55
+df.groupby("dept")["salary"].agg(["sum", "mean"])        # several aggregates at once
+df.groupby("dept").agg(total=("salary", "sum"),          # named aggregation: you choose
+                       avg=("salary", "mean"))           # the output column names
+#       total   avg
+# HR      110  55.0
+# IT      240  80.0
+# Ops      55  55.0
+
+# --- transform vs filter vs apply ---
+df.groupby("dept")["salary"].transform("mean")           # [55, 55, 80, 80, 80, 55] same length as df
+df.groupby("dept").filter(lambda g: len(g) &gt;= 2)         # drops Ops (only 1 row)
+df.groupby("dept")["salary"].apply(lambda s: s.max() - s.min())   # HR 10, IT 20, Ops 0
+
+# --- Row-level operations ---
+df.groupby("dept")["salary"].idxmax()                    # HR 1, IT 4, Ops 5 (row labels)
+df.groupby("dept")["salary"].rolling(2).mean()           # moving average inside each group
+
+# --- Output shape ---
+df.groupby("dept")["salary"].sum()                       # a Series (dept is the index)
+df.groupby("dept")["salary"].sum().reset_index()         # flatten back to a DataFrame
+df.groupby("dept")[["salary"]].sum()                     # double brackets also give a DataFrame
+
+# --- Time grouping ---
+df.set_index("date")["sales"].resample("ME").sum()       # Jan 30, Feb 70, Mar 55
+
+# --- Pivot table ---
+pd.pivot_table(df, index="dept", columns=df["date"].dt.month,
+               values="sales", aggfunc="sum", fill_value=0)
+# date   1   2   3
+# dept
+# HR    30   0   0
+# IT     0  70  50
+# Ops    0   0   5</pre>
+        <p><strong>Note:</strong> older code uses <code>resample('M')</code>; recent pandas renamed month-end to <code>'ME'</code> (<code>'M'</code> is deprecated).</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Confusing <code>transform</code> and <code>agg</code>: <code>agg</code> returns one row per group, <code>transform</code> returns one value per <strong>original row</strong></li>
+          <li>Expecting <code>filter</code> to filter rows: it keeps or drops <strong>whole groups</strong> based on a group-level condition</li>
+          <li>Forgetting <code>reset_index()</code>: grouped results have the group key as the index, which breaks later merges and column access</li>
+          <li>Using <code>apply</code> where a built-in works: <code>agg</code>/<code>transform</code> are much faster than a Python lambda per group</li>
+          <li>Groups with missing keys silently disappear: <code>groupby</code> drops NaN keys by default (use <code>dropna=False</code> to keep them)</li>
+          <li>Forgetting <code>fill_value</code> in <code>pivot_table</code>: missing combinations become NaN</li>
+          <li>Mixing up <code>idxmax</code> (the label) and <code>max</code> (the value)</li>
+          <li>Calling <code>rolling</code> after <code>groupby</code> without sorting first: windows follow row order</li>
+        </ul>`
+    }
+  },
+  {
+    id: "databases",
+    icon: "🗄️",
+    title: "Python & Databases",
+    tagline: "MySQL vs. Snowflake from Python",
+    desc: "Connecting to MySQL and Snowflake from Python: comparison table, connection code, parameterized queries, and pandas/SQLAlchemy.",
+    tags: ["MySQL", "Snowflake", "connector", "SQLAlchemy"],
+    tabs: {
+      overview: `
+        <h4>MySQL vs. Snowflake from Python</h4>
+        <ul>
+          <li><strong>MySQL:</strong> best for transactional databases, local or small-scale, with full CRUD and transactions.</li>
+          <li><strong>Snowflake:</strong> best for cloud-scale analytics, data warehousing and BI; supports huge datasets and many concurrent queries.</li>
+          <li><strong>Connection and queries:</strong> both use Python connectors in nearly the same way, but authentication and scaling differ.</li>
+          <li><strong>Cost and scalability:</strong> MySQL is limited by its server; Snowflake is pay-as-you-go and cloud-native.</li>
+        </ul>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%">Feature</th><th style="width:41%">MySQL</th><th style="width:41%">Snowflake</th></tr>
+          <tr><td><strong>Database type</strong></td><td>Relational database (OLTP)</td><td>Cloud data warehouse (OLAP)</td></tr>
+          <tr><td><strong>Python library</strong></td><td><code>mysql-connector-python</code>, <code>PyMySQL</code>, <code>SQLAlchemy</code></td><td><code>snowflake-connector-python</code>, <code>snowflake-sqlalchemy</code></td></tr>
+          <tr><td><strong>Installation</strong></td><td><code>pip install mysql-connector-python</code></td><td><code>pip install snowflake-connector-python</code></td></tr>
+          <tr><td><strong>Authentication</strong></td><td>Username + password (SSL certificates optional)</td><td>Username + password, OAuth, key pair, or SSO</td></tr>
+          <tr><td><strong>Connection example (Python)</strong></td><td><pre style="white-space:pre-wrap; word-break:break-word;">import mysql.connector
+conn = mysql.connector.connect(host="localhost", user="root",
+                               password="pass", database="db_name")
+cursor = conn.cursor()</pre></td><td><pre style="white-space:pre-wrap; word-break:break-word;">import snowflake.connector
+conn = snowflake.connector.connect(user="user", password="pass",
+                                   account="account_id", warehouse="WH",
+                                   database="DB", schema="SCHEMA")
+cursor = conn.cursor()</pre></td></tr>
+          <tr><td><strong>SQLAlchemy support</strong></td><td>✅ Supported: <code>mysql+pymysql://user:pass@host/db</code></td><td>✅ Supported: <code>snowflake://user:pass@account/db/schema?warehouse=WH</code></td></tr>
+          <tr><td><strong>Execute a query</strong></td><td><code>cursor.execute("SELECT * FROM table")</code></td><td><code>cursor.execute("SELECT * FROM table")</code></td></tr>
+          <tr><td><strong>Fetch results</strong></td><td><code>cursor.fetchall()</code></td><td><code>cursor.fetchall()</code></td></tr>
+          <tr><td><strong>Transaction support</strong></td><td>✅ Yes (<code>commit</code>, <code>rollback</code>); autocommit is <strong>off</strong> by default in the Python connector, so call <code>conn.commit()</code> after writes</td><td>✅ Yes (ACID; <code>BEGIN</code> / <code>COMMIT</code> / <code>ROLLBACK</code>); autocommit is <strong>on</strong> by default. Built for analytics, not for high-frequency single-row writes</td></tr>
+          <tr><td><strong>Scalability</strong></td><td>Mainly vertical (a bigger server); read replicas help with read load</td><td>Cloud-native and elastic; compute and storage scale independently, handles huge datasets</td></tr>
+          <tr><td><strong>Use case</strong></td><td>OLTP, small to medium databases, real-time apps</td><td>OLAP, analytics, BI, large-scale reporting</td></tr>
+          <tr><td><strong>Performance tuning</strong></td><td>Indexing, caching, query optimization</td><td>Warehouse sizing, clustering keys, caching</td></tr>
+          <tr><td><strong>Cost</strong></td><td>Hardware/server-based, usually a fixed cost</td><td>Cloud-based, pay-per-use (compute + storage)</td></tr>
+          <tr><td><strong>Security</strong></td><td>SSL, user roles, firewall</td><td>SSL, user roles, key-pair authentication, SSO, MFA</td></tr>
+        </table>
+        <p><strong>Correction to a common claim:</strong> Snowflake is <em>not</em> read-only. It supports full DML and ACID transactions. The real difference is design: Snowflake is tuned for large analytical scans, MySQL for many small, fast reads and writes.</p>
+        <p>These examples are reference code and were not run against live servers. The two connectors do share the same parameter style (<code>%s</code> placeholders), and the SQLAlchemy URLs above parse correctly.</p>`,
+      dbconnect: `
+        <h4>✅ Python example: MySQL</h4>
+        <pre>import mysql.connector
+
+conn = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='password123',
+    database='my_db'
+)
+
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM employees")
+rows = cursor.fetchall()
+for row in rows:
+    print(row)
+conn.close()</pre>
+        <h4>✅ Python example: Snowflake</h4>
+        <pre>import snowflake.connector
+
+conn = snowflake.connector.connect(
+    user='my_user',
+    password='password123',
+    account='my_account',
+    warehouse='MY_WH',
+    database='MY_DB',
+    schema='PUBLIC'
+)
+
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM employees")
+rows = cursor.fetchall()
+for row in rows:
+    print(row)
+conn.close()</pre>
+        <p>The two examples are almost identical: only the import and the connection arguments differ. Snowflake needs an <code>account</code> identifier and a <code>warehouse</code> (the compute that runs your query).</p>
+        <h4>Safer version: environment variables, parameters, commit</h4>
+        <pre>import os
+import mysql.connector
+
+conn = mysql.connector.connect(
+    host=os.environ["DB_HOST"],
+    user=os.environ["DB_USER"],
+    password=os.environ["DB_PASSWORD"],   # never hard-code real passwords
+    database=os.environ["DB_NAME"],
+)
+cursor = conn.cursor()
+
+# Parameterized query: the driver escapes the values (prevents SQL injection)
+cursor.execute("SELECT * FROM employees WHERE dept = %s", ("HR",))
+print(cursor.fetchall())
+
+# Writes need a commit in MySQL (Snowflake autocommits by default)
+cursor.execute("INSERT INTO employees (name, dept) VALUES (%s, %s)", ("Ana", "HR"))
+conn.commit()
+
+cursor.close()
+conn.close()</pre>
+        <h4>With pandas and SQLAlchemy</h4>
+        <pre>import pandas as pd
+from sqlalchemy import create_engine
+
+# MySQL
+engine = create_engine("mysql+pymysql://user:pass@host/db")
+df = pd.read_sql("SELECT * FROM employees", engine)
+
+# Snowflake (needs the snowflake-sqlalchemy package)
+engine = create_engine("snowflake://user:pass@account/db/schema?warehouse=WH")
+df = pd.read_sql("SELECT * FROM employees", engine)
+
+# Write a DataFrame back to either database
+df.to_sql("employees_clean", engine, if_exists="replace", index=False)</pre>
+        <p><code>pd.read_sql</code> returns a DataFrame directly, which is usually the quickest route into analysis. Use <code>if_exists="replace"</code> or <code>"append"</code> with <code>to_sql</code> to control what happens when the table already exists.</p>`,
+      tips: `
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Hard-coding passwords in code (and committing them to Git): use environment variables or a secrets manager</li>
+          <li>Building SQL with f-strings or <code>+</code>: use parameterized queries (<code>%s</code> placeholders) to prevent SQL injection</li>
+          <li>Forgetting <code>conn.commit()</code> after <code>INSERT</code>/<code>UPDATE</code> in MySQL: the changes are rolled back when the connection closes</li>
+          <li>Not closing connections: call <code>cursor.close()</code> and <code>conn.close()</code>, or use a context manager or connection pool</li>
+          <li>Assuming Snowflake is read-only: it supports transactions, but it is built for analytics, so avoid thousands of single-row inserts (bulk load instead)</li>
+          <li>Using <code>SELECT *</code> on a huge Snowflake table: query only the columns and rows you need, since you pay for compute</li>
+          <li>Forgetting the <code>warehouse</code> in a Snowflake connection: queries cannot run without one</li>
         </ul>`
     }
   }
@@ -3784,7 +5814,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
