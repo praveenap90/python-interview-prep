@@ -3737,7 +3737,49 @@ df["qty"] = pd.to_numeric(df["qty"], downcast="integer")</pre>
           <tr><td><code>"coerce"</code></td><td>Bad values become <code>NaN</code></td><td>Most cleaning work; handle the NaNs next</td></tr>
         </table>
         <p><strong>Explanation:</strong> <code>astype(float)</code> crashes on <code>"N/A"</code> or <code>"$1,200"</code>, so use <code>to_numeric(errors="coerce")</code> for messy real-world columns and reserve <code>astype()</code> for data you already know is clean. Strip symbols with <code>str.replace</code> <em>before</em> converting, because <code>"$1,200"</code> would otherwise be coerced to <code>NaN</code> and the real value lost.</p>
-        <p><strong>Note:</strong> older pandas also had <code>errors="ignore"</code>, which returned the original column unchanged on failure. It is deprecated, so prefer <code>coerce</code>.</p>`,
+
+        <h4>astype() vs to_numeric()</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Feature</th><th style="width:40%"><code>astype()</code></th><th style="width:40%"><code>pd.to_numeric()</code></th></tr>
+          <tr><td>Target types</td><td>Any dtype: <code>int</code>, <code>float</code>, <code>str</code>, <code>category</code>, <code>datetime64</code>, <code>bool</code></td><td>Numeric only (int or float)</td></tr>
+          <tr><td>Bad values like <code>"abc"</code> or <code>""</code></td><td>Raises <code>ValueError</code></td><td>Raises by default, or <code>errors="coerce"</code> turns them into <code>NaN</code></td></tr>
+          <tr><td>Works on</td><td>Series, or a whole DataFrame</td><td>A Series (use <code>df.apply(pd.to_numeric, errors="coerce")</code> for a DataFrame)</td></tr>
+          <tr><td>Choosing the type</td><td>You name it exactly (<code>int</code>, <code>float32</code>, …)</td><td>Picks int or float itself, or the smallest fit with <code>downcast="integer"</code></td></tr>
+          <tr><td>Float to int</td><td><code>astype(int)</code> truncates (<code>1.9</code> becomes <code>1</code>) and fails on <code>NaN</code></td><td>Keeps <code>NaN</code>s, so the column stays float</td></tr>
+          <tr><td>Typical use</td><td>Data you know is clean</td><td>Messy imports (CSV, Excel, scraped text)</td></tr>
+        </table>
+        <pre>s = pd.Series(["10", "20", "abc", "", "30.5"])
+
+s.astype(float)                    # ValueError: could not convert string to float: 'abc'
+pd.to_numeric(s)                   # ValueError: Unable to parse string "abc" at position 2
+pd.to_numeric(s, errors="coerce")  # [10.0, 20.0, NaN, NaN, 30.5]</pre>
+        <p><strong>Rule of thumb:</strong> use <code>astype()</code> when the data is clean or you want an error to flag bad data; use <code>to_numeric(errors="coerce")</code> for real-world columns, then inspect the new <code>NaN</code>s. Neither parses <code>"$1,200"</code>, so strip symbols first.</p>
+        <h4>Decision flowchart</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    A([Convert a column's dtype]):::start --&gt; B{Target a number?}:::q
+    B -- No: str / category / datetime / bool --&gt; C["astype(...)&lt;br/&gt;any dtype, strict"]:::astype
+    B -- Yes --&gt; D{Is the data clean?&lt;br/&gt;no text, blanks or symbols}:::q
+    D -- "Yes, I want errors to flag problems" --&gt; E["astype(int) or astype(float)&lt;br/&gt;raises ValueError on bad values"]:::astype
+    D -- "No, messy import (CSV, Excel, scraped)" --&gt; F{Currency or unit symbols?&lt;br/&gt;$ , % kg}:::q
+    F -- Yes --&gt; G["str.replace(r'[$,%]', '', regex=True)&lt;br/&gt;strip symbols first"]:::clean
+    F -- No --&gt; H
+    G --&gt; H["pd.to_numeric(col, errors='coerce')&lt;br/&gt;bad values become NaN"]:::numeric
+    H --&gt; I{Any NaN created?}:::q
+    I -- Yes --&gt; J["Inspect: df[df['col'].isna()]&lt;br/&gt;then fillna / dropna / fix source"]:::fix
+    I -- No --&gt; K([Column converted]):::done
+    J --&gt; K
+    C --&gt; K
+    E --&gt; K
+    classDef start fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:2px
+    classDef q fill:#fdcb6e,stroke:#e17055,color:#2d3436,stroke-width:2px
+    classDef astype fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef numeric fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef clean fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef fix fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:2px
+    classDef done fill:#2d3436,stroke:#000,color:#fff,stroke-width:2px
+</div></div>
+        <p><strong>Note:</strong> older pandas also had <code>errors="ignore"</code>, which returned the original column unchanged on failure. It was deprecated and has been removed in current pandas, so use <code>"raise"</code> or <code>"coerce"</code>.</p>`,
       missing: `
         <h4>4. Identify missing data</h4>
         <pre>import pandas as pd
@@ -4559,6 +4601,103 @@ classDef info fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000,font-size:
 classDef code fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000,font-size:15px;
 </div></div>
         <p>The charts abbreviate syntax to keep boxes short. The <strong>Example</strong> and <strong>Recipes</strong> tabs have the real, runnable code.</p>`,
+      gbpivot: `
+        <h4><code>groupby</code> vs <code>pivot_table</code> vs <code>pivot</code></h4>
+        <p><strong><code>groupby</code> summarizes rows; <code>pivot</code> / <code>pivot_table</code> reshapes them</strong>, turning the values of one column into column headers.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:19%">Feature</th><th style="width:27%"><code>groupby()</code></th><th style="width:27%"><code>pivot_table()</code></th><th style="width:27%"><code>pivot()</code></th></tr>
+          <tr><td><strong>Main job</strong></td><td>Split rows into groups and calculate per group</td><td>Group by two axes and spread one across columns</td><td>Reshape only</td></tr>
+          <tr><td><strong>Output shape</strong></td><td>Long: one row per group</td><td>Wide: rows × columns grid</td><td>Wide: rows × columns grid</td></tr>
+          <tr><td><strong>Aggregates?</strong></td><td>Yes: <code>sum</code>, <code>mean</code>, <code>count</code>, <code>agg()</code></td><td>Yes: <code>aggfunc</code> (default <code>mean</code>)</td><td>No</td></tr>
+          <tr><td><strong>Duplicate row/column pairs</strong></td><td>Fine, they are aggregated</td><td>Fine, they are aggregated</td><td>Raises <code>ValueError</code></td></tr>
+          <tr><td><strong>Several calculations at once</strong></td><td>Easy: <code>.agg(total=..., avg=...)</code></td><td>Possible: <code>aggfunc=["sum","mean"]</code></td><td>No</td></tr>
+          <tr><td><strong>Totals row/column</strong></td><td>Manual</td><td><code>margins=True</code></td><td>No</td></tr>
+          <tr><td><strong>Typical use</strong></td><td>"Total sales per region"</td><td>"Sales by region (rows) and product (columns)"</td><td>Long to wide on already-unique data</td></tr>
+        </table>
+        <h4>Same data, three ways (real outputs)</h4>
+        <pre style="margin-bottom:2px"># Sample data
+import pandas as pd
+df = pd.DataFrame({
+    "region": ["East","East","West","West","West"],
+    "product": ["A","B","A","A","B"],
+    "sales": [10,20,30,40,50]
+})</pre>
+        <pre style="margin-bottom:2px"># groupby: one row per group
+df.groupby("region")["sales"].sum()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">region
+East     30
+West    120</pre>
+        <pre style="margin-bottom:2px"># groupby on two keys: long format
+df.groupby(["region","product"])["sales"].sum().reset_index()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">  region product  sales
+0   East       A     10
+1   East       B     20
+2   West       A     70
+3   West       B     50</pre>
+        <pre style="margin-bottom:2px"># pivot_table: the same numbers as a grid
+df.pivot_table(index="region", columns="product", values="sales", aggfunc="sum")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">product   A   B
+region         
+East     10  20
+West     70  50</pre>
+        <pre style="margin-bottom:2px"># pivot_table with totals and a fill value
+df.pivot_table(index="region", columns="product", values="sales",
+               aggfunc="sum", margins=True, fill_value=0)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">product   A   B  All
+region              
+East     10  20   30
+West     70  50  120
+All      80  70  150</pre>
+        <pre style="margin-bottom:2px"># groupby + unstack gives the same grid as pivot_table
+df.groupby(["region","product"])["sales"].sum().unstack()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">product   A   B
+region         
+East     10  20
+West     70  50</pre>
+        <pre style="margin-bottom:2px"># pivot on unique pairs works (drop the duplicate West/A first)
+df.drop_duplicates(["region","product"]).pivot(index="region", columns="product", values="sales")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">product   A   B
+region         
+East     10  20
+West     30  50</pre>
+        <pre style="margin-bottom:2px"># pivot on duplicate pairs fails
+try:
+    df.pivot(index="region", columns="product", values="sales")
+except ValueError as e:
+    print("ValueError:", e)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">ValueError: Index contains duplicate entries, cannot reshape</pre>
+        <pre style="margin-bottom:2px"># melt: wide back to long
+df.pivot_table(index="region", columns="product", values="sales", aggfunc="sum").reset_index().melt(id_vars="region", value_name="sales")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">  region product  sales
+0   East       A     10
+1   West       A     70
+2   East       B     20
+3   West       B     50</pre>
+        <p><strong>Relationship:</strong> <code>pivot_table</code> is a <code>groupby</code> plus an <code>unstack</code> of one level into columns. <code>pivot</code> is the same reshape without the aggregation step, which is why duplicates make it fail.</p>
+        <p><strong>Rule of thumb:</strong> <code>groupby</code> for tidy results and multiple calculations; <code>pivot_table</code> for readable cross-tabs and totals; <code>pivot</code> only for unique pairs.</p>
+        <h4>Decision flowchart</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    A([Summarize or reshape a table]):::start --&gt; B{Need to calculate&lt;br/&gt;sum, mean, count?}:::q
+    B -- No, only reshape --&gt; C{Each row and column&lt;br/&gt;pair appears once?}:::q
+    C -- Yes --&gt; D["df.pivot(index, columns, values)&lt;br/&gt;no maths, errors on duplicates"]:::pivot
+    C -- No --&gt; E
+    B -- Yes --&gt; F{Result as a long list&lt;br/&gt;or a wide grid?}:::q
+    F -- "Long list (one row per group)" --&gt; G["df.groupby(keys).agg(...)&lt;br/&gt;then reset_index()"]:::group
+    F -- "Wide grid (rows x columns)" --&gt; E["df.pivot_table(index, columns,&lt;br/&gt;values, aggfunc)"]:::pt
+    G --&gt; H{Need a grid later?}:::q
+    H -- "Yes: .unstack()" --&gt; I([Wide table]):::done
+    H -- No --&gt; J([Long table]):::done
+    E --&gt; I
+    D --&gt; I
+    I -. "back to long: df.melt()" .-&gt; J
+    classDef start fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:2px
+    classDef q fill:#fdcb6e,stroke:#e17055,color:#2d3436,stroke-width:2px
+    classDef group fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef pt fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef pivot fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef done fill:#2d3436,stroke:#000,color:#fff,stroke-width:2px
+</div></div>`,
       recipes: `
         <h4>Grouping and aggregating in pandas: recipes</h4>
         <p>Sample data used for the results column:</p>
@@ -5814,7 +5953,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", dbconnect: "Connect & Query", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
