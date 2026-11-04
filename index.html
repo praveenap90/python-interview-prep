@@ -730,7 +730,7 @@ print(my_set)
         <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;"><strong>Column filtering</strong> (which columns) — different from row filtering (which rows) above.</p>
         <table>
           <tr><th>Need</th><th>Syntax</th></tr>
-          <tr><td>Single column (as Series)</td><td><code>df['col']</code> or <code>df.col</code></td></tr>
+          <tr><td>Single column (as Series)</td><td><code>df['col']</code> (safest) or <code>df.col</code> (only simple names that don't clash with a method)</td></tr>
           <tr><td>Multiple columns (as DataFrame)</td><td><code>df[['col1','col2']]</code></td></tr>
           <tr><td>Columns by dtype</td><td><code>df.select_dtypes(include='number')</code> (or <code>exclude=</code>)</td></tr>
           <tr><td>Columns by name substring</td><td><code>df.filter(like='sales')</code></td></tr>
@@ -2087,6 +2087,226 @@ df["sales"].rank()                           # ties get the average rank: [4.0, 
 df["sales"].rank(method="dense")             # no gaps after ties:        [3.0, 1.0, 2.0, 1.0]
 df.groupby("dept")["sales"].rank()           # rank restarts within each group</pre>
         <p><code>Series.map</code> with a dict returns <strong>NaN</strong> for any value not in the dict, while <code>replace</code> leaves unmatched values unchanged. <code>factorize</code> gives integer codes with no one-hot columns, but it implies an order, so use it for tree models or labels rather than linear models.</p>`,
+      condlogic: `
+        <h4>Conditional logic: <code>np.where</code>, <code>np.select</code>, <code>where</code>, <code>mask</code></h4>
+        <p><code>np.where</code> and <code>np.select</code> <strong>build a new column</strong> from conditions. <code>df.where</code> and <code>df.mask</code> <strong>edit values in an existing DataFrame</strong>. The names look alike, but they behave differently.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:17%">Function</th><th style="width:25%">What it does</th><th style="width:24%">Syntax</th><th style="width:17%">Returns</th><th style="width:17%">Use when</th></tr>
+          <tr><td><strong><code>np.where()</code></strong></td><td>If/else for every row: value A where True, else value B</td><td><code>np.where(cond, a, b)</code></td><td>NumPy array (assign it to a column)</td><td>A new column with <strong>2 outcomes</strong> (flag, Y/N, High/Low)</td></tr>
+          <tr><td><strong>Nested <code>np.where()</code></strong></td><td>Chains an if/elif/else</td><td><code>np.where(c1, a, np.where(c2, b, c))</code></td><td>NumPy array</td><td>3 outcomes at most; gets unreadable fast</td></tr>
+          <tr><td><strong><code>np.select()</code></strong></td><td>Checks a list of conditions in order; the <strong>first match wins</strong></td><td><code>np.select([c1, c2], [a, b], default=d)</code></td><td>NumPy array</td><td><strong>3 or more outcomes</strong> (grades, bands, tiers)</td></tr>
+          <tr><td><strong><code>df.where()</code></strong></td><td><strong>Keeps</strong> values where the condition is True and replaces the rest</td><td><code>df.where(cond, other)</code></td><td>DataFrame/Series, same shape</td><td>Clean existing data; <code>other</code> defaults to <code>NaN</code></td></tr>
+          <tr><td><strong><code>df.mask()</code></strong></td><td>The opposite of <code>where</code>: <strong>replaces</strong> values where the condition is True</td><td><code>df.mask(cond, other)</code></td><td>DataFrame/Series, same shape</td><td>Blank out or cap values that meet a condition</td></tr>
+          <tr><td><strong><code>df.loc[cond, col] = v</code></strong></td><td>Overwrites one column on the rows that match</td><td><code>df.loc[df['x'] &gt; 5, 'flag'] = 'High'</code></td><td>Modifies in place</td><td>Updating some rows without touching the rest</td></tr>
+        </table>
+        <h4>Same data, every method (real outputs)</h4>
+        <pre style="margin-bottom:2px"># Sample data
+import pandas as pd
+import numpy as np
+df = pd.DataFrame({"sales": [50, 150, 220, 90, 310]})
+df</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales
+0     50
+1    150
+2    220
+3     90
+4    310</pre>
+        <pre style="margin-bottom:2px"># np.where: 2 outcomes
+df["flag"] = np.where(df["sales"] &gt; 100, "High", "Low")
+df</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales  flag
+0     50   Low
+1    150  High
+2    220  High
+3     90   Low
+4    310  High</pre>
+        <pre style="margin-bottom:2px"># np.select: 3+ outcomes (first True condition wins)
+conds = [df["sales"] &gt;= 300, df["sales"] &gt;= 100]
+choices = ["Gold", "Silver"]
+df["tier"] = np.select(conds, choices, default="Bronze")
+df</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales  flag    tier
+0     50   Low  Bronze
+1    150  High  Silver
+2    220  High  Silver
+3     90   Low  Bronze
+4    310  High    Gold</pre>
+        <pre style="margin-bottom:2px"># df.where: KEEP values &gt; 100, replace the rest with NaN
+df[["sales"]].where(df["sales"] &gt; 100)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales
+0    NaN
+1  150.0
+2  220.0
+3    NaN
+4  310.0</pre>
+        <pre style="margin-bottom:2px"># df.where with a replacement value
+df[["sales"]].where(df["sales"] &gt; 100, 0)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales
+0      0
+1    150
+2    220
+3      0
+4    310</pre>
+        <pre style="margin-bottom:2px"># df.mask: REPLACE values &gt; 200 (cap them), keep the rest
+df[["sales"]].mask(df["sales"] &gt; 200, 200)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales
+0     50
+1    150
+2    200
+3     90
+4    200</pre>
+        <pre style="margin-bottom:2px"># df.loc: update only the matching rows
+df.loc[df["sales"] &gt; 200, "flag"] = "Top"
+df</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   sales  flag    tier
+0     50   Low  Bronze
+1    150  High  Silver
+2    220   Top  Silver
+3     90   Low  Bronze
+4    310   Top    Gold</pre>
+        <pre style="margin-bottom:2px"># np.select with numeric choices and no default: unmatched rows become 0
+np.select([df["sales"] &gt; 200], [1])</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">array([0, 0, 1, 0, 1])</pre>
+        <pre style="margin-bottom:2px"># np.select with TEXT choices and no default raises an error
+try:
+    np.select([df["sales"] &gt; 200], ["Big"])
+except TypeError as e:
+    print("TypeError: Choicelist and default value do not have a common dtype")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">TypeError: Choicelist and default value do not have a common dtype</pre>
+        <p><strong>Remember:</strong> <code>df.where(cond, other)</code> <em>keeps</em> where the condition is True, whereas <code>np.where(cond, a, b)</code> picks <code>a</code> where it is True. <code>df.mask</code> is <code>where</code> with the condition flipped. <code>np.select</code> without <code>default=</code> fills unmatched rows with <code>0</code> for numeric choices and raises a <code>TypeError</code> for text choices, so always set a default. In SQL, <code>np.where</code> is <code>CASE WHEN ... THEN ... ELSE ... END</code>.</p>
+        <h4>Decision flowchart</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    A([Need a value based on a condition]):::start --&gt; B{Which object are you changing?}:::q
+    B -- "Make a NEW column" --&gt; C{How many outcomes?}:::q
+    B -- "Fix values in an EXISTING frame" --&gt; D{Replace where the&lt;br/&gt;condition is True or False?}:::q
+    C -- "2 outcomes" --&gt; E["np.where(cond, a, b)"]:::npw
+    C -- "3 or more" --&gt; F["np.select(conds, choices, default)"]:::sel
+    D -- "Keep True, replace False" --&gt; G["df.where(cond, other)"]:::dfw
+    D -- "Replace True, keep False" --&gt; H["df.mask(cond, other)"]:::mask
+    E --&gt; I([New column]):::done
+    F --&gt; I
+    G --&gt; J([Cleaned values]):::done
+    H --&gt; J
+    classDef start fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:2px
+    classDef q fill:#fdcb6e,stroke:#e17055,color:#2d3436,stroke-width:2px
+    classDef npw fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef sel fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef dfw fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef mask fill:#e17055,stroke:#a8402a,color:#fff,stroke-width:2px
+    classDef done fill:#2d3436,stroke:#000,color:#fff,stroke-width:2px
+</div></div>`,
+      binning: `
+        <h4>What is binning?</h4>
+        <p><strong>Binning</strong> (also called bucketing or discretizing) turns a continuous number into a small set of categories or ranges, for example age 25 → "18–40". <strong>Trade-off:</strong> you lose detail, since a 17 and a 1 end up in the same bin, so only bin when the groups mean something.</p>
+        <h4>Purpose</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:45%">Why bin?</th><th style="width:55%">Example</th></tr>
+          <tr><td><strong>Make data easier to read and report</strong></td><td>Show sales by age group instead of 80 separate ages</td></tr>
+          <tr><td><strong>Create categories for grouping</strong></td><td><code>groupby</code> on income bands</td></tr>
+          <tr><td><strong>Reduce the effect of outliers and noise</strong></td><td>A 90-year-old and a 70-year-old both fall in "senior"</td></tr>
+          <tr><td><strong>Capture non-linear patterns in a model</strong></td><td>Risk may jump at certain ages, not rise smoothly</td></tr>
+          <tr><td><strong>Meet a business rule</strong></td><td>Credit score tiers, tax brackets, age groups</td></tr>
+          <tr><td><strong>Prepare features</strong></td><td>Bins can be one-hot encoded for models that need categories</td></tr>
+        </table>
+        <h4>Which method?</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:16%"></th><th style="width:28%"><code>pd.cut()</code></th><th style="width:28%"><code>pd.qcut()</code></th><th style="width:28%"><code>np.select()</code></th></tr>
+          <tr><td><strong>Bins are based on</strong></td><td>Value ranges you choose</td><td>Quantiles (rank)</td><td>Your own conditions</td></tr>
+          <tr><td><strong>Bin width</strong></td><td>Fixed or custom edges</td><td>Varies</td><td>Anything</td></tr>
+          <tr><td><strong>Rows per bin</strong></td><td>Uneven</td><td>About equal</td><td>Uneven</td></tr>
+          <tr><td><strong>Syntax</strong></td><td><code>pd.cut(s, bins=[0,18,40,100])</code></td><td><code>pd.qcut(s, 4)</code></td><td><code>np.select([c1, c2], [a, b], default=d)</code></td></tr>
+          <tr><td><strong>Use when</strong></td><td>You know the thresholds (age groups, score bands)</td><td>You want quartiles, deciles or equal-sized groups</td><td>Rules that can't be expressed as ranges</td></tr>
+          <tr><td><strong>Example</strong></td><td>Age bands, price tiers</td><td>Customer deciles, RFM scores</td><td>"VIP if spend &gt; 1000 and orders &gt; 5"</td></tr>
+        </table>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+import numpy as np
+ages = pd.Series([5, 17, 18, 25, 40, 41, 67, 90])</pre>
+        <pre style="margin-bottom:2px"># cut: your own edges and labels
+pd.cut(ages, bins=[0, 18, 40, 100], labels=["young", "mid", "senior"]).tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['young', 'young', 'young', 'mid', 'mid', 'senior', 'senior', 'senior']</pre>
+        <pre style="margin-bottom:2px"># qcut: equal-count groups (2 rows in each quartile)
+pd.qcut(ages, 4, labels=["Q1", "Q2", "Q3", "Q4"]).value_counts().sort_index().to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'Q1': 2, 'Q2': 2, 'Q3': 2, 'Q4': 2}</pre>
+        <pre style="margin-bottom:2px"># cut with a single number: equal-WIDTH bins, so the counts are uneven
+pd.cut(ages, bins=3).value_counts().sort_index().to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{(4.915, 33.333]: 4, (33.333, 61.667]: 2, (61.667, 90.0]: 2}</pre>
+        <pre style="margin-bottom:2px"># np.select: rule-based bins (first matching condition wins)
+np.select([ages &lt; 18, ages &lt; 65], ["child", "adult"], default="senior").tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['child', 'child', 'adult', 'adult', 'adult', 'adult', 'senior', 'senior']</pre>
+        <pre style="margin-bottom:2px"># right=False: the left edge is included, so 18 moves to the next bin
+pd.cut(ages, bins=[0, 18, 40, 100], right=False).astype(str).tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['[0, 18)', '[0, 18)', '[18, 40)', '[18, 40)', '[40, 100)', '[40, 100)', '[40, 100)', '[40, 100)']</pre>
+        <pre style="margin-bottom:2px"># include_lowest: without it the first edge value becomes NaN
+pd.cut(pd.Series([0, 18]), bins=[0, 18, 40]).astype(str).tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[nan, '(0.0, 18.0]']</pre>
+        <pre style="margin-bottom:2px">pd.cut(pd.Series([0, 18]), bins=[0, 18, 40], include_lowest=True).astype(str).tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['(-0.001, 18.0]', '(-0.001, 18.0]']</pre>
+        <pre style="margin-bottom:2px"># labels=False returns bin numbers
+pd.cut(ages, bins=[0, 18, 40, 100], labels=False).tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[0, 0, 0, 1, 1, 2, 2, 2]</pre>
+        <pre style="margin-bottom:2px"># qcut with many repeated values fails unless duplicates='drop'
+try:
+    pd.qcut(pd.Series([1, 1, 1, 1, 2]), 4)
+except ValueError:
+    print("ValueError: Bin edges must be unique")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">ValueError: Bin edges must be unique</pre>
+        <pre style="margin-bottom:2px">pd.qcut(pd.Series([1, 1, 1, 1, 2]), 4, duplicates="drop").astype(str).tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['(0.999, 2.0]', '(0.999, 2.0]', '(0.999, 2.0]', '(0.999, 2.0]', '(0.999, 2.0]']</pre>
+        <pre style="margin-bottom:2px"># Always check the result: counts per bin and how many NaN
+b = pd.cut(ages, bins=[0, 18, 40, 100])
+b.astype(str).value_counts().sort_index().to_dict(), int(b.isna().sum())</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">({'(0, 18]': 3, '(18, 40]': 2, '(40, 100]': 3}, 0)</pre>
+        
+        <h4>The details people get wrong</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:24%">Option</th><th style="width:46%">What it does</th><th style="width:30%">Output</th></tr>
+          <tr><td><code>right=True</code> (default)</td><td>Right edge included: <code>(0, 18]</code>, so <strong>18 is "young"</strong></td><td><code>(0, 18]</code></td></tr>
+          <tr><td><code>right=False</code></td><td>Left edge included: <code>[18, 40)</code>, so <strong>18 moves to "mid"</strong></td><td><code>[18, 40)</code></td></tr>
+          <tr><td><code>include_lowest=True</code></td><td>Without it, a value equal to the first edge becomes <code>NaN</code></td><td><code>0</code> → <code>NaN</code>, vs <code>(-0.001, 18.0]</code></td></tr>
+          <tr><td><code>labels=False</code></td><td>Returns bin numbers (0, 1, 2) instead of labels</td><td><code>[0,0,0,1,1,2,2,2]</code></td></tr>
+          <tr><td>Value outside all edges</td><td>Becomes <code>NaN</code></td><td><code>-5</code> and <code>200</code> with edges 0–100 → <code>[NaN, NaN]</code></td></tr>
+          <tr><td><code>qcut(..., duplicates="drop")</code></td><td>Without it, <code>qcut</code> raises <code>ValueError: Bin edges must be unique</code> when many values repeat</td><td>Merges the duplicate edges</td></tr>
+        </table>
+        <h4>Category map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    ROOT(["Binning&lt;br/&gt;numeric column to groups"]):::root
+
+    ROOT --&gt; W["Equal-width bins"]:::cut
+    ROOT --&gt; C["Custom-edge bins"]:::cut2
+    ROOT --&gt; Q["Equal-frequency bins"]:::qcut
+    ROOT --&gt; R["Rule-based bins"]:::sel
+
+    W --&gt; W1["pd.cut(s, bins=N)"]:::code
+    W --&gt; W2["Same width, uneven counts"]:::note
+    W --&gt; W3["Use: quick histograms, rough grouping"]:::use
+
+    C --&gt; C1["pd.cut(s, bins=[0,18,40,100],&lt;br/&gt;labels=[...])"]:::code
+    C --&gt; C2["You choose the edges"]:::note
+    C --&gt; C3["Use: age bands, score tiers, price ranges"]:::use
+    C --&gt; C4["Options: right=False, include_lowest=True, labels=False"]:::opt
+
+    Q --&gt; Q1["pd.qcut(s, 4)"]:::code
+    Q --&gt; Q2["Similar rows per bin, uneven widths"]:::note
+    Q --&gt; Q3["Use: quartiles, deciles, RFM scores"]:::use
+    Q --&gt; Q4["Option: duplicates='drop'"]:::opt
+
+    R --&gt; R1["np.select(conds, choices, default)"]:::code
+    R --&gt; R2["Any condition, several columns"]:::note
+    R --&gt; R3["Use: VIP if spend &gt; 1000 and orders &gt; 5"]:::use
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef cut fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef cut2 fill:#00a8cc,stroke:#006a80,color:#fff,stroke-width:2px
+    classDef qcut fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef sel fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>`,
       example: `
         <h4>Real-world example</h4>
         <p>A churn dashboard turns raw <code>signup_date</code>/<code>last_login_date</code>/event logs into <code>days_since_last_login</code>, <code>login_frequency_last_30_days</code>, <code>tenure_months</code>, and an engagement trend — only after this engineering do the variables actually correlate with churn risk in an interpretable way.</p>
@@ -2676,6 +2896,51 @@ df.loc[0:1, ['Name','Age']]</pre><pre style="border-left:3px solid var(--ochre);
 df.iat[0, 1]</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(25)</pre>
         <pre style="margin-bottom:2px"># at: single value by label
 df.at[0, 'Age']</pre><pre style="border-left:3px solid var(--ochre); margin-top:0">np.int64(25)</pre>
+        
+        <h4><code>df.col</code> vs <code>df['col']</code>: when to use which</h4>
+        <p>Both select one column as a Series when the name is simple. <strong>Brackets always work; the dot only works in some cases.</strong> Use brackets in scripts and functions, and keep the dot for quick checks in a notebook.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:34%">Situation</th><th style="width:33%"><code>df.col</code> (dot)</th><th style="width:33%"><code>df['col']</code> (brackets)</th></tr>
+          <tr><td>Plain column name like <code>sales</code></td><td>✅ Works</td><td>✅ Works</td></tr>
+          <tr><td>Name with a space (<code>first name</code>)</td><td>❌ <code>SyntaxError</code></td><td>✅ Works</td></tr>
+          <tr><td>Name starting with a digit or with symbols (<code>2024</code>, <code>unit-price</code>)</td><td>❌ <code>SyntaxError</code></td><td>✅ Works</td></tr>
+          <tr><td>Name matches a DataFrame method or attribute (<code>count</code>, <code>size</code>, <code>mean</code>, <code>T</code>, <code>shape</code>)</td><td>⚠️ Silently returns the method or attribute, not your column</td><td>✅ Always returns the column</td></tr>
+          <tr><td>Column name stored in a variable (<code>col = 'sales'</code>)</td><td>❌ <code>df.col</code> looks for a column literally named col and raises <code>AttributeError</code></td><td>✅ <code>df[col]</code></td></tr>
+          <tr><td>Creating a new column</td><td>❌ <code>df.new = [...]</code> does not create one, it only warns</td><td>✅ <code>df['new'] = [...]</code></td></tr>
+          <tr><td>Overwriting an existing column</td><td>✅ Works</td><td>✅ Works</td></tr>
+          <tr><td>Selecting several columns</td><td>❌ Not possible</td><td>✅ <code>df[['a','b']]</code></td></tr>
+          <tr><td>Typing effort</td><td>✅ Shorter; fine for quick exploration</td><td>Slightly longer</td></tr>
+        </table>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+df = pd.DataFrame({"sales": [10, 20], "count": [5, 6], "size": [7, 8], "first name": ["a", "b"]})
+df.sales.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[10, 20]</pre>
+        <pre style="margin-bottom:2px"># Name clash: dot returns the method, brackets return the column
+type(df.count).__name__</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">'method'</pre>
+        <pre style="margin-bottom:2px">df["count"].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[5, 6]</pre>
+        <pre style="margin-bottom:2px"># df.size is the number of cells in the frame, not your column
+df.size</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">8</pre>
+        <pre style="margin-bottom:2px">df["size"].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[7, 8]</pre>
+        <pre style="margin-bottom:2px"># Name in a variable: only brackets work
+col = "sales"
+df[col].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[10, 20]</pre>
+        <pre style="margin-bottom:2px"># df.col fails: pandas looks for a column named col
+try:
+    df.col
+except AttributeError as e:
+    print("AttributeError:", e)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">AttributeError: 'DataFrame' object has no attribute 'col'</pre>
+        <pre style="margin-bottom:2px"># New column: brackets create it, dot does not
+df["bonus"] = [1, 2]
+"bonus" in df.columns</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">True</pre>
+        <p><strong>Interview answer:</strong> use <code>df['col']</code> by default, and mention that <code>df.col</code> is a shortcut that breaks on spaces, on names that clash with DataFrame methods (<code>count</code>, <code>size</code>), on names held in variables, and when creating columns.</p>
         `,
       colrow: `
         <h4>Column filtering</h4>
@@ -4303,6 +4568,117 @@ class G,G1,G1a,G1b,G2,G2a,G2b,G3,G3a,G3b,G4,G4a,G4b how;
 class H,H1,H2,I,I1,I2,J,J1,J2 extra;
 </div></div>
         <p><strong>Reading the chart:</strong> <code>df.join()</code> is index-based. If your keys are columns, use <code>pd.merge</code> instead (or call <code>set_index</code> first). The other branches are the options you can tune: <code>how</code> for which rows survive, <code>lsuffix</code>/<code>rsuffix</code> for overlapping column names, <code>sort</code> for key ordering, and <code>validate</code> to catch unexpected duplicate keys.</p>`,
+      mergeconcat: `
+        <h4><code>merge</code> vs <code>concat</code></h4>
+        <p><strong><code>merge</code> matches rows by a key</strong>, like a SQL JOIN. <strong><code>concat</code> stacks tables</strong>, either on top of each other or side by side, with no key matching.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%"></th><th style="width:40%"><code>merge()</code></th><th style="width:40%"><code>concat()</code></th></tr>
+          <tr><td><strong>Core idea</strong></td><td>Combine rows that share a key value</td><td>Glue tables together along an axis</td></tr>
+          <tr><td><strong>Key matching</strong></td><td>Yes: <code>on=</code>, or <code>left_on=</code> / <code>right_on=</code></td><td>No: aligns on index (rows) or column names</td></tr>
+          <tr><td><strong>Default join type</strong></td><td><code>inner</code> (matching keys only)</td><td><code>outer</code> (keep everything)</td></tr>
+          <tr><td><strong>Join types</strong></td><td><code>inner</code>, <code>left</code>, <code>right</code>, <code>outer</code>, <code>cross</code></td><td><code>outer</code> or <code>inner</code> only (<code>join=</code>)</td></tr>
+          <tr><td><strong>Direction</strong></td><td>Adds columns from the other table</td><td><code>axis=0</code> stacks rows; <code>axis=1</code> places side by side</td></tr>
+          <tr><td><strong>Number of tables</strong></td><td>Two at a time</td><td>Any number, passed as a list</td></tr>
+          <tr><td><strong>SQL equivalent</strong></td><td><code>JOIN</code></td><td><code>UNION ALL</code> (for <code>axis=0</code>)</td></tr>
+          <tr><td><strong>Typical use</strong></td><td>Customers + orders by <code>customer_id</code></td><td>Monthly files combined into one table</td></tr>
+        </table>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">import pandas as pd
+a = pd.DataFrame({"id": [1, 2, 3], "name": ["Ann", "Bob", "Cy"]})
+b = pd.DataFrame({"id": [2, 3, 4], "score": [80, 90, 70]})</pre>
+        <pre style="margin-bottom:2px"># merge (default inner): only ids present in both tables
+a.merge(b, on="id")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id name  score
+0   2  Bob     80
+1   3   Cy     90</pre>
+        <pre style="margin-bottom:2px"># merge how="left": all rows of a; Ann has no match, so score is NaN
+a.merge(b, on="id", how="left")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id name  score
+0   1  Ann    NaN
+1   2  Bob   80.0
+2   3   Cy   90.0</pre>
+        <pre style="margin-bottom:2px"># merge how="outer": every id from either table
+a.merge(b, on="id", how="outer")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id name  score
+0   1  Ann    NaN
+1   2  Bob   80.0
+2   3   Cy   90.0
+3   4  NaN   70.0</pre>
+        <pre style="margin-bottom:2px"># concat axis=0: stack rows (same columns)
+pd.concat([a, a], ignore_index=True)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id name
+0   1  Ann
+1   2  Bob
+2   3   Cy
+3   1  Ann
+4   2  Bob
+5   3   Cy</pre>
+        <pre style="margin-bottom:2px"># concat axis=0 with different columns: union of columns, gaps are NaN
+pd.concat([a, b])</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id name  score
+0   1  Ann    NaN
+1   2  Bob    NaN
+2   3   Cy    NaN
+0   2  NaN   80.0
+1   3  NaN   90.0
+2   4  NaN   70.0</pre>
+        <pre style="margin-bottom:2px"># join="inner": keep only the shared columns
+pd.concat([a, b], join="inner")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id
+0   1
+1   2
+2   3
+0   2
+1   3
+2   4</pre>
+        <pre style="margin-bottom:2px"># concat axis=1: aligned on row position, NOT on id (Ann sits next to id 2's score)
+pd.concat([a, b], axis=1)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   id name  id  score
+0   1  Ann   2     80
+1   2  Bob   3     90
+2   3   Cy   4     70</pre>
+        <pre style="margin-bottom:2px"># concat keeps the original index, so labels can repeat
+x = pd.DataFrame({"v": [1, 2]})
+y = pd.DataFrame({"v": [3]})
+pd.concat([x, y]).index.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[0, 1, 0]</pre>
+        <pre style="margin-bottom:2px">pd.concat([x, y], ignore_index=True).index.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[0, 1, 2]</pre>
+        <p><strong>Watch out:</strong> <code>concat(axis=1)</code> does not match on <code>id</code>. It aligns on the row index, so rows can pair up wrongly and you get two <code>id</code> columns. Use <code>merge</code> when rows must be matched by a key. <code>concat</code> also keeps each table's original index, so pass <code>ignore_index=True</code> to renumber.</p>
+        <p><strong>Rule of thumb:</strong> same columns, more rows (monthly files) → <code>concat</code>. Different columns about the same entities → <code>merge</code>.</p>
+        <h4>Category map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Combine two or more tables"]):::root
+
+    ROOT --&gt; M["merge&lt;br/&gt;match rows by a KEY"]:::merge
+    ROOT --&gt; C0["concat axis=0&lt;br/&gt;stack rows"]:::cat0
+    ROOT --&gt; C1["concat axis=1&lt;br/&gt;side by side"]:::cat1
+
+    M --&gt; M1["a.merge(b, on='id', how='left')"]:::code
+    M1 --&gt; M2["Like SQL JOIN: inner, left, right, outer, cross"]:::note
+    M2 --&gt; M3["Use: customers + orders by customer_id"]:::use
+    M3 --&gt; M4["Default how = inner; unmatched rows become NaN"]:::opt
+
+    C0 --&gt; C01["pd.concat([a, b], ignore_index=True)"]:::code
+    C01 --&gt; C02["Like SQL UNION ALL; no key; any number of tables"]:::note
+    C02 --&gt; C03["Use: monthly files with the same columns"]:::use
+    C03 --&gt; C04["Different columns: union with NaN; join='inner' keeps shared only"]:::opt
+
+    C1 --&gt; C11["pd.concat([a, b], axis=1)"]:::code
+    C11 --&gt; C12["Aligns on INDEX position, not on a key"]:::note
+    C12 --&gt; C13["Use: add columns when rows already line up"]:::use
+    C13 --&gt; C14["Risk: wrong pairing and duplicate columns"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef merge fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef cat0 fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef cat1 fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>`,
       example: `
         <h4>Worked example: employees and departments</h4>
         <pre>import pandas as pd
@@ -5751,6 +6127,21 @@ df = pd.read_csv("temp.csv", encoding="latin1")</pre>
   { cat: "feature-engineering", q: "What is feature engineering vs. pre-processing?", a: "Pre-processing cleans existing data; feature engineering creates new variables from that cleaned data to better capture patterns." },
   { cat: "feature-engineering", q: "What is feature leakage and why dangerous?", a: "Using info not actually available at prediction time — makes a model look accurate in development while being useless or wrong once deployed." },
   { cat: "feature-engineering", q: "One-hot vs. label encoding — when use each?", a: "One-hot for unordered categories with manageable cardinality; label/ordinal only when categories have a genuine order." },
+ { cat: "feature-engineering", q: "pd.cut vs pd.qcut: what's the difference?", a: `<code>pd.cut</code> bins by <strong>value ranges</strong> (fixed width or your own edges), so the number of rows per bin is uneven. <code>pd.qcut</code> bins by <strong>quantiles</strong>, so each bin holds about the same number of rows but the widths vary.
+<pre>pd.cut(ages, bins=[0, 18, 40, 100], labels=["young", "mid", "senior"])   \# you pick the edges
+pd.qcut(ages, 4, labels=["Q1", "Q2", "Q3", "Q4"])                       \# 2 rows in each of 4 bins</pre>
+<div class="fb-explain">Use <code>cut</code> when thresholds have meaning (age bands, score tiers) and <code>qcut</code> for quartiles, deciles and RFM scores. <code>qcut</code> raises <code>ValueError: Bin edges must be unique</code> when many values repeat; pass <code>duplicates="drop"</code>.</div>` },
+ { cat: "feature-engineering", q: "In pd.cut, why does a value on a bin edge land where it does, and why do I get NaN?", a: `By default <code>right=True</code>, so bins are closed on the right: <code>(0, 18]</code> includes 18. With <code>right=False</code> they are <code>[18, 40)</code> and 18 moves to the next bin. The first edge itself is excluded by default, so a value equal to it becomes <code>NaN</code> unless you pass <code>include_lowest=True</code>. Values outside all edges are also <code>NaN</code>.
+<pre>pd.cut(s, bins=[0, 18, 40], right=False)
+pd.cut(s, bins=[0, 18, 40], include_lowest=True)</pre>
+<div class="fb-explain">After binning, always check <code>binned.value_counts()</code> and <code>binned.isna().sum()</code> to catch values that fell outside the edges.</div>` },
+ { cat: "joins", q: "merge vs concat: what's the difference?", a: `<code>merge</code> matches rows by a <strong>key</strong> (like a SQL JOIN) and adds columns from the other table. <code>concat</code> <strong>stacks</strong> tables along an axis with no key matching: <code>axis=0</code> adds rows (like <code>UNION ALL</code>), <code>axis=1</code> places tables side by side.
+<pre>a.merge(b, on="id", how="left")           \# match by key
+pd.concat([jan, feb, mar], ignore_index=True)   \# stack monthly files</pre>
+<div class="fb-explain">Same columns, more rows: <code>concat</code>. Different columns about the same entities: <code>merge</code>. <code>merge</code> defaults to <code>inner</code>; <code>concat</code> defaults to <code>outer</code>.</div>` },
+ { cat: "joins", q: "Why is pd.concat(axis=1) risky for combining columns?", a: `It aligns on the row <strong>index</strong>, not on a key column, so rows that should match can end up paired with the wrong partner, and you get duplicate key columns.
+<pre>pd.concat([a, b], axis=1)   \# Ann (id 1) lands next to the score for id 2</pre>
+<div class="fb-explain">Use <code>merge</code> (or set the key as the index and use <code>join</code>) when rows must be matched by value. Also remember <code>concat</code> keeps each table's original index, so use <code>ignore_index=True</code> when stacking rows.</div>` },
   { cat: "feature-engineering", q: "Why can one-hot encoding be a problem with high cardinality?", a: "It creates one column per unique category — thousands of categories means thousands of sparse columns; consider frequency/target encoding instead." },
   { cat: "feature-engineering", q: "Why does feature scaling matter for some models but not others?", a: "Distance/gradient-based models (k-NN, linear/logistic regression) are sensitive to magnitude; tree-based models split per-feature independently, so scale doesn't matter." },
   { cat: "feature-engineering", q: "How create an aggregation feature without leaking future info?", a: "Compute it using only data available up to that row's point in time — e.g. a cumulative/rolling average after sorting by date." },
@@ -5817,6 +6208,15 @@ df.at[101, 'C']   \# fast scalar by label
 \# iloc/loc also work for a single value, just slower for that specific case</pre>` },
   { cat: "pandas-filtering", q: "Why does df['col1','col2'] fail, while df[['col1','col2']] works?", a: `A single pair of brackets with a comma is interpreted as one tuple label, not two column names — pandas looks for a column literally named <code>('col1','col2')</code> and raises a <code>KeyError</code>. Double brackets pass an actual list of column names, which pandas resolves correctly.
 <pre>df[['col1', 'col2']]   \# correct -- returns a DataFrame with both columns</pre>` },
+ { cat: "pandas-filtering", q: "When should you use df.col versus df['col']?", a: `Use <code>df['col']</code> by default. It always works, while the dot form only works for simple names that don't clash with a DataFrame method or attribute.
+<pre>df.sales               \# works only if the name is a valid identifier
+df['first name']       \# needed when the name has a space
+df.count               \# returns the METHOD, not your 'count' column
+df['count']            \# returns your column
+col = 'sales'
+df[col]                \# works; df.col would look for a column named 'col'
+df['new'] = values     \# creates a column; df.new = values does not</pre>
+<div class="fb-explain">Dot access is attribute access, so it fails on names with spaces or leading digits, silently returns a method when the name matches one (<code>count</code>, <code>size</code>, <code>mean</code>, <code>T</code>, <code>shape</code>), and cannot take a name stored in a variable. It also cannot create new columns, so <code>df.new = [...]</code> only gives a warning.</div>` },
   { cat: "pandas-filtering", q: "How do you filter rows on multiple conditions in pandas?", a: `Wrap each condition in parentheses and join with <code>&amp;</code> (AND) or <code>|</code> (OR) — never Python's <code>and</code>/<code>or</code>, which don't work element-wise on a Series.
 <pre>df[(df['Age'] &gt; 30) &amp; (df['Salary'] &lt; 80000)]</pre>
 <div class="fb-explain">Parentheses are required around each condition because <code>&amp;</code> has higher operator precedence than comparison operators in Python — without them, the expression parses incorrectly.</div>` },
@@ -5953,7 +6353,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
