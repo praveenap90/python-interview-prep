@@ -555,7 +555,7 @@
       <a class="btn" href="#modules">Explore Modules →</a>
     </div>
     <div class="stat-row">
-      <div class="stat"><b>8</b><span>MODULES</span></div>
+      <div class="stat"><b id="stat-modules">8</b><span>MODULES</span></div>
       <div class="stat"><b id="stat-flashcards">0</b><span>FLASH CARDS</span></div>
       <div class="stat"><b id="stat-quiz">0</b><span>QUIZ QUESTIONS</span></div>
     </div>
@@ -564,7 +564,7 @@
 
 <section id="modules">
   <div class="wrap">
-    <p class="section-label">▸ fourteen modules</p>
+    <p class="section-label">▸ sixteen modules</p>
     <h2>Click a module to explore</h2>
     <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
     <div class="module-grid" id="module-grid"></div>
@@ -1882,6 +1882,119 @@ total = 0
 for chunk in pd.read_csv("data.csv", chunksize=100_000):
     total += chunk["amount"].sum()</pre>
         <p><code>where</code> and <code>mask</code> are mirror images: <code>where(cond, other)</code> keeps values where the condition is True, <code>mask(cond, other)</code> replaces them. Parquet files (<code>to_parquet</code>) need the <code>pyarrow</code> package installed and are far smaller and faster than CSV.</p>`,
+      identifiers: `
+        <h4>Excluding identifiers from modelling</h4>
+        <p>An <strong>identifier</strong> (<code>customer_id</code>, <code>order_id</code>, row number, <code>email</code>, phone) names a row. It describes no real property of the customer or order, so it shouldn't be a model input.</p>
+        <h4>Why exclude them</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:30%">Reason</th><th style="width:70%">What goes wrong</th></tr>
+          <tr><td><strong>No real predictive signal</strong></td><td>A unique value per row can't generalize to new rows</td></tr>
+          <tr><td><strong>Memorization and overfitting</strong></td><td>The model can learn "ID 417 → churned", which is useless on new customers</td></tr>
+          <tr><td><strong>Accidental leakage</strong></td><td>If IDs are assigned in an order that tracks the target (signup date, a sorted file), the model reads the ordering instead of the behavior</td></tr>
+          <tr><td><strong>High cardinality</strong></td><td>One-hot encoding an ID creates one column per row</td></tr>
+          <tr><td><strong>Meaningless numbers</strong></td><td>ID 500 isn't "bigger" than ID 400 in any useful sense, but tree and linear models treat it as if it were</td></tr>
+          <tr><td><strong>Privacy and fairness</strong></td><td>Names, emails and similar fields identify people and can act as proxies for sensitive traits</td></tr>
+        </table>
+        <h4>How to spot identifiers</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:35%">Check</th><th style="width:65%">Code</th></tr>
+          <tr><td><strong>Every value unique</strong></td><td><code>df.nunique() / len(df)</code> close to 1.0</td></tr>
+          <tr><td><strong>Name pattern</strong></td><td>Columns ending in <code>_id</code>, <code>id</code>, <code>key</code>, <code>uuid</code>, <code>email</code></td></tr>
+          <tr><td><strong>Sequential integers</strong></td><td><code>df["col"].is_monotonic_increasing</code></td></tr>
+          <tr><td><strong>Text column with huge cardinality</strong></td><td><code>df.select_dtypes("object").nunique()</code></td></tr>
+        </table>
+        <h4>Real demonstration</h4>
+        <pre style="margin-bottom:2px">import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+rng = np.random.default_rng(1)
+n = 600
+df = pd.DataFrame({"customer_id": np.arange(n),
+                   "age": rng.integers(20, 70, n),
+                   "income": rng.normal(50, 15, n)})
+df["churn"] = (((df.age &lt; 35) &amp; (df.income &lt; 50)) | (rng.random(n) &lt; .15)).astype(int)
+
+# The file was sorted by the target, so IDs now track it (a common accident)
+df = df.sort_values("churn").reset_index(drop=True)
+df["customer_id"] = np.arange(n)
+train, test = train_test_split(df, test_size=.3, random_state=0)
+df.head(3)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   customer_id  age     income  churn
+0            0   45  23.346923      0
+1            1   62  43.725810      0
+2            2   31  57.357252      0</pre>
+        <pre style="margin-bottom:2px"># 1) Spot identifiers: share of unique values per column
+(df.nunique() / len(df)).round(2).to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'customer_id': 1.0, 'age': 0.08, 'income': 1.0, 'churn': 0.0}</pre>
+        <pre style="margin-bottom:2px"># 2) Without the ID
+cols = ["age", "income"]
+m = RandomForestClassifier(100, random_state=0).fit(train[cols], train.churn)
+round(accuracy_score(test.churn, m.predict(test[cols])), 2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">0.83</pre>
+        <pre style="margin-bottom:2px"># 3) With the ID: accuracy jumps, but only because of the file ordering (leakage)
+cols = ["customer_id", "age", "income"]
+m = RandomForestClassifier(100, random_state=0).fit(train[cols], train.churn)
+round(accuracy_score(test.churn, m.predict(test[cols])), 2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">0.99</pre>
+        <pre style="margin-bottom:2px"># 4) Exclude it from X but keep it for joining results back
+ids = df["customer_id"]
+X = df.drop(columns=["customer_id", "churn"])
+X.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['age', 'income']</pre>
+        <pre style="margin-bottom:2px"># 5) Don't throw the information away: aggregate an entity ID into features
+orders = pd.DataFrame({"customer_id": [1, 1, 2, 3, 3, 3], "amount": [10, 20, 5, 7, 8, 9]})
+orders.groupby("customer_id")["amount"].agg(["count", "mean"])</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">             count  mean
+customer_id             
+1                2  15.0
+2                1   5.0
+3                3   8.0</pre>
+        <p><strong>Reading step 1:</strong> <code>customer_id</code> is 1.0 (a true identifier), but <code>income</code> is also 1.0 because it is a continuous measurement. A unique ratio near 1.0 is a hint, not proof, so confirm with the column's meaning.</p>
+        <p><strong>Reading the result:</strong> the jump with the ID is leakage from the file's ordering, not real skill. It disappears when IDs are assigned in random order, and it would not hold for new customers.</p>
+        <h4>Exclude, keep or aggregate?</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:45%">Case</th><th style="width:55%">Treatment</th></tr>
+          <tr><td>Row identifier (<code>order_id</code>, <code>uuid</code>, <code>email</code>)</td><td><strong>Exclude</strong> from the model inputs</td></tr>
+          <tr><td>Used for joining or grouping</td><td><strong>Keep it in the table</strong> for <code>merge</code> / <code>groupby</code>, just not in <code>X</code></td></tr>
+          <tr><td>Meaningful code (store code, ZIP, product category)</td><td>It is a <strong>categorical feature</strong>, not a row ID: keep and encode it</td></tr>
+          <tr><td>Entity ID with history (<code>customer_id</code> with many orders)</td><td><strong>Aggregate</strong> it into features (orders per customer) using training data only</td></tr>
+        </table>
+        <h4>Category map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Column that looks like an ID"]):::root
+
+    ROOT --&gt; X["Row identifier&lt;br/&gt;EXCLUDE from the model"]:::excl
+    ROOT --&gt; K["Meaningful code&lt;br/&gt;KEEP as a category"]:::keep
+    ROOT --&gt; A["Entity ID with history&lt;br/&gt;AGGREGATE into features"]:::agg
+
+    X --&gt; X1["df.drop(columns=['customer_id', 'order_id', 'email'])"]:::code
+    X1 --&gt; X2["Unique per row: nothing to generalize from"]:::note
+    X2 --&gt; X3["Examples: row number, UUID, order_id, email, phone"]:::use
+    X3 --&gt; X4["Risk if kept: memorizing, leakage via ordering"]:::opt
+
+    K --&gt; K1["df['store_code'] = df['store_code'].astype('category')"]:::code
+    K1 --&gt; K2["Shared by many rows, carries real meaning"]:::note
+    K2 --&gt; K3["Examples: store code, ZIP, product category"]:::use
+    K3 --&gt; K4["Caution: high cardinality needs frequency or target encoding"]:::opt
+
+    A --&gt; A1["df.groupby('customer_id')['amount'].agg(['count', 'mean'])"]:::code
+    A1 --&gt; A2["Turns the ID's history into numeric features"]:::note
+    A2 --&gt; A3["Examples: orders per customer, average basket"]:::use
+    A3 --&gt; A4["Compute on training data only, to avoid leakage"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef excl fill:#d63031,stroke:#8c1f20,color:#fff,stroke-width:2px
+    classDef keep fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef agg fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>`,
       example: `
         <h4>Real-world example</h4>
         <p>A nightly pipeline ingests order data from three regional systems with different date/currency/status formats. Pre-processing parses each region's format explicitly, standardizes status codes to one vocabulary, and quarantines (rather than crashes on) rows that fail — often 70%+ of the real engineering effort in a pipeline.</p>
@@ -5298,7 +5411,1286 @@ df.to_sql("employees_clean", engine, if_exists="replace", index=False)</pre>
           <li>Forgetting the <code>warehouse</code> in a Snowflake connection: queries cannot run without one</li>
         </ul>`
     }
+  },
+  {
+    id: "premodel",
+    icon: "🧭",
+    title: "Pre-Modelling Data Prep",
+    tagline: "raw rows to model-ready features",
+    desc: "The full sequence before a model: row granularity, column prep, missing values, type conversion, datetime features, dummies, feature engineering, selection and scaling.",
+    tags: ["granularity", "missing values", "feature engineering", "scaling"],
+    tabs: {
+      overview: `
+        <h4>Pre-modelling data prep: the order of operations</h4>
+        <p>A model needs a clean, numeric table with one row per example. Pre-modelling prep turns raw data into that, in a fixed order: <strong>data prep</strong> (steps 1 to 9), then <strong>feature engineering</strong>, <strong>feature selection</strong> and <strong>feature scaling</strong>. Each tab shows one stage with real code and outputs, and the last tab runs the whole chain end to end.</p>
+        
+        <h4>The stages at a glance</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:19%">Stage</th><th style="width:25%">Question it answers</th><th style="width:29%">Key tools</th><th style="width:27%">Common pitfall</th></tr>
+          <tr><td><strong>1. Row granularity</strong></td><td>What does one row represent?</td><td><code>is_unique</code>, <code>drop_duplicates</code>, <code>groupby</code></td><td>Merging tables with repeated keys multiplies rows</td></tr>
+          <tr><td><strong>2. Prepare columns</strong></td><td>Are names and values consistent?</td><td><code>str.strip</code>, <code>str.lower</code>, <code>rename</code></td><td><code>East</code> / <code>EAST</code> / <code>"  East"</code> counted as 3 categories</td></tr>
+          <tr><td><strong>3. Identify missing</strong></td><td>Where are values missing, including hidden ones?</td><td><code>isna().sum()</code>, <code>isin(["N/A"])</code></td><td>Placeholders like <code>"N/A"</code> look like real data</td></tr>
+          <tr><td><strong>4. Handle missing</strong></td><td>Drop, fill or flag?</td><td><code>dropna</code>, <code>fillna</code>, <code>ffill</code>, missing flag</td><td>Filling with the full-data mean leaks test information</td></tr>
+          <tr><td><strong>5. Convert to numeric</strong></td><td>Can arithmetic work on it?</td><td><code>pd.to_numeric(errors="coerce")</code></td><td><code>$1,200</code> becomes NaN unless symbols are stripped first</td></tr>
+          <tr><td><strong>6. Convert to datetime</strong></td><td>Does pandas know it is a date?</td><td><code>pd.to_datetime(format=...)</code></td><td>Day-first dates parsed as month-first</td></tr>
+          <tr><td><strong>7. Extract datetime parts</strong></td><td>Which parts carry signal?</td><td><code>.dt.month</code>, <code>.dt.dayofweek</code></td><td>Using <code>df.col.month</code> without <code>.dt</code></td></tr>
+          <tr><td><strong>8. Condition-based columns</strong></td><td>Do I need a rule-based value?</td><td><code>np.where</code>, <code>np.select</code></td><td><code>np.select</code> without a default</td></tr>
+          <tr><td><strong>9. Dummy variables</strong></td><td>How do I feed categories to a model?</td><td><code>pd.get_dummies(drop_first=True)</code></td><td>Dummy trap: keeping every level plus an intercept</td></tr>
+          <tr><td><strong>Feature engineering</strong></td><td>Which new columns help?</td><td><code>pd.cut</code>, <code>groupby().transform</code>, <code>pct_change</code></td><td>Proxy variables and identifiers sneaking in</td></tr>
+          <tr><td><strong>Feature selection</strong></td><td>Which columns can I drop?</td><td><code>VarianceThreshold</code>, <code>corr</code>, importances, L1</td><td>Selecting on the full data, including the test rows</td></tr>
+          <tr><td><strong>Feature scaling</strong></td><td>Are features on comparable scales?</td><td><code>MinMaxScaler</code>, <code>StandardScaler</code></td><td>Fitting the scaler before the train/test split</td></tr>
+        </table>
+        <h4>Stage map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    RAW(["Raw data"]):::root
+    subgraph P1["&lt;b style='color:#2d3436'&gt;1 · Data prep&lt;/b&gt;"]
+        direction TB
+        A1["Row granularity"] --&gt; A2["Prepare columns"] --&gt; A3["Identify missing"] --&gt; A4["Handle missing"] --&gt; A5["Convert to numeric"] --&gt; A6["Convert to datetime"] --&gt; A7["Extract datetime parts"] --&gt; A8["Calculate on a condition"] --&gt; A9["Dummy variables"]
+    end
+    subgraph P2["&lt;b style='color:#2d3436'&gt;2 · Feature engineering&lt;/b&gt;"]
+        direction TB
+        B1["Binning values"] --&gt; B2["Identify proxy variables"] --&gt; B3["Percent and rate calculations"] --&gt; B4["Exclude identifiers"]
+    end
+    subgraph P3["&lt;b style='color:#2d3436'&gt;3 · Feature selection&lt;/b&gt;"]
+        direction TB
+        C1["Low variance"] --&gt; C2["Correlation filter"] --&gt; C3["Importance, univariate, L1"]
+    end
+    subgraph P4["&lt;b style='color:#2d3436'&gt;4 · Feature scaling&lt;/b&gt;"]
+        direction TB
+        D1["Normalization (min-max)"] --&gt; D2["Standardization (z-score)"] --&gt; D3["Fit on train data only"]
+    end
+    MODEL(["Model-ready table"]):::done
+    RAW --&gt; P1 --&gt; P2 --&gt; P3 --&gt; P4 --&gt; MODEL
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef done fill:#2d3436,stroke:#000,color:#fff,stroke-width:2px
+    classDef s1 fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef s2 fill:#00b894,stroke:#007a63,color:#fff
+    classDef s3 fill:#e84393,stroke:#a8286d,color:#fff
+    classDef s4 fill:#e17055,stroke:#a8402a,color:#fff
+    class A1,A2,A3,A4,A5,A6,A7,A8,A9 s1
+    class B1,B2,B3,B4 s2
+    class C1,C2,C3 s3
+    class D1,D2,D3 s4
+    style P1 fill:#e8f2fc,stroke:#0984e3,color:#2d3436
+    style P2 fill:#e6f7f2,stroke:#00b894,color:#2d3436
+    style P3 fill:#fce8f2,stroke:#e84393,color:#2d3436
+    style P4 fill:#fdece7,stroke:#e17055,color:#2d3436
+</div></div>
+        <p><strong>The golden rule:</strong> split into train and test <strong>before</strong> learning anything from the data. Filling with a median, choosing features and fitting a scaler all learn from the data, so fit them on the training rows only and apply them to the test rows.</p>
+        
+        <h4>Where to find the deep dives</h4>
+        <ul>
+          <li><strong>Datetime, Numeric, Missing &amp; Dummies:</strong> steps 3 to 9 in more depth</li>
+          <li><strong>Pre-processing:</strong> cleaning charts and the <em>Exclude Identifiers</em> tab</li>
+          <li><strong>Feature Engineering:</strong> <em>Binning</em> and <em>Conditional Logic</em> tabs</li>
+          <li><strong>Regex &amp; Text Cleaning:</strong> cleaning text columns in step 2</li>
+        </ul>`,
+      dataprep: `
+        <h4>Step map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    RAW(["Raw table"]):::root
+    subgraph G1["&lt;b style='color:#2d3436'&gt;Structure&lt;/b&gt;"]
+        direction TB
+        S1["1. Row granularity&lt;br/&gt;is_unique, drop_duplicates"] --&gt; S2["2. Prepare columns&lt;br/&gt;strip, lower, rename"]
+    end
+    subgraph G2["&lt;b style='color:#2d3436'&gt;Missing values&lt;/b&gt;"]
+        direction TB
+        M1["3. Identify missing&lt;br/&gt;isna().sum(), isin placeholders"] --&gt; M2["4. Handle missing&lt;br/&gt;flag, dropna, fillna"]
+    end
+    subgraph G3["&lt;b style='color:#2d3436'&gt;Data types&lt;/b&gt;"]
+        direction TB
+        T1["5. Convert to numeric&lt;br/&gt;pd.to_numeric coerce"] --&gt; T2["6. Convert to datetime&lt;br/&gt;pd.to_datetime format"]
+    end
+    subgraph G4["&lt;b style='color:#2d3436'&gt;New columns&lt;/b&gt;"]
+        direction TB
+        N1["7. Extract datetime parts&lt;br/&gt;.dt.month, .dt.dayofweek"] --&gt; N2["8. Calculate on a condition&lt;br/&gt;np.where, np.select"] --&gt; N3["9. Dummy variables&lt;br/&gt;pd.get_dummies drop_first"]
+    end
+    OUT(["Clean, numeric table"]):::done
+    RAW --&gt; G1 --&gt; G2 --&gt; G3 --&gt; G4 --&gt; OUT
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef done fill:#2d3436,stroke:#000,color:#fff,stroke-width:2px
+    classDef a fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef b fill:#e17055,stroke:#a8402a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e84393,stroke:#a8286d,color:#fff
+    class S1,S2 a
+    class M1,M2 b
+    class T1,T2 c
+    class N1,N2,N3 d
+    style G1 fill:#e8f2fc,stroke:#0984e3,color:#2d3436
+    style G2 fill:#fdece7,stroke:#e17055,color:#2d3436
+    style G3 fill:#e6f7f2,stroke:#00b894,color:#2d3436
+    style G4 fill:#fce8f2,stroke:#e84393,color:#2d3436
+</div></div>
+        <h4>Our raw data</h4>
+        <p>One messy orders table runs through every step below, so you can watch each problem get fixed. Every output is real.</p>
+        <pre style="margin-bottom:2px">import numpy as np
+import pandas as pd
+
+raw = pd.DataFrame({
+    "Order ID":    [101, 102, 102, 103, 104, 105, 106, 107],
+    "Customer ID": [1, 2, 2, 1, 3, 4, 2, 5],
+    "Order Date":  ["2024-01-05", "2024-01-17", "2024-01-17", "2024-02-03", "03/02/2024", "2024-03-15", "2024-03-28", "bad date"],
+    " Region ":    ["East", "west ", "west ", "East", "North", "  West", "EAST", "North"],
+    "Amount":      ["$1,200", "350", "350", "N/A", "99.5", "$2,000", "450", "75"],
+    "Channel":     ["web", "store", "store", "web", "app", "web", "app", "store"],
+    "Status":      ["done", "done", "done", "cancelled", "done", "done", "done", "done"],
+})
+raw</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   Order ID  Customer ID  Order Date  Region   Amount Channel     Status
+0       101            1  2024-01-05     East  $1,200     web       done
+1       102            2  2024-01-17    west      350   store       done
+2       102            2  2024-01-17    west      350   store       done
+3       103            1  2024-02-03     East     N/A     web  cancelled
+4       104            3  03/02/2024    North    99.5     app       done
+5       105            4  2024-03-15     West  $2,000     web       done
+6       106            2  2024-03-28     EAST     450     app       done
+7       107            5    bad date    North      75   store       done</pre>
+        
+        <h4>1. Set the row granularity</h4>
+        <p><strong>Granularity</strong> is what one row represents (one order, one customer, one customer per month). Decide it first, because every later step (joins, aggregates, the target) depends on it. Check that the grain's key is unique, remove duplicates, and change the grain deliberately with <code>groupby</code>.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:30%">Grain</th><th style="width:35%">Key that must be unique</th><th style="width:35%">Typical use</th></tr>
+          <tr><td>One row per order</td><td><code>order_id</code></td><td>Order-level model (will this order be cancelled?)</td></tr>
+          <tr><td>One row per customer</td><td><code>customer_id</code></td><td>Customer churn or segmentation</td></tr>
+          <tr><td>One row per customer per month</td><td><code>customer_id</code> + <code>month</code></td><td>Monthly behavior over time</td></tr>
+        </table><pre style="margin-bottom:2px"># 1. Row granularity: what does ONE row mean? Here: one row per order.
+# Check that the key really is unique at that grain
+raw["Order ID"].is_unique</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">False</pre>
+        <pre style="margin-bottom:2px"># Which rows break the grain?
+raw[raw.duplicated(subset=["Order ID"], keep=False)]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   Order ID  Customer ID  Order Date  Region  Amount Channel Status
+1       102            2  2024-01-17    west     350   store   done
+2       102            2  2024-01-17    west     350   store   done</pre>
+        <pre style="margin-bottom:2px"># Fix: keep one row per order
+df = raw.drop_duplicates(subset=["Order ID"]).copy()
+df.shape</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">(7, 7)</pre>
+        <pre style="margin-bottom:2px"># Changing the grain on purpose: orders -&gt; one row per customer
+df.groupby("Customer ID").size().rename("orders").reset_index()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   Customer ID  orders
+0            1       2
+1            2       2
+2            3       1
+3            4       1
+4            5       1</pre>
+        <p><strong>Watch out:</strong> merging a one-row-per-customer table onto an order table is fine, but merging two tables with repeated keys multiplies rows (fan-out) and silently changes the grain. Check <code>len</code> before and after every merge.</p>
+        
+        <h4>2. Prepare the columns</h4>
+        <p>Make names and values consistent before anything else: strip spaces, lower-case, snake_case names, and define the target.</p>
+        <pre style="margin-bottom:2px"># 2. Prepare columns. First look at the raw names: note the stray spaces in ' Region '
+df.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['Order ID', 'Customer ID', 'Order Date', ' Region ', 'Amount', 'Channel', 'Status']</pre>
+        <pre style="margin-bottom:2px"># Consistent names, trimmed and lower-cased text
+df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+df["region"] = df["region"].str.strip().str.lower()
+df["channel"] = df["channel"].str.strip().str.lower()
+df.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['order_id', 'customer_id', 'order_date', 'region', 'amount', 'channel', 'status']</pre>
+        <pre style="margin-bottom:2px"># Categories are now consistent (East / EAST / "  West" no longer split)
+df["region"].value_counts().to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'east': 3, 'west': 2, 'north': 2}</pre>
+        <pre style="margin-bottom:2px"># Define the target and drop the column it came from
+df["completed"] = (df["status"] == "done").astype(int)
+df = df.drop(columns=["status"])
+df.dtypes.astype(str).to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'order_id': 'int64', 'customer_id': 'int64', 'order_date': 'str', 'region': 'str', 'amount': 'str', 'channel': 'str', 'completed': 'int64'}</pre>
+        
+        <h4>3. Identify missing values</h4>
+        <pre style="margin-bottom:2px"># 3. Identify missing values. isna() only sees real NaN...
+df.isna().sum().to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'order_id': 0, 'customer_id': 0, 'order_date': 0, 'region': 0, 'amount': 0, 'channel': 0, 'completed': 0}</pre>
+        <pre style="margin-bottom:2px"># ...but placeholders hide as text. Look for them explicitly
+placeholders = ["N/A", "bad date", ""]
+df.isin(placeholders).sum().to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'order_id': 0, 'customer_id': 0, 'order_date': 1, 'region': 0, 'amount': 1, 'channel': 0, 'completed': 0}</pre>
+        <pre style="margin-bottom:2px"># Turn placeholders into real NaN, then measure the share missing per column
+df = df.replace(placeholders, np.nan)
+(df.isna().mean() * 100).round(1).to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'order_id': 0.0, 'customer_id': 0.0, 'order_date': 14.3, 'region': 0.0, 'amount': 14.3, 'channel': 0.0, 'completed': 0.0}</pre>
+        
+        <h4>4. Handle missing values</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Strategy</th><th style="width:45%">Code</th><th style="width:35%">Use when</th></tr>
+          <tr><td><strong>Drop rows</strong></td><td><code>df.dropna(subset=[col])</code></td><td>A required field is missing and cannot be recovered</td></tr>
+          <tr><td><strong>Drop a column</strong></td><td><code>df.drop(columns=[col])</code></td><td>Mostly missing (for example over 60%) and not essential</td></tr>
+          <tr><td><strong>Fill with a constant</strong></td><td><code>df[col].fillna(0)</code></td><td>Missing genuinely means zero or none</td></tr>
+          <tr><td><strong>Fill with median or mean</strong></td><td><code>df[col].fillna(df[col].median())</code></td><td>Numeric, no strong pattern; learn it on training data only</td></tr>
+          <tr><td><strong>Fill by group</strong></td><td><code>df[col].fillna(df.groupby(g)[col].transform("median"))</code></td><td>Values differ by segment</td></tr>
+          <tr><td><strong>Forward fill</strong></td><td><code>df[col].ffill()</code></td><td>Time series where the last value carries forward</td></tr>
+          <tr><td><strong>Add a missing flag</strong></td><td><code>df[col + "_missing"] = df[col].isna().astype(int)</code></td><td>The fact that it is missing may be informative</td></tr>
+        </table><pre style="margin-bottom:2px"># 4. Handle missing values: flag first, so the model can learn from "was missing"
+df["amount_missing"] = df["amount"].isna().astype(int)
+df[["order_id", "amount", "amount_missing"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id  amount  amount_missing
+0       101  $1,200               0
+1       102     350               0
+3       103     NaN               1
+4       104    99.5               0
+5       105  $2,000               0
+6       106     450               0
+7       107      75               0</pre>
+        <pre style="margin-bottom:2px"># Dropping is a choice: drop rows only where a REQUIRED field is missing
+df.dropna(subset=["order_date"]).shape, df.shape</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">((6, 8), (7, 8))</pre>
+        
+        <h4>5. Convert to numeric</h4>
+        <pre style="margin-bottom:2px"># 5. Convert to numeric: strip symbols first, then coerce what is left
+df["amount"] = pd.to_numeric(df["amount"].str.replace(r"[$,]", "", regex=True), errors="coerce")
+df["amount"].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[1200.0, 350.0, nan, 99.5, 2000.0, 450.0, 75.0]</pre>
+        <pre style="margin-bottom:2px"># Now fill the gap. Median is robust to outliers (learn it on TRAIN data in a real model)
+median = float(df["amount"].median())
+df["amount"] = df["amount"].fillna(median)
+median, df["amount"].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">(400.0, [1200.0, 350.0, 400.0, 99.5, 2000.0, 450.0, 75.0])</pre>
+        
+        <h4>6. Convert to datetime</h4>
+        <pre style="margin-bottom:2px"># 6. Convert to datetime: be explicit about the format; bad values become NaT
+df["order_date"] = pd.to_datetime(df["order_date"], format="%Y-%m-%d", errors="coerce")
+df[["order_id", "order_date"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id order_date
+0       101 2024-01-05
+1       102 2024-01-17
+3       103 2024-02-03
+4       104        NaT
+5       105 2024-03-15
+6       106 2024-03-28
+7       107        NaT</pre>
+        <pre style="margin-bottom:2px"># 03/02/2024 is day-first, so it failed the ISO format: parse it with its own format
+fix = pd.to_datetime("03/02/2024", format="%d/%m/%Y")
+df.loc[df["order_id"] == 104, "order_date"] = fix
+# the genuinely bad date cannot be recovered: drop that row
+df = df.dropna(subset=["order_date"])
+df[["order_id", "order_date"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id order_date
+0       101 2024-01-05
+1       102 2024-01-17
+3       103 2024-02-03
+4       104 2024-02-03
+5       105 2024-03-15
+6       106 2024-03-28</pre>
+        
+        <h4>7. Extract datetime parts</h4>
+        <pre style="margin-bottom:2px"># 7. Extract datetime parts as features
+d = df["order_date"].dt
+df["month"] = d.month
+df["day_name"] = d.day_name()
+df["is_weekend"] = (d.dayofweek &gt;= 5).astype(int)
+df["days_since_first"] = (df["order_date"] - df["order_date"].min()).dt.days
+df[["order_date", "month", "day_name", "is_weekend", "days_since_first"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">  order_date  month   day_name  is_weekend  days_since_first
+0 2024-01-05      1     Friday           0                 0
+1 2024-01-17      1  Wednesday           0                12
+3 2024-02-03      2   Saturday           1                29
+4 2024-02-03      2   Saturday           1                29
+5 2024-03-15      3     Friday           0                70
+6 2024-03-28      3   Thursday           0                83</pre>
+        
+        <h4>8. Calculate based on a condition</h4>
+        <pre style="margin-bottom:2px"># 8. Calculate based on a condition: 2 outcomes with np.where, 3+ with np.select
+df["high_value"] = np.where(df["amount"] &gt; 500, 1, 0)
+df["size_band"] = np.select([df["amount"] &gt;= 1000, df["amount"] &gt;= 300], ["large", "medium"], default="small")
+df[["amount", "high_value", "size_band"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount  high_value size_band
+0  1200.0           1     large
+1   350.0           0    medium
+3   400.0           0    medium
+4    99.5           0     small
+5  2000.0           1     large
+6   450.0           0    medium</pre>
+        
+        <h4>9. Create dummy variables</h4>
+        <pre style="margin-bottom:2px"># 9. Dummy variables: one 0/1 column per category; drop_first avoids a redundant column
+dummies = pd.get_dummies(df[["channel", "region"]], drop_first=True, dtype=int)
+df = pd.concat([df.drop(columns=["channel", "region"]), dummies], axis=1)
+dummies</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   channel_store  channel_web  region_north  region_west
+0              0            1             0            0
+1              1            0             0            1
+3              0            1             0            0
+4              0            0             1            0
+5              0            1             0            1
+6              0            0             0            0</pre>
+        <pre style="margin-bottom:2px">df.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['order_id', 'customer_id', 'order_date', 'amount', 'completed', 'amount_missing', 'month', 'day_name', 'is_weekend', 'days_since_first', 'high_value', 'size_band', 'channel_store', 'channel_web', 'region_north', 'region_west']</pre>
+        `,
+      features: `
+        <h4>Step map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Feature engineering steps"]):::root
+
+    ROOT --&gt; B["Binning values"]:::bin
+    ROOT --&gt; P["Identify proxy variables"]:::prox
+    ROOT --&gt; C["Percent and rate calculations"]:::calc
+    ROOT --&gt; X["Exclude identifiers"]:::excl
+
+    B --&gt; B1["pd.cut(s, bins=[...]) or pd.qcut(s, 4)"]:::code
+    B1 --&gt; B2["Turns a number into groups"]:::note
+    B2 --&gt; B3["Use: age bands, tiers, quartiles"]:::use
+    B3 --&gt; B4["Check: value_counts() and NaN count"]:::opt
+
+    P --&gt; P1["crosstab, Cramer's V, AUC of predicting the group"]:::code
+    P1 --&gt; P2["Finds features that stand in for a sensitive attribute"]:::note
+    P2 --&gt; P3["Use: ZIP code vs a protected group"]:::use
+    P3 --&gt; P4["AUC near 0.5 = fine, 0.7+ = proxy"]:::opt
+
+    C --&gt; C1["x / x.sum(), transform('sum'), pct_change()"]:::code
+    C1 --&gt; C2["Shares, rates and changes"]:::note
+    C2 --&gt; C3["Use: pct of total, of customer, vs last order"]:::use
+    C3 --&gt; C4["Sort by date before pct_change"]:::opt
+
+    X --&gt; X1["df.drop(columns=['order_id', 'customer_id'])"]:::code
+    X1 --&gt; X2["Row IDs carry no pattern to generalize"]:::note
+    X2 --&gt; X3["Use: keep aside to join predictions back"]:::use
+    X3 --&gt; X4["Aggregate an ID's history instead"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef bin fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef prox fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef calc fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef excl fill:#d63031,stroke:#8c1f20,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>
+        <h4>Binning values</h4>
+        <p>Turn a number into groups (<code>pd.cut</code> for your own edges, <code>pd.qcut</code> for equal-count groups). See the <strong>Binning</strong> tab in the Feature Engineering module for every option and pitfall.</p>
+        <pre style="margin-bottom:2px"># Binning: your own edges (pd.cut) and equal-count groups (pd.qcut)
+df["amount_band"] = pd.cut(df["amount"], bins=[0, 100, 500, 5000], labels=["low", "mid", "high"])
+df["amount_half"] = pd.qcut(df["amount"], 2, labels=["lower_half", "upper_half"])
+df[["amount", "amount_band", "amount_half"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount amount_band amount_half
+0  1200.0        high  upper_half
+1   350.0         mid  lower_half
+3   400.0         mid  lower_half
+4    99.5         low  lower_half
+5  2000.0        high  upper_half
+6   450.0         mid  upper_half</pre>
+        
+        <h4>Identify proxy variables</h4>
+        <p>A <strong>proxy variable</strong> stands in for something else. In modelling the risk is a feature that indirectly encodes a sensitive attribute (ZIP code standing in for a protected group), so removing the sensitive column does not remove the bias. Test it: can the other features predict the sensitive attribute?</p>
+        <pre style="margin-bottom:2px">import numpy as np
+import pandas as pd
+from scipy.stats import chi2_contingency
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
+
+rng = np.random.default_rng(0)
+n = 2000
+group = rng.choice(["A", "B"], n)                       # sensitive attribute (never a model input)
+zip_code = np.where(group == "A",
+                    rng.choice(["z1", "z2", "z3"], n, p=[.7, .2, .1]),
+                    rng.choice(["z1", "z2", "z3"], n, p=[.1, .2, .7]))
+sens = pd.DataFrame({"group": group, "zip": zip_code, "age": rng.integers(20, 60, n)})
+
+# 1) Do the categories split unevenly across the sensitive groups?
+pd.crosstab(sens["zip"], sens["group"], normalize="index").round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">group     A     B
+zip              
+z1     0.87  0.13
+z2     0.48  0.52
+z3     0.11  0.89</pre>
+        <pre style="margin-bottom:2px"># 2) Strength of association (Cramer's V, 0 = none, 1 = perfect)
+table = pd.crosstab(sens["zip"], sens["group"])
+round(float((chi2_contingency(table)[0] / (table.values.sum() * (min(table.shape) - 1))) ** 0.5), 2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">0.68</pre>
+        <pre style="margin-bottom:2px"># 3) Can each feature predict the sensitive attribute? AUC near 0.5 = no, 0.7+ = proxy
+for col in ["age", "zip"]:
+    Xc = pd.get_dummies(sens[[col]], drop_first=True)
+    auc = cross_val_score(LogisticRegression(max_iter=1000), Xc, sens["group"], cv=5, scoring="roc_auc").mean()
+    print(col, round(float(auc), 2))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">age 0.51
+zip 0.86</pre>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:30%">Check</th><th style="width:40%">What it tells you</th><th style="width:30%">Rule of thumb</th></tr>
+          <tr><td>Cross-tab by group</td><td>Whether categories split unevenly across groups</td><td>Large gaps between rows</td></tr>
+          <tr><td>Cramér's V</td><td>Association between two categorical columns</td><td>Closer to 1 is stronger</td></tr>
+          <tr><td>Predict the sensitive attribute (AUC)</td><td>Whether features can recover it</td><td>About 0.5 means no, 0.7 or more means a proxy</td></tr>
+        </table><p><strong>Caution:</strong> a strong link is a warning sign, not proof of unfairness. Also check outcomes by group, and remember combinations of features can act as a proxy even when no single column does.</p>
+        
+        <h4>Apply calculations (percentages and rates)</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:24%">Calculation</th><th style="width:46%">Code</th><th style="width:30%">Meaning</th></tr>
+          <tr><td>Percent of total</td><td><code>x / x.sum() * 100</code></td><td>Share of the whole column</td></tr>
+          <tr><td>Percent within a group</td><td><code>x / df.groupby(g)[col].transform("sum") * 100</code></td><td>Share inside its group (customer, region)</td></tr>
+          <tr><td>Percent change</td><td><code>df[col].pct_change() * 100</code></td><td>Change vs the previous row (sort first)</td></tr>
+          <tr><td>Share of each category</td><td><code>s.value_counts(normalize=True)</code></td><td>Proportions that sum to 1</td></tr>
+          <tr><td>Rate</td><td><code>df[flag].mean()</code></td><td>Share of rows where a 0/1 flag is 1</td></tr>
+        </table><pre style="margin-bottom:2px"># Percent of total, percent within a group, percent change, and a rate
+df = df.sort_values("order_date")
+df["pct_of_total"] = (df["amount"] / df["amount"].sum() * 100).round(1)
+df["pct_of_customer"] = (df["amount"] / df.groupby("customer_id")["amount"].transform("sum") * 100).round(1)
+df["pct_change"] = (df["amount"].pct_change() * 100).round(1)
+df[["order_id", "customer_id", "amount", "pct_of_total", "pct_of_customer", "pct_change"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id  customer_id  amount  pct_of_total  pct_of_customer  pct_change
+0       101            1  1200.0          26.7             75.0         NaN
+1       102            2   350.0           7.8             43.8       -70.8
+3       103            1   400.0           8.9             25.0        14.3
+4       104            3    99.5           2.2            100.0       -75.1
+5       105            4  2000.0          44.4            100.0      1910.1
+6       106            2   450.0          10.0             56.2       -77.5</pre>
+        <pre style="margin-bottom:2px"># Share of each category and an overall rate
+df["size_band"].value_counts(normalize=True).round(2).to_dict(), round(float(df["completed"].mean()), 2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">({'medium': 0.5, 'large': 0.33, 'small': 0.17}, 0.83)</pre>
+        
+        <h4>Exclude identifiers from modelling</h4>
+        <p>Identifiers (<code>order_id</code>, <code>customer_id</code>, <code>email</code>) name a row and carry no pattern that generalizes, so they stay out of the model inputs. Keep them aside for joining predictions back, and aggregate an entity ID's history into features instead. See the <strong>Exclude Identifiers</strong> tab in Pre-processing for the full reasoning.</p>
+        <pre style="margin-bottom:2px"># Find identifier-like columns (every value unique), then keep them out of the model inputs
+id_like = [c for c in ["order_id", "customer_id"] if df[c].nunique() / len(df) &gt; 0.8]
+id_like</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['order_id']</pre>
+        <pre style="margin-bottom:2px">ids = df[["order_id", "customer_id"]]          # kept aside to join predictions back
+features = df.drop(columns=["order_id", "customer_id", "order_date", "day_name", "size_band", "amount_band", "amount_half", "completed"])
+features.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['amount', 'amount_missing', 'month', 'is_weekend', 'days_since_first', 'high_value', 'channel_store', 'channel_web', 'region_north', 'region_west', 'pct_of_total', 'pct_of_customer', 'pct_change']</pre>
+        `,
+      selection: `
+        <h4>Feature selection</h4>
+        <p><strong>Feature selection</strong> keeps the columns that help the model and drops the rest: constants, near-duplicates and noise. Fewer features means faster training, less overfitting and an easier story to explain. Run all selection on training data only.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:26%">Method</th><th style="width:44%">Idea</th><th style="width:30%">Tool</th></tr>
+          <tr><td><strong>Low variance</strong></td><td>Drop columns that barely change</td><td><code>VarianceThreshold</code></td></tr>
+          <tr><td><strong>Correlation filter</strong></td><td>Drop one of each highly correlated pair</td><td><code>df.corr()</code></td></tr>
+          <tr><td><strong>Univariate test</strong></td><td>Score each feature alone against the target</td><td><code>SelectKBest(f_classif)</code></td></tr>
+          <tr><td><strong>Model importance</strong></td><td>Use a tree model's importance scores</td><td><code>RandomForest.feature_importances_</code></td></tr>
+          <tr><td><strong>L1 regularization</strong></td><td>Shrink weak coefficients to exactly 0</td><td><code>LogisticRegression(l1_ratio=1, solver="saga")</code></td></tr>
+        </table>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">import numpy as np
+import pandas as pd
+rng = np.random.default_rng(0)
+n = 400
+X = pd.DataFrame({
+    "tenure": rng.integers(1, 60, n),
+    "spend": rng.normal(100, 30, n),
+    "noise1": rng.normal(size=n),
+    "noise2": rng.normal(size=n),
+    "constant": 1,
+})
+X["spend_copy"] = X["spend"] * 2 + rng.normal(0, 1, n)     # near-duplicate of spend
+y = ((X["tenure"] &lt; 20) | (X["spend"] &gt; 130)).astype(int)
+X.head(3)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   tenure       spend    noise1    noise2  constant  spend_copy
+0      51   82.430266 -1.518888  1.389972         1  163.755630
+1      38   85.822370 -1.565589 -0.664342         1  172.389973
+2      31  117.590118  0.051034 -0.229971         1  234.379470</pre>
+        <pre style="margin-bottom:2px"># 1) Low variance: a constant column carries no information
+from sklearn.feature_selection import VarianceThreshold
+vt = VarianceThreshold(threshold=0.0).fit(X)
+X.columns[~vt.get_support()].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['constant']</pre>
+        <pre style="margin-bottom:2px"># 2) Correlation filter: drop one of each highly correlated pair
+corr = X.drop(columns="constant").corr().abs()
+upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
+[c for c in upper.columns if (upper[c] &gt; 0.9).any()]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['spend_copy']</pre>
+        <pre style="margin-bottom:2px"># 3) Univariate test: score each feature against the target
+from sklearn.feature_selection import SelectKBest, f_classif
+X2 = X.drop(columns="constant")
+sel = SelectKBest(f_classif, k=2).fit(X2, y)
+X2.columns[sel.get_support()].tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['tenure', 'spend_copy']</pre>
+        <pre style="margin-bottom:2px"># 4) Model-based importance
+from sklearn.ensemble import RandomForestClassifier
+rf = RandomForestClassifier(200, random_state=0).fit(X2, y)
+pd.Series(rf.feature_importances_, index=X2.columns).sort_values(ascending=False).round(2).to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'tenure': 0.64, 'spend': 0.18, 'spend_copy': 0.16, 'noise1': 0.01, 'noise2': 0.01}</pre>
+        <pre style="margin-bottom:2px"># 5) L1 (lasso-style) regularization shrinks weak features to exactly 0 (scale first!)
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+Z = StandardScaler().fit_transform(X2)
+l1 = LogisticRegression(l1_ratio=1, solver="saga", C=0.1, max_iter=5000).fit(Z, y)
+{c: float(w) for c, w in zip(X2.columns, l1.coef_[0].round(2))}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'tenure': -1.97, 'spend': 0.0, 'noise1': 0.0, 'noise2': 0.0, 'spend_copy': 1.22}</pre>
+        <p><strong>Reading the results:</strong> the constant column is removed by variance and <code>spend_copy</code> by the correlation filter. Every method keeps <code>tenure</code> and <code>spend</code> (or its near-copy <code>spend_copy</code>) and gives <code>noise1</code> and <code>noise2</code> roughly zero. Notice that SelectKBest and L1 picked <code>spend_copy</code> instead of <code>spend</code>: when two features are near-duplicates, methods choose between them almost arbitrarily, which is why you remove the duplicate first.</p>
+        `,
+      scaling: `
+        <h4>Normalization vs standardization</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%"></th><th style="width:41%">Normalization (min-max)</th><th style="width:41%">Standardization (z-score)</th></tr>
+          <tr><td><strong>Formula</strong></td><td><code>(x - min) / (max - min)</code></td><td><code>(x - mean) / std</code></td></tr>
+          <tr><td><strong>Result</strong></td><td>Fixed range, usually 0 to 1</td><td>Mean 0, standard deviation 1; no fixed range</td></tr>
+          <tr><td><strong>sklearn</strong></td><td><code>MinMaxScaler</code></td><td><code>StandardScaler</code></td></tr>
+          <tr><td><strong>Outliers</strong></td><td>Very sensitive: one extreme value squeezes the rest</td><td>Less sensitive, but still affected</td></tr>
+          <tr><td><strong>Use when</strong></td><td>You need a bounded range (neural nets, image pixels), or the data is not bell-shaped</td><td>Algorithms that assume centered data (linear and logistic regression, SVM, PCA), or data that is roughly normal</td></tr>
+          <tr><td><strong>Outlier-heavy data</strong></td><td><code>RobustScaler</code> (median and IQR)</td><td><code>RobustScaler</code> (median and IQR)</td></tr>
+        </table>
+        <h4>Which models need scaling?</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:50%">Needs scaling</th><th style="width:50%">Does not need scaling</th></tr>
+          <tr><td>k-NN, SVM, k-means (distance based)</td><td>Decision trees</td></tr>
+          <tr><td>Linear and logistic regression with regularization</td><td>Random forest</td></tr>
+          <tr><td>Neural networks and anything trained by gradient descent</td><td>Gradient boosting (XGBoost, LightGBM)</td></tr>
+          <tr><td>PCA</td><td></td></tr>
+        </table>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
+s = pd.DataFrame({"amount": [100, 200, 300, 400, 5000], "age": [25, 32, 47, 51, 62]})
+s</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount  age
+0     100   25
+1     200   32
+2     300   47
+3     400   51
+4    5000   62</pre>
+        <pre style="margin-bottom:2px"># Normalization (min-max): (x - min) / (max - min), so everything lands in 0..1
+((s - s.min()) / (s.max() - s.min())).round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount   age
+0    0.00  0.00
+1    0.02  0.19
+2    0.04  0.59
+3    0.06  0.70
+4    1.00  1.00</pre>
+        <pre style="margin-bottom:2px"># Standardization (z-score): (x - mean) / std, so mean = 0 and std = 1
+((s - s.mean()) / s.std(ddof=0)).round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount   age
+0   -0.58 -1.38
+1   -0.53 -0.86
+2   -0.47  0.27
+3   -0.42  0.57
+4    2.00  1.40</pre>
+        <pre style="margin-bottom:2px"># sklearn gives the same numbers (it uses the population std, ddof=0)
+pd.DataFrame(StandardScaler().fit_transform(s), columns=s.columns).round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount   age
+0   -0.58 -1.38
+1   -0.53 -0.86
+2   -0.47  0.27
+3   -0.42  0.57
+4    2.00  1.40</pre>
+        <pre style="margin-bottom:2px"># Check: standardized columns have mean 0 and std 1
+z = pd.DataFrame(StandardScaler().fit_transform(s), columns=s.columns)
+(z.mean().round(2) + 0.0).to_dict(), z.std(ddof=0).round(2).to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">({'amount': 0.0, 'age': 0.0}, {'amount': 1.0, 'age': 1.0})</pre>
+        <pre style="margin-bottom:2px"># The outlier (5000) squeezes the other amounts into a tiny range under min-max...
+MinMaxScaler().fit_transform(s[["amount"]]).round(2).ravel().tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[0.0, 0.02, 0.04, 0.06, 1.0]</pre>
+        <pre style="margin-bottom:2px"># ...RobustScaler uses median and IQR, so the typical values keep their spread
+RobustScaler().fit_transform(s[["amount"]]).round(2).ravel().tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[-1.0, -0.5, 0.0, 0.5, 23.5]</pre>
+        <pre style="margin-bottom:2px"># Fit on TRAIN only, then apply to test (never fit on the full data)
+train, test = s.iloc[:4], s.iloc[4:]
+sc = StandardScaler().fit(train)
+sc.transform(test).round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">array([[42.49,  2.19]])</pre>
+        <pre style="margin-bottom:2px"># Wrong way: fitting on all data lets test values influence the mean and std (leakage)
+StandardScaler().fit(s).transform(test).round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">array([[2. , 1.4]])</pre>
+        <p><strong>Rules:</strong> (1) fit the scaler on the training data only, then transform both train and test, otherwise test information leaks into training; (2) scale after filling missing values and after dummy-encoding; (3) usually leave 0/1 dummy columns alone; (4) the target is normally not scaled.</p>
+        
+        <h4>Category map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Numeric feature needs scaling?"]):::root
+
+    ROOT --&gt; N["Normalization&lt;br/&gt;MinMaxScaler"]:::norm
+    ROOT --&gt; S["Standardization&lt;br/&gt;StandardScaler"]:::std
+    ROOT --&gt; R["Robust scaling&lt;br/&gt;RobustScaler"]:::rob
+
+    N --&gt; N1["(x - min) / (max - min)"]:::code
+    N1 --&gt; N2["Squeezes values into 0 to 1"]:::note
+    N2 --&gt; N3["Use: neural nets, bounded inputs, non-bell-shaped data"]:::use
+    N3 --&gt; N4["Risk: one outlier compresses everything else"]:::opt
+
+    S --&gt; S1["(x - mean) / std"]:::code
+    S1 --&gt; S2["Mean 0, std 1; no fixed range"]:::note
+    S2 --&gt; S3["Use: linear and logistic regression, SVM, PCA, k-NN"]:::use
+    S3 --&gt; S4["Risk: still pulled by extreme outliers"]:::opt
+
+    R --&gt; R1["(x - median) / IQR"]:::code
+    R1 --&gt; R2["Centers on the median, ignores extremes"]:::note
+    R2 --&gt; R3["Use: data with outliers"]:::use
+    R3 --&gt; R4["Not bounded to a fixed range"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef norm fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef std fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef rob fill:#e17055,stroke:#a8402a,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>`,
+      pipeline: `
+        <h4>From raw rows to a model-ready table</h4>
+        <p>All nine data-prep steps wrapped in one function, followed by the train/test split. Stateless cleaning (renaming, parsing, extracting parts) happens before the split; anything <strong>learned from the data</strong> (the median fill, the scaler) is fitted on the training rows only.</p>
+        <pre style="margin-bottom:2px">from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+def prepare(raw):
+    d = raw.drop_duplicates(subset=["Order ID"]).copy()                         # 1 row grain
+    d.columns = d.columns.str.strip().str.lower().str.replace(" ", "_")         # 2 columns
+    for c in ["region", "channel"]:
+        d[c] = d[c].str.strip().str.lower()
+    d["completed"] = (d["status"] == "done").astype(int)
+    d = d.replace(["N/A", "bad date"], np.nan)                                  # 3 missing -&gt; NaN
+    d["amount"] = pd.to_numeric(d["amount"].str.replace(r"[$,]", "", regex=True), errors="coerce")   # 5
+    d["order_date"] = pd.to_datetime(d["order_date"], format="%Y-%m-%d", errors="coerce")           # 6
+    d = d.dropna(subset=["order_date"])
+    d["month"] = d["order_date"].dt.month                                       # 7 datetime parts
+    d["is_weekend"] = (d["order_date"].dt.dayofweek &gt;= 5).astype(int)
+    d["high_value"] = np.where(d["amount"] &gt; 500, 1, 0)                         # 8 condition
+    d = pd.get_dummies(d, columns=["channel", "region"], drop_first=True, dtype=int)   # 9 dummies
+    d["amount_missing"] = d["amount"].isna().astype(int)
+    return d.drop(columns=["order_id", "customer_id", "order_date", "status"])  # exclude identifiers
+
+data = prepare(raw)
+X, y = data.drop(columns="completed"), data["completed"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)
+
+# Everything LEARNED from data is fitted on the training rows only
+median = X_train["amount"].median()
+X_train = X_train.fillna({"amount": median})
+X_test = X_test.fillna({"amount": median})
+scaler = StandardScaler().fit(X_train[["amount"]])
+X_train["amount"] = scaler.transform(X_train[["amount"]]).ravel()
+X_test["amount"] = scaler.transform(X_test[["amount"]]).ravel()
+X_train.round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   amount  month  is_weekend  high_value  channel_store  channel_web  region_west  amount_missing
+1   -0.77      1           0           0              1            0            1               0
+5    1.41      3           0           1              0            1            1               0
+6   -0.64      3           0           0              0            0            0               0</pre>
+        <p>The result has no text columns, no identifiers, no missing values, and a scaled <code>amount</code>: ready for a model. Cleaning, features, selection and scaling in that order is the standard sequence; skipping the order (for example scaling before filling gaps) is what causes silent bugs.</p>
+        `
+    }
+  },
+  {
+    id: "interview-examples",
+    icon: "🎤",
+    title: "Interview Worked Examples",
+    tagline: "end-to-end answers with real code",
+    desc: "Complete answers to 'walk me through building a model from raw data', with spoken versions, runnable code and real outputs: a telecom churn model and a BNPL credit-risk model.",
+    tags: ["interview", "churn", "BNPL", "credit risk"],
+    tabs: {
+      interviewchurn: `
+        <h4>Interview question: walk me through building a model from raw data</h4>
+        <p>Use this map to structure the answer, then the spoken versions below. The example is customer churn: the code is complete and every output is real.</p>
+        
+        <h4>Lifecycle map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    START(["Raw data + business question"]):::root
+    subgraph F1["&lt;b style='color:#2d3436'&gt;1 · Define&lt;/b&gt;"]
+        direction TB
+        a1["Frame the problem"] --&gt; a2["Choose target and metric"]
+    end
+    subgraph F2["&lt;b style='color:#2d3436'&gt;2 · Understand&lt;/b&gt;"]
+        direction TB
+        b1["Collect and join data"] --&gt; b2["EDA: balance, outliers, correlations"]
+    end
+    subgraph F3["&lt;b style='color:#2d3436'&gt;3 · Prepare&lt;/b&gt;"]
+        direction TB
+        c1["Train / test split"] --&gt; c2["Pipeline: impute, encode, scale"]
+    end
+    subgraph F4["&lt;b style='color:#2d3436'&gt;4 · Model&lt;/b&gt;"]
+        direction TB
+        d1["Baseline"] --&gt; d2["Train candidates"] --&gt; d3["Cross-validate"] --&gt; d4["Tune"]
+    end
+    subgraph F5["&lt;b style='color:#2d3436'&gt;5 · Deliver&lt;/b&gt;"]
+        direction TB
+        e1["Final test score"] --&gt; e2["Explain drivers"] --&gt; e3["Deploy and monitor"]
+    end
+    START --&gt; F1 --&gt; F2 --&gt; F3 --&gt; F4 --&gt; F5
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef p1 fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef p2 fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef p3 fill:#00b894,stroke:#007a63,color:#fff
+    classDef p4 fill:#e84393,stroke:#a8286d,color:#fff
+    classDef p5 fill:#e17055,stroke:#a8402a,color:#fff
+    class a1,a2 p1
+    class b1,b2 p2
+    class c1,c2 p3
+    class d1,d2,d3,d4 p4
+    class e1,e2,e3 p5
+    style F1 fill:#efecfd,stroke:#6c5ce7,color:#2d3436
+    style F2 fill:#e8f2fc,stroke:#0984e3,color:#2d3436
+    style F3 fill:#e6f7f2,stroke:#00b894,color:#2d3436
+    style F4 fill:#fce8f2,stroke:#e84393,color:#2d3436
+    style F5 fill:#fdece7,stroke:#e17055,color:#2d3436
+</div></div>
+        
+        <h4>The 60-second answer</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;First I frame the problem: here, predicting which customers will cancel, so the target is churn and the metric is ROC-AUC plus recall on churners, because only about a quarter churn and accuracy would mislead. I explore the data: class balance, missing values, outliers. I drop identifiers like customer ID. Then I split into train and test before learning anything. I build a pipeline that imputes, encodes and scales, fitted on training data only, so there is no leakage. I start with a baseline, train a couple of candidate models, and compare them with cross-validation. Logistic regression won, at about 0.77 AUC against 0.74 for a forest. I score it once on the test set, 0.84 AUC, and explain the drivers: contract type and tenure matter most. Finally I would tune the decision threshold for the business cost of a missed churner, then deploy and monitor for drift.&rdquo;</p>
+        
+        <h4>The 2-minute answer (when asked to go deeper)</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;On the data side I would check granularity, whether it is one row per customer, and fix types, such as parsing dates and stripping currency symbols. For missing values I would flag, then fill with the median using training data only. I would one-hot encode categories, and scale for models that need it, like logistic regression. For model choice I would try a simple interpretable model first, and only use something heavier if cross-validation justifies it. After the final test I would look at errors by segment, and check for proxy variables if the model affects people. In production I would monitor input drift and retrain when performance drops.&rdquo;</p>
+        
+        <h4>Worked example: telecom customer churn</h4>
+        <p><strong>Question:</strong> which customers will cancel? <strong>Target:</strong> <code>churned</code> (1 = cancelled). <strong>Metric:</strong> ROC-AUC, plus recall on churners, since 28% churn makes accuracy misleading.</p>
+        <h4>If the data is in Snowflake: loading it into Python</h4>
+        <p>The code below builds synthetic data inside Python so it can run anywhere. In a real job the data sits in <strong>Snowflake</strong>, so the pipeline starts with a load step. Everything after it (split, pipeline, models) stays the same.</p>
+        <pre style="margin-bottom:2px">import os
+import snowflake.connector
+
+# Credentials come from environment variables (or SSO), never from the code
+conn = snowflake.connector.connect(
+    account=os.environ["SNOWFLAKE_ACCOUNT"],
+    user=os.environ["SNOWFLAKE_USER"],
+    password=os.environ["SNOWFLAKE_PASSWORD"],     # or authenticator="externalbrowser" for SSO
+    warehouse="ANALYTICS_WH", database="TELECOM", schema="PUBLIC", role="ANALYST")
+
+query = """
+    SELECT customer_id, contract, tenure_months, support_calls, monthly_charge, churned
+    FROM customers
+    WHERE snapshot_date = '2025-06-30'          -- one row per customer on a fixed date
+"""
+cur = conn.cursor()
+cur.execute(query)
+raw = cur.fetch_pandas_all()      # needs: pip install "snowflake-connector-python[pandas]"
+cur.close()
+conn.close()</pre>
+        <p>This block needs a Snowflake account, so it is not run here. The next block is run, and shows the clean-up that is almost always needed after loading.</p>
+        <pre style="margin-bottom:2px">import pandas as pd
+from decimal import Decimal
+# What Snowflake really returns (simulated here): UPPERCASE names and DECIMAL values as Decimal objects
+raw = pd.DataFrame({"CUSTOMER_ID": [1000, 1001], "CONTRACT": ["one-year", "month-to-month"],
+                    "TENURE_MONTHS": [56, 3], "SUPPORT_CALLS": [2, 4],
+                    "MONTHLY_CHARGE": [Decimal("79.02"), Decimal("65.50")], "CHURNED": [0, 1]})
+print({k: str(v) for k, v in raw.dtypes.items()})
+
+# Clean up straight after loading
+raw.columns = raw.columns.str.lower()
+raw["monthly_charge"] = pd.to_numeric(raw["monthly_charge"])
+{k: str(v) for k, v in raw.dtypes.items()}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'CUSTOMER_ID': 'int64', 'CONTRACT': 'str', 'TENURE_MONTHS': 'int64', 'SUPPORT_CALLS': 'int64', 'MONTHLY_CHARGE': 'object', 'CHURNED': 'int64'}
+{'customer_id': 'int64', 'contract': 'str', 'tenure_months': 'int64', 'support_calls': 'int64', 'monthly_charge': 'float64', 'churned': 'int64'}</pre>
+        
+        <h4>Snowflake to Python: what to watch for</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Issue</th><th style="width:38%">What happens</th><th style="width:42%">What to do</th></tr>
+          <tr><td><strong>Column names</strong></td><td>Snowflake returns unquoted names in UPPERCASE</td><td><code>df.columns = df.columns.str.lower()</code> right after loading</td></tr>
+          <tr><td><strong>Decimal numbers</strong></td><td><code>NUMBER(p,s)</code> columns often arrive as Python <code>Decimal</code> objects (dtype <code>object</code>)</td><td><code>pd.to_numeric(...)</code> or <code>.astype(float)</code></td></tr>
+          <tr><td><strong>Dates</strong></td><td><code>DATE</code> columns can arrive as <code>datetime.date</code> objects</td><td><code>pd.to_datetime(...)</code> before extracting year, month or weekday</td></tr>
+          <tr><td><strong>Credentials</strong></td><td>Passwords in code end up in Git history</td><td>Environment variables, a secrets manager, key-pair authentication or SSO (<code>authenticator="externalbrowser"</code>)</td></tr>
+          <tr><td><strong>Push work to Snowflake</strong></td><td>Pulling a whole table is slow and costly</td><td>Filter, select only needed columns and aggregate in SQL; use <code>SAMPLE (10)</code> while developing</td></tr>
+          <tr><td><strong>Reproducibility</strong></td><td>Tables change daily, so results change</td><td>Query a fixed snapshot date or date range and save the query with the results</td></tr>
+          <tr><td><strong>Write results back</strong></td><td>Scores are most useful next to the source data</td><td><code>write_pandas(conn, scores, "CHURN_SCORES", auto_create_table=True)</code> from <code>snowflake.connector.pandas_tools</code></td></tr>
+        </table><p><strong>Alternative:</strong> with <code>snowflake-sqlalchemy</code> installed, <code>pd.read_sql(query, create_engine("snowflake://user:pass@account/db/schema?warehouse=WH"))</code> loads the same data. It is shorter, but the connector gives direct access to <code>fetch_pandas_all()</code>, which is faster for large results.</p>
+        
+        <h4>The interview line</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;The data lives in Snowflake, so I connect with the Snowflake connector using credentials from environment variables, and push filtering and sorting into the SQL so I only pull what I need. I load it into pandas with fetch_pandas_all, lowercase the column names, and convert decimals and dates. From there the process is the same: split, pipeline, baseline, models. Afterwards I can write the scores back to a Snowflake table for the business to use.&rdquo;</p>
+        <pre style="margin-bottom:2px">import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import roc_auc_score, classification_report, confusion_matrix, recall_score, precision_score
+
+# 0. Raw data (synthetic telecom customers)
+rng = np.random.default_rng(42)
+n = 1500
+contract = rng.choice(["month-to-month", "one-year", "two-year"], n, p=[.55, .25, .20])
+tenure = rng.integers(1, 72, n)
+calls = rng.poisson(1.5, n)
+charge = rng.normal(65, 20, n).round(2)
+logit = -1.2 + 1.6*(contract == "month-to-month") - 0.04*tenure + 0.35*calls + 0.015*(charge - 65)
+churn = (rng.random(n) &lt; 1/(1 + np.exp(-logit))).astype(int)
+raw = pd.DataFrame({"customer_id": np.arange(1000, 1000 + n), "contract": contract,
+                    "tenure_months": tenure, "support_calls": calls,
+                    "monthly_charge": charge, "churned": churn})
+raw.loc[rng.choice(n, 90, replace=False), "monthly_charge"] = np.nan   # missing values
+raw.head(3)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   customer_id        contract  tenure_months  support_calls  monthly_charge  churned
+0         1000        one-year             56              2           79.02        0
+1         1001  month-to-month             48              4           87.36        1
+2         1002        two-year             67              0           58.78        0</pre>
+        <pre style="margin-bottom:2px"># 1. Frame the problem and look at the data
+raw.shape, round(float(raw["churned"].mean()), 2), raw.isna().sum().to_dict()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">((1500, 6), 0.28, {'customer_id': 0, 'contract': 0, 'tenure_months': 0, 'support_calls': 0, 'monthly_charge': 90, 'churned': 0})</pre>
+        <pre style="margin-bottom:2px"># 2. Define inputs and target (identifier excluded)
+X = raw.drop(columns=["churned", "customer_id"])
+y = raw["churned"]
+X.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['contract', 'tenure_months', 'support_calls', 'monthly_charge']</pre>
+        <pre style="margin-bottom:2px"># 3. Split BEFORE learning anything (stratify keeps the churn rate equal in both sets)
+Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.25, stratify=y, random_state=0)
+Xtr.shape, Xte.shape</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">((1125, 4), (375, 4))</pre>
+        <pre style="margin-bottom:2px"># 4. Preparation pipeline: fitted on training data only
+prep = ColumnTransformer([
+    ("num", Pipeline([("imp", SimpleImputer(strategy="median")),
+                      ("sc", StandardScaler())]),
+     ["tenure_months", "support_calls", "monthly_charge"]),
+    ("cat", OneHotEncoder(drop="first"), ["contract"])])</pre>
+        <pre style="margin-bottom:2px"># 5. Baseline vs candidate models, compared with 5-fold cross-validation
+models = {"baseline": DummyClassifier(strategy="prior"),
+          "logistic": LogisticRegression(max_iter=1000),
+          "forest": RandomForestClassifier(200, random_state=0)}
+for name, m in models.items():
+    pipe = Pipeline([("prep", prep), ("model", m)])
+    print(name, "CV AUC", cross_val_score(pipe, Xtr, ytr, cv=5, scoring="roc_auc").mean().round(3))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">baseline CV AUC 0.5
+logistic CV AUC 0.768
+forest CV AUC 0.736</pre>
+        <pre style="margin-bottom:2px"># 6. Fit the best model and score the test set ONCE
+best = Pipeline([("prep", prep), ("model", LogisticRegression(max_iter=1000))]).fit(Xtr, ytr)
+print("test AUC", round(roc_auc_score(yte, best.predict_proba(Xte)[:, 1]), 3))
+print(classification_report(yte, best.predict(Xte), digits=2))
+print(confusion_matrix(yte, best.predict(Xte)))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">test AUC 0.835
+              precision    recall  f1-score   support
+
+           0       0.81      0.91      0.86       272
+           1       0.64      0.44      0.52       103
+
+    accuracy                           0.78       375
+   macro avg       0.73      0.67      0.69       375
+weighted avg       0.76      0.78      0.76       375
+
+[[247  25]
+ [ 58  45]]</pre>
+        <pre style="margin-bottom:2px"># 7. Explain the drivers (standardized coefficients)
+names = [s.split("__")[1] for s in best[:-1].get_feature_names_out()]
+{k: float(v) for k, v in zip(names, best[-1].coef_[0].round(2))}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'tenure_months': -0.84, 'support_calls': 0.32, 'monthly_charge': 0.21, 'contract_one-year': -1.22, 'contract_two-year': -1.37}</pre>
+        <pre style="margin-bottom:2px"># 8. Improve recall: move the decision threshold, or weight the classes
+probs = best.predict_proba(Xte)[:, 1]
+for t in [0.5, 0.3]:
+    pred = (probs &gt;= t).astype(int)
+    print("threshold", t, "recall", round(recall_score(yte, pred), 2), "precision", round(precision_score(yte, pred), 2))
+balanced = Pipeline([("prep", prep), ("model", LogisticRegression(max_iter=1000, class_weight="balanced"))]).fit(Xtr, ytr)
+pred = balanced.predict(Xte)
+print("class_weight=balanced recall", round(recall_score(yte, pred), 2), "precision", round(precision_score(yte, pred), 2))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">threshold 0.5 recall 0.44 precision 0.64
+threshold 0.3 recall 0.76 precision 0.61
+class_weight=balanced recall 0.78 precision 0.53</pre>
+        
+        <h4>Step-by-step explanation</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:17%">Step</th><th style="width:40%">What the code does</th><th style="width:43%">Why it matters in an interview</th></tr>
+          <tr><td><strong>0. Raw data</strong></td><td>Builds customers with an ID, a contract type, usage numbers and some missing charges</td><td>Real data has IDs and gaps; say so</td></tr>
+          <tr><td><strong>1. Frame and inspect</strong></td><td>Checks size, churn rate (28%) and missing counts</td><td>The imbalance tells you accuracy alone will mislead</td></tr>
+          <tr><td><strong>2. Inputs and target</strong></td><td>Drops <code>customer_id</code> and separates <code>churned</code></td><td>Identifiers carry no pattern; leaving them out prevents memorizing</td></tr>
+          <tr><td><strong>3. Split first</strong></td><td>75/25 split; <code>stratify=y</code> keeps the churn rate equal in both sets</td><td>Anything learned before the split leaks test information</td></tr>
+          <tr><td><strong>4. Pipeline</strong></td><td>Median-fills and scales the numbers, one-hot encodes the contract (<code>drop="first"</code> avoids a redundant column)</td><td>Fitted on training data only, and refitted inside each CV fold, so there is no leakage</td></tr>
+          <tr><td><strong>5. Baseline and CV</strong></td><td>Compares a do-nothing model with two real models using 5-fold ROC-AUC</td><td>The baseline shows whether a model adds anything; CV gives a stable estimate without touching the test set</td></tr>
+          <tr><td><strong>6. Final test</strong></td><td>Fits the winner on all training data and scores the test set once</td><td>The test set is a final exam: peeking and re-tuning defeats it</td></tr>
+          <tr><td><strong>7. Explain</strong></td><td>Reads the standardized coefficients</td><td>Stakeholders want drivers, not only a score</td></tr>
+          <tr><td><strong>8. Improve</strong></td><td>Changes the decision threshold or weights the classes</td><td>Recall of 44% misses most churners; the right trade-off is a business decision</td></tr>
+        </table>
+        <h4>What I would do next</h4>
+        <p>Recall is only 44%: the model misses most churners. Two common fixes, tested on the same split:</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:50%">Change</th><th style="width:25%">Recall</th><th style="width:25%">Precision</th></tr>
+          <tr><td>Default (threshold 0.5)</td><td>0.44</td><td>0.64</td></tr>
+          <tr><td>Lower the threshold to 0.3</td><td><strong>0.76</strong></td><td>0.61</td></tr>
+          <tr><td><code>class_weight="balanced"</code></td><td>0.78</td><td>0.53</td></tr>
+        </table><p>So the right threshold depends on what a missed churner costs versus a wasted retention offer. That is a business decision, and saying so is a strong interview point. Also note the simpler model beat the forest, so complexity is not automatically better.</p>
+        `,
+      interviewbnpl: `<h4>BNPL example: the same interview answer for a lending model</h4>
+        <h4>Worked example 2: BNPL (Buy Now Pay Later) credit risk</h4>
+        <p><strong>Business model:</strong> the shopper splits a purchase into installments. The lender pays the merchant upfront, earns a merchant fee, and loses money when a customer defaults, and the approve-or-decline decision must happen in seconds at checkout. <strong>Question:</strong> will this order default? <strong>Target:</strong> <code>defaulted</code> (1 = missed an installment). <strong>Metric:</strong> ROC-AUC and PR-AUC, then profit at the chosen cutoff.</p>
+        
+        <h4>How it differs from the churn example</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%">Topic</th><th style="width:34%">Churn example</th><th style="width:48%">BNPL example</th></tr>
+          <tr><td><strong>Target</strong></td><td>Customer cancels (28%)</td><td>Order defaults (7%): much rarer</td></tr>
+          <tr><td><strong>Metric</strong></td><td>ROC-AUC, recall</td><td>ROC-AUC <strong>and PR-AUC</strong>, plus profit</td></tr>
+          <tr><td><strong>Split</strong></td><td>Random, stratified</td><td><strong>By time</strong> (train on the past, test on the future)</td></tr>
+          <tr><td><strong>Leakage risk</strong></td><td>Customer ID</td><td>Post-order fields such as <code>days_past_due</code>, collections status</td></tr>
+          <tr><td><strong>Missing data</strong></td><td>Charges missing at random</td><td>Thin-file customers: missing income is itself informative</td></tr>
+          <tr><td><strong>Final decision</strong></td><td>Threshold for a retention offer</td><td><strong>Approval cutoff</strong> trading default losses against lost revenue</td></tr>
+          <tr><td><strong>Extra constraints</strong></td><td>None</td><td>Fairness (proxy variables), explainable decline reasons, decisions in seconds</td></tr>
+        </table>
+        <h4>If the data is in Snowflake: loading it into Python</h4>
+        <p>The code below builds synthetic data inside Python so it can run anywhere. In a real job the data sits in <strong>Snowflake</strong>, so the pipeline starts with a load step. Everything after it (split, pipeline, models) stays the same.</p>
+        <pre style="margin-bottom:2px">import os
+import snowflake.connector
+
+# Credentials come from environment variables (or SSO), never from the code
+conn = snowflake.connector.connect(
+    account=os.environ["SNOWFLAKE_ACCOUNT"],
+    user=os.environ["SNOWFLAKE_USER"],
+    password=os.environ["SNOWFLAKE_PASSWORD"],     # or authenticator="externalbrowser" for SSO
+    warehouse="ANALYTICS_WH", database="LENDING", schema="PUBLIC", role="ANALYST")
+
+query = """
+    SELECT order_id, order_date, order_amount, installments, prior_bnpl_orders,
+           prior_late_payments, account_age_days, merchant_category, stated_income, defaulted
+    FROM bnpl_orders
+    WHERE order_date &gt;= '2025-01-01'
+      AND order_date &lt;  '2026-01-01'
+    ORDER BY order_date                          -- sorted, ready for a time-based split
+"""
+cur = conn.cursor()
+cur.execute(query)
+orders = cur.fetch_pandas_all()
+cur.close()
+conn.close()</pre>
+        <p>This block needs a Snowflake account, so it is not run here. The next block is run, and shows the clean-up that is almost always needed after loading.</p>
+        <pre style="margin-bottom:2px">import pandas as pd
+from decimal import Decimal
+import datetime
+# What Snowflake really returns (simulated here): UPPERCASE names, Decimal amounts, DATE values as Python date objects
+orders = pd.DataFrame({"ORDER_ID": [1, 2], "ORDER_DATE": [datetime.date(2025, 1, 2), datetime.date(2025, 1, 3)],
+                       "ORDER_AMOUNT": [Decimal("120.50"), Decimal("89.99")], "STATED_INCOME": [Decimal("52000"), None],
+                       "DEFAULTED": [0, 1]})
+print({k: str(v) for k, v in orders.dtypes.items()})
+
+# Clean up straight after loading
+orders.columns = orders.columns.str.lower()
+orders["order_date"] = pd.to_datetime(orders["order_date"])
+orders[["order_amount", "stated_income"]] = orders[["order_amount", "stated_income"]].apply(pd.to_numeric)
+{k: str(v) for k, v in orders.dtypes.items()}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'ORDER_ID': 'int64', 'ORDER_DATE': 'object', 'ORDER_AMOUNT': 'object', 'STATED_INCOME': 'object', 'DEFAULTED': 'int64'}
+{'order_id': 'int64', 'order_date': 'datetime64[s]', 'order_amount': 'float64', 'stated_income': 'float64', 'defaulted': 'int64'}</pre>
+        
+        <h4>Snowflake to Python: what to watch for</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Issue</th><th style="width:38%">What happens</th><th style="width:42%">What to do</th></tr>
+          <tr><td><strong>Column names</strong></td><td>Snowflake returns unquoted names in UPPERCASE</td><td><code>df.columns = df.columns.str.lower()</code> right after loading</td></tr>
+          <tr><td><strong>Decimal numbers</strong></td><td><code>NUMBER(p,s)</code> columns often arrive as Python <code>Decimal</code> objects (dtype <code>object</code>)</td><td><code>pd.to_numeric(...)</code> or <code>.astype(float)</code></td></tr>
+          <tr><td><strong>Dates</strong></td><td><code>DATE</code> columns can arrive as <code>datetime.date</code> objects</td><td><code>pd.to_datetime(...)</code> before extracting year, month or weekday</td></tr>
+          <tr><td><strong>Credentials</strong></td><td>Passwords in code end up in Git history</td><td>Environment variables, a secrets manager, key-pair authentication or SSO (<code>authenticator="externalbrowser"</code>)</td></tr>
+          <tr><td><strong>Push work to Snowflake</strong></td><td>Pulling a whole table is slow and costly</td><td>Filter, select only needed columns and aggregate in SQL; use <code>SAMPLE (10)</code> while developing</td></tr>
+          <tr><td><strong>Leakage in the query</strong></td><td><code>SELECT *</code> can pull post-order fields such as days past due</td><td>Select only columns known at checkout, and sort by date for the time-based split</td></tr>
+          <tr><td><strong>Reproducibility</strong></td><td>Tables change daily, so results change</td><td>Query a fixed snapshot date or date range and save the query with the results</td></tr>
+          <tr><td><strong>Write results back</strong></td><td>Scores are most useful next to the source data</td><td><code>write_pandas(conn, scores, "CHURN_SCORES", auto_create_table=True)</code> from <code>snowflake.connector.pandas_tools</code></td></tr>
+        </table><p><strong>Alternative:</strong> with <code>snowflake-sqlalchemy</code> installed, <code>pd.read_sql(query, create_engine("snowflake://user:pass@account/db/schema?warehouse=WH"))</code> loads the same data. It is shorter, but the connector gives direct access to <code>fetch_pandas_all()</code>, which is faster for large results.</p>
+        
+        <h4>The interview line</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;The data lives in Snowflake, so I connect with the Snowflake connector using credentials from environment variables, and push filtering and sorting into the SQL so I only pull what I need. I load it into pandas with fetch_pandas_all, lowercase the column names, and convert decimals and dates. From there the process is the same: split, pipeline, baseline, models. Afterwards I can write the scores back to a Snowflake table for the business to use.&rdquo;</p>
+        
+        <h4>Complete code with real outputs</h4>
+        <pre style="margin-bottom:2px">from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.metrics import average_precision_score
+
+# 0. Raw data: one row per BNPL order (synthetic)
+rng = np.random.default_rng(7)
+n = 6000
+orders = pd.DataFrame({
+    "order_id": np.arange(n),
+    "order_date": pd.to_datetime("2025-01-01") + pd.to_timedelta(rng.integers(0, 365, n), unit="D"),
+    "order_amount": rng.gamma(2.5, 60, n).round(2),
+    "installments": rng.choice([3, 4, 6], n, p=[.3, .5, .2]),
+    "prior_bnpl_orders": rng.poisson(2, n),
+    "prior_late_payments": rng.poisson(0.3, n),
+    "account_age_days": rng.integers(0, 1500, n),
+    "merchant_category": rng.choice(["fashion", "electronics", "travel", "grocery"], n, p=[.4, .25, .1, .25]),
+    "stated_income": rng.normal(52000, 18000, n).round(-2),
+})
+z = (-3.6 + 0.004*orders["order_amount"] + 0.9*orders["prior_late_payments"] - 0.0006*orders["account_age_days"]
+     + 0.5*(orders["merchant_category"] == "electronics") + 0.35*(orders["installments"] == 6)
+     - 0.00002*(orders["stated_income"] - 52000) + 0.5*(orders["prior_bnpl_orders"] == 0))
+orders["defaulted"] = (rng.random(n) &lt; 1/(1 + np.exp(-z))).astype(int)   # 1 = missed an installment
+orders.loc[rng.choice(n, 600, replace=False), "stated_income"] = np.nan  # thin-file customers
+orders = orders.sort_values("order_date").reset_index(drop=True)
+orders.head(3)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id order_date  order_amount  installments  prior_bnpl_orders  prior_late_payments  account_age_days merchant_category  stated_income  defaulted
+0      2704 2025-01-01        383.43             3                  2                    0               172           fashion        49300.0          0
+1      5089 2025-01-01         76.41             3                  2                    0              1455            travel        63900.0          0
+2      5134 2025-01-01         37.18             4                  2                    0               358           grocery        77200.0          0</pre>
+        <pre style="margin-bottom:2px"># 1. Frame and inspect: rare target, some missing income
+orders.shape, round(float(orders["defaulted"].mean()), 3), int(orders["stated_income"].isna().sum())</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">((6000, 10), 0.07, 600)</pre>
+        <pre style="margin-bottom:2px"># 2. Inputs and target. Identifiers are out; anything known only AFTER the order (days_past_due, collections status) must never be a feature
+X = orders.drop(columns=["order_id", "order_date", "defaulted"])
+y = orders["defaulted"]
+X.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['order_amount', 'installments', 'prior_bnpl_orders', 'prior_late_payments', 'account_age_days', 'merchant_category', 'stated_income']</pre>
+        <pre style="margin-bottom:2px"># 3. Split by TIME, not at random: train on the past, test on the future (like real deployment)
+cut = int(len(orders) * 0.75)
+Xtr, Xte, ytr, yte = X.iloc[:cut], X.iloc[cut:], y.iloc[:cut], y.iloc[cut:]
+str(orders["order_date"].iloc[cut - 1].date()), str(orders["order_date"].iloc[cut].date()), round(float(ytr.mean()), 3), round(float(yte.mean()), 3)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">('2025-10-03', '2025-10-03', 0.07, 0.068)</pre>
+        <pre style="margin-bottom:2px"># 4. Preparation pipeline (fitted on the training period only)
+num = ["order_amount", "installments", "prior_bnpl_orders", "prior_late_payments", "account_age_days", "stated_income"]
+prep = ColumnTransformer([
+    ("num", Pipeline([("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler())]), num),
+    ("cat", OneHotEncoder(drop="first"), ["merchant_category"])])</pre>
+        <pre style="margin-bottom:2px"># 5. Baseline vs candidates. With a 7% default rate use ROC-AUC AND PR-AUC (precision-recall)
+fitted = {}
+for name, m in {"baseline": DummyClassifier(strategy="prior"),
+                "logistic": LogisticRegression(max_iter=1000),
+                "boosting": HistGradientBoostingClassifier(random_state=0)}.items():
+    fitted[name] = Pipeline([("prep", prep), ("model", m)]).fit(Xtr, ytr)
+    p = fitted[name].predict_proba(Xte)[:, 1]
+    print(name, "ROC-AUC", round(roc_auc_score(yte, p), 3), "PR-AUC", round(average_precision_score(yte, p), 3))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">baseline ROC-AUC 0.5 PR-AUC 0.068
+logistic ROC-AUC 0.734 PR-AUC 0.243
+boosting ROC-AUC 0.672 PR-AUC 0.177</pre>
+        <pre style="margin-bottom:2px"># 6. Turn scores into a decision: approve if predicted default risk is below a cutoff.
+# Assumptions: the lender earns a 6% fee on repaid orders and loses 80% of the amount on a default
+best = fitted["logistic"]
+risk = best.predict_proba(Xte)[:, 1]
+amount, actual = Xte["order_amount"].values, yte.values
+for cutoff in [1.0, 0.20, 0.10, 0.07, 0.05]:
+    ok = risk &lt; cutoff
+    profit = (amount[ok &amp; (actual == 0)] * 0.06).sum() - (amount[ok &amp; (actual == 1)] * 0.8).sum()
+    print("cutoff", cutoff, "approval", round(float(ok.mean()), 2), "default rate", round(float(actual[ok].mean()), 3), "profit", round(float(profit)))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">cutoff 1.0 approval 1.0 default rate 0.068 profit -3586
+cutoff 0.2 approval 0.94 default rate 0.053 profit 1162
+cutoff 0.1 approval 0.8 default rate 0.042 profit 3003
+cutoff 0.07 approval 0.69 default rate 0.036 profit 3253
+cutoff 0.05 approval 0.55 default rate 0.029 profit 2999</pre>
+        <pre style="margin-bottom:2px"># 7. Explain the drivers (needed for customer-facing decline reasons)
+names = [s.split("__")[1] for s in best[:-1].get_feature_names_out()]
+{k: float(v) for k, v in zip(names, best[-1].coef_[0].round(2))}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'order_amount': 0.4, 'installments': 0.22, 'prior_bnpl_orders': -0.12, 'prior_late_payments': 0.55, 'account_age_days': -0.28, 'stated_income': -0.35, 'merchant_category_fashion': -0.44, 'merchant_category_grocery': -0.5, 'merchant_category_travel': -0.6}</pre>
+        <p><strong>Reading the results:</strong> the baseline ROC-AUC is 0.50, so both models add signal. Logistic regression (0.734) beat boosting (0.672) and is easier to explain. The profit table shows the trade-off: approving everyone loses money, a very strict cutoff gives up revenue, and profit peaked near a cutoff of 0.07, which approved about 69% of orders. The fee and loss rates are illustrative assumptions, so say that out loud in an interview.</p>
+        
+        <h4>Step-by-step explanation (BNPL)</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%">Step</th><th style="width:40%">What the code does</th><th style="width:42%">Why it matters</th></tr>
+          <tr><td><strong>0. Raw data</strong></td><td>6,000 orders with amount, installments, history and income; 600 incomes missing</td><td>Thin-file customers are normal in BNPL</td></tr>
+          <tr><td><strong>1. Frame</strong></td><td>7% of orders default</td><td>Rare target: accuracy would be 93% for a model that approves everyone</td></tr>
+          <tr><td><strong>2. Inputs</strong></td><td>Drops IDs and dates; leaves post-order fields out</td><td>Features must be known <strong>at checkout</strong></td></tr>
+          <tr><td><strong>3. Time split</strong></td><td>First 75% of orders train, the rest test</td><td>A random split would let the model peek at the future</td></tr>
+          <tr><td><strong>4. Pipeline</strong></td><td>Median-fills income, scales numbers, encodes merchant category</td><td>Fitted on the training period only</td></tr>
+          <tr><td><strong>5. Compare</strong></td><td>Baseline vs logistic vs boosting on ROC-AUC and PR-AUC</td><td>PR-AUC shows how well the rare class is found; baseline PR-AUC is just the default rate (0.068)</td></tr>
+          <tr><td><strong>6. Decision policy</strong></td><td>Approves orders below a risk cutoff and sums fees minus losses</td><td>The model score is not the decision; the cutoff is a business choice</td></tr>
+          <tr><td><strong>7. Explain</strong></td><td>Reads standardized coefficients</td><td>Regulators and customers expect reasons for a decline</td></tr>
+        </table>
+        <h4>The BNPL spoken answer</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;BNPL means we pay the merchant upfront and the customer repays in installments, so we earn merchant fees but lose money on defaults, and the decision has to be made in seconds at checkout. I frame it as predicting whether an order will default, which is rare, about 7 percent, so I judge models on ROC-AUC and precision-recall, not accuracy. I keep identifiers and anything known only after the order, like days past due, out of the features, because that would be leakage. I split by time, training on earlier orders and testing on later ones, because that is how the model will actually be used. A pipeline imputes missing income, which is common for thin-file customers, then encodes and scales. A simple logistic regression beat boosting here, 0.73 against 0.67 ROC-AUC, and it is easier to explain when we have to give decline reasons. The final step is a business decision: approving everyone loses money, approving too few loses revenue, and in my test the profit peaked at a cutoff near 7 percent, which approved about 69 percent of orders. Finally I would check fairness, including proxy variables like ZIP code, and monitor for drift as the customer mix changes.&rdquo;</p>
+        
+        <h4>Fairness and monitoring for lending models</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:28%">Concern</th><th style="width:72%">What to do</th></tr>
+          <tr><td>Protected attributes</td><td>Never use them as inputs</td></tr>
+          <tr><td>Proxy variables</td><td>Test whether ZIP code or similar features can predict a protected attribute (AUC 0.7 or more is a warning); see the proxy checks in Feature Engineering Steps</td></tr>
+          <tr><td>Explainability</td><td>Keep a simple model or use reason codes so a declined customer can be told why</td></tr>
+          <tr><td>Drift</td><td>The customer mix and the economy change: monitor score distributions and default rates, then retrain</td></tr>
+          <tr><td>Feedback loop</td><td>You only observe repayment for orders you approved, so test lower cutoffs carefully</td></tr>
+        </table>`,
+      interviewretail: `
+        <h4>Worked example 3: retail demand forecasting</h4>
+        <p><strong>Business model:</strong> a retail chain stocks products in stores and must order each week before knowing the demand. Order too little and sales are lost; order too much and stock is marked down or wasted. <strong>Question:</strong> how many units will each store sell next week? <strong>Target:</strong> <code>units</code> (a number). <strong>Metric:</strong> WAPE and MAE, then total order cost.</p>
+        
+        <h4>Forecasting map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    A(["Weekly sales by store"]):::root --&gt; B["Add history features: lag 1, lag 52, 4-week average"]:::prep
+    B --&gt; C["Split by time: train on the past, test on the last 15 weeks"]:::split
+    C --&gt; D["Beat the naive baselines"]:::model
+    D --&gt; E["Pick model: boosting WAPE 0.128"]:::model
+    E --&gt; F["Add a safety buffer to the forecast"]:::biz
+    F --&gt; G(["Order quantity by store"]):::root
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef prep fill:#00b894,stroke:#00896f,color:#fff
+    classDef split fill:#0984e3,stroke:#0652a3,color:#fff
+    classDef model fill:#e84393,stroke:#a8266d,color:#fff
+    classDef biz fill:#e17055,stroke:#b34a30,color:#fff
+</div></div>
+        <h4>How it differs from the churn and BNPL examples</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%">Topic</th><th style="width:34%">Churn / BNPL</th><th style="width:48%">Retail forecasting</th></tr>
+          <tr><td><strong>Problem type</strong></td><td>Classification (yes or no)</td><td><strong>Regression</strong> (a number of units)</td></tr>
+          <tr><td><strong>Metric</strong></td><td>ROC-AUC, PR-AUC, recall</td><td><strong>MAE and WAPE</strong>, plus bias (over or under forecasting)</td></tr>
+          <tr><td><strong>Baseline</strong></td><td>Predict the majority class</td><td><strong>Naive forecasts</strong>: last week, or same week last year</td></tr>
+          <tr><td><strong>Key features</strong></td><td>Customer attributes</td><td><strong>Lags, rolling averages</strong>, calendar, promotions, price</td></tr>
+          <tr><td><strong>Split</strong></td><td>Random (churn) or time (BNPL)</td><td><strong>Always by time</strong>, and lags built with <code>shift()</code></td></tr>
+          <tr><td><strong>Leakage risk</strong></td><td>IDs, post-outcome fields</td><td>Rolling windows that include the current week; unplanned future data</td></tr>
+          <tr><td><strong>Final decision</strong></td><td>Threshold or approval cutoff</td><td><strong>Order quantity</strong>: forecast plus a buffer, based on cost of stock-outs vs overstock</td></tr>
+        </table>
+        <h4>If the data is in Snowflake: loading it into Python</h4>
+        <p>The examples above build the data inside Python. In a real job the data sits in <strong>Snowflake</strong>, so the pipeline starts with a load step. Everything after it (split, pipeline, models) stays the same.</p>
+        <pre style="margin-bottom:2px">import os
+import snowflake.connector
+
+# Credentials come from environment variables (or SSO), never from the code
+conn = snowflake.connector.connect(
+    account=os.environ["SNOWFLAKE_ACCOUNT"],
+    user=os.environ["SNOWFLAKE_USER"],
+    password=os.environ["SNOWFLAKE_PASSWORD"],     # or authenticator="externalbrowser" for SSO
+    warehouse="ANALYTICS_WH", database="RETAIL", schema="PUBLIC", role="ANALYST")
+
+query = """
+    SELECT store_id AS store, store_size, DATE_TRUNC('week', sale_date) AS week,
+           MAX(on_promo) AS promo, AVG(unit_price) AS price, SUM(units_sold) AS units
+    FROM pos_sales                                 -- daily till data, one row per store per day
+    WHERE sale_date &gt;= '2024-01-01'
+    GROUP BY store_id, store_size, DATE_TRUNC('week', sale_date)
+    ORDER BY store, week                           -- sorted, so shift() and rolling() work per store
+"""
+cur = conn.cursor()
+cur.execute(query)
+sales = cur.fetch_pandas_all()
+cur.close()
+conn.close()</pre>
+        <p>This block needs a Snowflake account, so it is not run here. The next block is run, and shows the clean-up that is almost always needed after loading.</p>
+        <pre style="margin-bottom:2px">import pandas as pd
+from decimal import Decimal
+import datetime
+# What Snowflake really returns (simulated here): UPPERCASE names, SUM and AVG as Decimal objects, DATE as Python date
+sales = pd.DataFrame({"STORE": ["S01", "S01"], "STORE_SIZE": ["small", "small"],
+                      "WEEK": [datetime.date(2024, 1, 1), datetime.date(2024, 1, 8)],
+                      "PROMO": [0, 1], "PRICE": [Decimal("9.99"), Decimal("7.99")], "UNITS": [Decimal("139"), Decimal("231")]})
+print({k: str(v) for k, v in sales.dtypes.items()})
+
+# Clean up straight after loading
+sales.columns = sales.columns.str.lower()
+sales["week"] = pd.to_datetime(sales["week"])
+sales[["price", "units"]] = sales[["price", "units"]].apply(pd.to_numeric)
+{k: str(v) for k, v in sales.dtypes.items()}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'STORE': 'str', 'STORE_SIZE': 'str', 'WEEK': 'object', 'PROMO': 'int64', 'PRICE': 'object', 'UNITS': 'object'}
+{'store': 'str', 'store_size': 'str', 'week': 'datetime64[s]', 'promo': 'int64', 'price': 'float64', 'units': 'float64'}</pre>
+        
+        <h4>Snowflake to Python: what to watch for</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Issue</th><th style="width:38%">What happens</th><th style="width:42%">What to do</th></tr>
+          <tr><td><strong>Column names</strong></td><td>Snowflake returns unquoted names in UPPERCASE</td><td><code>df.columns = df.columns.str.lower()</code> right after loading</td></tr>
+          <tr><td><strong>Decimal numbers</strong></td><td><code>NUMBER(p,s)</code> columns often arrive as Python <code>Decimal</code> objects (dtype <code>object</code>)</td><td><code>pd.to_numeric(...)</code> or <code>.astype(float)</code></td></tr>
+          <tr><td><strong>Dates</strong></td><td><code>DATE</code> columns can arrive as <code>datetime.date</code> objects</td><td><code>pd.to_datetime(...)</code> before extracting year, month or weekday</td></tr>
+          <tr><td><strong>Credentials</strong></td><td>Passwords in code end up in Git history</td><td>Environment variables, a secrets manager, key-pair authentication or SSO (<code>authenticator="externalbrowser"</code>)</td></tr>
+          <tr><td><strong>Push work to Snowflake</strong></td><td>Pulling a whole table is slow and costly</td><td>Filter, select only needed columns and aggregate in SQL; use <code>SAMPLE (10)</code> while developing</td></tr>
+          <tr><td><strong>Aggregate in SQL</strong></td><td>Till data is huge (millions of daily rows)</td><td><code>GROUP BY</code> store and <code>DATE_TRUNC('week', ...)</code> in Snowflake, so Python receives one row per store per week</td></tr>
+          <tr><td><strong>Row order</strong></td><td><code>shift()</code> and <code>rolling()</code> assume the rows are in time order within each store</td><td><code>ORDER BY store, week</code> in the query, or <code>sort_values</code> in pandas before building lags</td></tr>
+          <tr><td><strong>Reproducibility</strong></td><td>Tables change daily, so results change</td><td>Query a fixed snapshot date or date range and save the query with the results</td></tr>
+          <tr><td><strong>Write results back</strong></td><td>Scores are most useful next to the source data</td><td><code>write_pandas(conn, scores, "CHURN_SCORES", auto_create_table=True)</code> from <code>snowflake.connector.pandas_tools</code></td></tr>
+        </table><p><strong>Alternative:</strong> with <code>snowflake-sqlalchemy</code> installed, <code>pd.read_sql(query, create_engine("snowflake://user:pass@account/db/schema?warehouse=WH"))</code> loads the same data. It is shorter, but the connector gives direct access to <code>fetch_pandas_all()</code>, which is faster for large results.</p>
+        
+        <h4>The interview line</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;The data lives in Snowflake, so I connect with the Snowflake connector using credentials from environment variables, and push filtering and sorting into the SQL so I only pull what I need. I load it into pandas with fetch_pandas_all, lowercase the column names, and convert decimals and dates. From there the process is the same: split, pipeline, baseline, models. Afterwards I can write the scores back to a Snowflake table for the business to use.&rdquo;</p>
+        
+        <h4>Complete code with real outputs</h4>
+        <pre style="margin-bottom:2px">import numpy as np
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.linear_model import Ridge
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.metrics import mean_absolute_error
+
+# 0. Raw data: one row per store per week (synthetic, 20 stores, 2 years)
+rng = np.random.default_rng(11)
+weeks = pd.date_range("2024-01-01", periods=104, freq="W-MON")
+stores = [f"S{i:02d}" for i in range(1, 21)]
+size = dict(zip(stores, rng.choice(["small", "medium", "large"], 20, p=[.3, .4, .3])))
+base = {"small": 120, "medium": 200, "large": 320}
+rows = []
+for s in stores:
+    lvl = base[size[s]] * rng.uniform(.85, 1.15)
+    for i, w in enumerate(weeks):
+        promo = int(rng.random() &lt; 0.18)
+        price = round(9.99 * (0.8 if promo else 1.0), 2)
+        season = 1 + 0.25*np.sin(2*np.pi*(i % 52)/52) + (0.35 if w.month == 12 and w.day &gt; 14 else 0)
+        mu = lvl * season * (1.6 if promo else 1.0) * (1 + 0.003*i)
+        rows.append((s, size[s], w, promo, price, int(rng.poisson(mu))))
+sales = pd.DataFrame(rows, columns=["store", "store_size", "week", "promo", "price", "units"])
+sales.loc[rng.choice(len(sales), 40, replace=False), "price"] = np.nan   # missing prices
+sales = sales.sort_values(["store", "week"]).reset_index(drop=True)
+sales.head(3)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">  store store_size       week  promo  price  units
+0   S01      small 2024-01-01      0   9.99    139
+1   S01      small 2024-01-08      0   9.99    145
+2   S01      small 2024-01-15      0   9.99    162</pre>
+        <pre style="margin-bottom:2px"># 1. Frame and inspect: target is a number (units), so this is regression
+sales.shape, sales["units"].describe().round(0).to_dict(), int(sales["price"].isna().sum())</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">((2080, 6), {'count': 2080.0, 'mean': 263.0, 'std': 131.0, 'min': 75.0, '25%': 167.0, '50%': 229.0, '75%': 325.0, 'max': 839.0}, 40)</pre>
+        <pre style="margin-bottom:2px"># 2. Feature engineering: history features, built per store with shift() so the model only sees the PAST
+g = sales.groupby("store")["units"]
+sales["lag_1"] = g.shift(1)                                        # last week
+sales["lag_52"] = g.shift(52)                                      # same week last year
+sales["avg_4"] = g.transform(lambda s: s.shift(1).rolling(4).mean())  # average of the previous 4 weeks
+sales["week_of_year"] = sales["week"].dt.isocalendar().week.astype(int)
+sales["month"] = sales["week"].dt.month
+data = sales.dropna(subset=["lag_1", "lag_52", "avg_4"]).reset_index(drop=True)
+data.shape, str(data["week"].min().date()), str(data["week"].max().date())</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">((1040, 11), '2024-12-30', '2025-12-22')</pre>
+        <pre style="margin-bottom:2px"># 3. Inputs and target. Drop identifiers (store, week). Promo and price are fine because they are PLANNED in advance.
+X = data.drop(columns=["store", "week", "units"])
+y = data["units"]
+X.columns.tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['store_size', 'promo', 'price', 'lag_1', 'lag_52', 'avg_4', 'week_of_year', 'month']</pre>
+        <pre style="margin-bottom:2px"># 4. Split by TIME: the last 15 weeks are the "future" the model has never seen
+cut_date = data["week"].max() - pd.Timedelta(weeks=15)
+train = data["week"] &lt;= cut_date
+Xtr, Xte, ytr, yte = X[train], X[~train], y[train], y[~train]
+len(Xtr), len(Xte), str(cut_date.date())</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">(740, 300, '2025-09-08')</pre>
+        <pre style="margin-bottom:2px"># 5. Preparation pipeline (fitted on the training period only)
+num = ["promo", "price", "lag_1", "lag_52", "avg_4", "week_of_year", "month"]
+prep = ColumnTransformer([
+    ("num", Pipeline([("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler())]), num),
+    ("cat", OneHotEncoder(drop="first"), ["store_size"])])</pre>
+        <pre style="margin-bottom:2px"># 6. Baselines first, then real models. WAPE = total absolute error / total sales (easy to explain)
+def wape(actual, pred):
+    return float(np.abs(actual - pred).sum() / actual.sum())
+
+preds = {"naive: same as last week": Xte["lag_1"].values,
+         "naive: same week last year": Xte["lag_52"].values}
+fitted = {}
+for name, m in {"ridge": Ridge(alpha=1.0), "boosting": HistGradientBoostingRegressor(random_state=0)}.items():
+    fitted[name] = Pipeline([("prep", prep), ("model", m)]).fit(Xtr, ytr)
+    preds[name] = fitted[name].predict(Xte)
+for name, p in preds.items():
+    print(name, "MAE", round(mean_absolute_error(yte, p), 1), "WAPE", round(wape(yte.values, p), 3))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">naive: same as last week MAE 50.7 WAPE 0.203
+naive: same week last year MAE 60.5 WAPE 0.242
+ridge MAE 44.2 WAPE 0.177
+boosting MAE 31.9 WAPE 0.128</pre>
+        <pre style="margin-bottom:2px"># 7. Which inputs matter? Permutation importance: how much does the error grow when a column is shuffled
+from sklearn.inspection import permutation_importance
+r = permutation_importance(fitted["boosting"], Xte, yte, n_repeats=5, random_state=0,
+                           scoring="neg_mean_absolute_error")
+{c: round(float(v), 1) for c, v in sorted(zip(Xte.columns, r.importances_mean), key=lambda t: -t[1])}</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">{'avg_4': 35.8, 'promo': 23.6, 'store_size': 13.5, 'lag_52': 12.6, 'lag_1': 8.7, 'price': 0.4, 'month': 0.1, 'week_of_year': 0.0}</pre>
+        <pre style="margin-bottom:2px"># 8. Turn the forecast into an ORDER. Assumptions: a lost sale costs 4 per unit, leftover stock costs 1 per unit
+best = preds["boosting"]
+for buffer in [0, 0.10, 0.20, 0.30]:
+    order = best * (1 + buffer)
+    short = np.maximum(yte.values - order, 0).sum()
+    extra = np.maximum(order - yte.values, 0).sum()
+    print("buffer", buffer, "short", round(float(short)), "extra", round(float(extra)), "cost", round(float(short * 4 + extra * 1)))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">buffer 0 short 7738 extra 1844 cost 32797
+buffer 0.1 short 4292 extra 5313 cost 22481
+buffer 0.2 short 2437 extra 10372 cost 20120
+buffer 0.3 short 1363 extra 16213 cost 21664</pre>
+        
+        <h4>Reading the results</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:50%">Model</th><th style="width:25%">MAE (units)</th><th style="width:25%">WAPE</th></tr>
+          <tr><td>Naive: same as last week</td><td>50.7</td><td>0.203</td></tr>
+          <tr><td>Naive: same week last year</td><td>60.5</td><td>0.242</td></tr>
+          <tr><td>Ridge (linear)</td><td>44.2</td><td>0.177</td></tr>
+          <tr><td><strong>Gradient boosting</strong></td><td><strong>31.9</strong></td><td><strong>0.128</strong></td></tr>
+        </table><p><strong>Reading the results:</strong> 'same as last week' is a strong baseline (WAPE 0.203), and the linear model barely improves on it (0.177). Boosting reaches 0.128 because it captures how promotions and seasonality interact. The order table shows the trade-off: with no buffer the lost sales are large, and the total cost bottomed out near a 20% buffer. The unit costs (4 per lost sale, 1 per leftover unit) are illustrative, so say that out loud.</p>
+        
+        <h4>Step-by-step explanation (retail)</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:17%">Step</th><th style="width:40%">What the code does</th><th style="width:43%">Why it matters</th></tr>
+          <tr><td><strong>0. Raw data</strong></td><td>2,080 rows: 20 stores times 104 weeks, with promo, price and units sold; 40 prices missing</td><td>One row per store per week is the <strong>granularity</strong></td></tr>
+          <tr><td><strong>1. Frame</strong></td><td>Target <code>units</code> is numeric</td><td>Numeric target means regression and error metrics</td></tr>
+          <tr><td><strong>2. History features</strong></td><td><code>shift(1)</code>, <code>shift(52)</code> and a 4-week rolling mean, grouped by store</td><td><code>shift</code> pushes values forward so each row only sees the past; without <code>groupby</code>, one store would leak into the next</td></tr>
+          <tr><td><strong>3. Inputs</strong></td><td>Drops <code>store</code>, <code>week</code>, <code>units</code>; keeps planned promo and price</td><td>Only use inputs you will know <strong>before</strong> the week starts</td></tr>
+          <tr><td><strong>4. Time split</strong></td><td>Train through 2025-09-08, test on the last 15 weeks</td><td>A random split would let the model see weeks after the ones it predicts</td></tr>
+          <tr><td><strong>5. Pipeline</strong></td><td>Median-fills price, scales numbers, one-hot encodes store size</td><td>Fitted on the training period only</td></tr>
+          <tr><td><strong>6. Baselines and models</strong></td><td>Compares two naive forecasts, ridge and boosting by MAE and WAPE</td><td>If a model cannot beat 'same as last week', it is not worth deploying</td></tr>
+          <tr><td><strong>7. Importance</strong></td><td>Shuffles each column and measures the extra error</td><td>Shows the 4-week average and promo drive the forecast</td></tr>
+          <tr><td><strong>8. Order cost</strong></td><td>Adds a buffer and sums lost-sale and leftover-stock costs</td><td>The forecast is not the decision; the cost ratio sets the buffer</td></tr>
+        </table>
+        <h4>The retail spoken answer</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;Retail demand forecasting means predicting how many units each store will sell next week, so the buyer can order the right amount. The target is a number, so it is a regression problem, and I measure error with WAPE, total absolute error divided by total sales, because a buyer understands it. I keep identifiers out and use inputs that are known in advance, like planned promotions and price. The key feature work is history: last week, the same week last year, and a four-week average, built per store with shift so the model never sees the future. I split by time, training on earlier weeks and testing on the last fifteen, and I always beat two naive baselines first. Here, last week's sales gave 20 percent WAPE, a linear model 18 percent, and gradient boosting 13 percent, because promotions and seasonality interact. The last step is a business decision: lost sales cost more than leftover stock, so I add a buffer to the forecast, and in my test the cost was lowest at about 20 percent.&rdquo;</p>
+        
+        <h4>Extra points that impress in a retail interview</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:28%">Topic</th><th style="width:72%">What to say</th></tr>
+          <tr><td>Bias</td><td>Check whether forecasts run systematically low or high, not only the average error</td></tr>
+          <tr><td>Promotions</td><td>Forecast promo weeks separately, and use planned promotions as an input</td></tr>
+          <tr><td>New products or stores</td><td>No history exists, so use a similar item or store average (cold start)</td></tr>
+          <tr><td>Stock-outs hide demand</td><td>Sales equal demand only when stock was available; flag stock-out weeks</td></tr>
+          <tr><td>Hierarchy</td><td>Forecast at store and product level, then check the totals add up at region level</td></tr>
+          <tr><td>Monitoring</td><td>Track WAPE weekly and retrain when it drifts</td></tr>
+        </table>
+        `    }
   }
+
 ];
 
 const FLASHCARDS = [
@@ -6124,6 +7516,14 @@ df = pd.read_csv("temp.csv", encoding="utf-8")
 df = pd.read_csv("temp.csv", encoding="latin1")</pre>
 <div class="fb-explain"><code>compression='gzip'</code> is for reading compressed files (wrong problem here), and <code>dialect='str'</code> isn't a valid pandas parameter at all.</div>` },
 
+  { cat: "preprocessing", q: "Why should you exclude identifier columns (customer_id, order_id) from a model?", a: `An identifier is unique per row, so it carries no pattern that generalizes to new rows. Trees and neural nets can memorize it (overfitting), and if IDs follow an order that tracks the target (signup date, a file sorted by outcome) the model learns that ordering, which is <strong>leakage</strong>. One-hot encoding it also creates one column per row.
+<pre>X = df.drop(columns=["customer_id", "email", "target"])
+ids = df["customer_id"]     \# keep for joining predictions back</pre>
+<div class="fb-explain">Keep IDs for <code>merge</code> and <code>groupby</code>, and aggregate them into features (orders per customer) using training data only. A meaningful code such as a store code or ZIP is a categorical feature, not a row identifier.</div>` },
+ { cat: "preprocessing", q: "How do you spot an identifier column in a dataset?", a: `Look for columns where almost every value is unique, names ending in <code>_id</code>, <code>key</code>, <code>uuid</code> or <code>email</code>, sequential integers, and text columns with huge cardinality.
+<pre>(df.nunique() / len(df)).sort_values(ascending=False)   \# near 1.0 = likely an ID
+df["col"].is_monotonic_increasing                        \# sequential?</pre>
+<div class="fb-explain">A unique ratio near 1.0 is a strong hint but not proof: a continuous measurement like <code>income</code> can also be mostly unique, so confirm with the column's meaning.</div>` },
   { cat: "feature-engineering", q: "What is feature engineering vs. pre-processing?", a: "Pre-processing cleans existing data; feature engineering creates new variables from that cleaned data to better capture patterns." },
   { cat: "feature-engineering", q: "What is feature leakage and why dangerous?", a: "Using info not actually available at prediction time — makes a model look accurate in development while being useless or wrong once deployed." },
   { cat: "feature-engineering", q: "One-hot vs. label encoding — when use each?", a: "One-hot for unordered categories with manageable cardinality; label/ordinal only when categories have a genuine order." },
@@ -6272,7 +7672,46 @@ df[~df['is_remote']]    \# rows where False</pre>
   { cat: "pandas-filtering", q: "How do you filter a string column case-insensitively?", a: `Pass <code>case=False</code> to <code>str.contains()</code>, or normalize case explicitly before comparing.
 <pre>df[df['Name'].str.contains('alice', case=False)]
 \# or:
-df[df['City'].str.lower() == 'boston']</pre>` }
+df[df['City'].str.lower() == 'boston']</pre>` },
+ { cat: "premodel", q: "What is the difference between normalization and standardization?", a: `<strong>Normalization</strong> (min-max) rescales values into a fixed range, usually 0 to 1: <code>(x - min) / (max - min)</code>. <strong>Standardization</strong> (z-score) centers values at mean 0 with standard deviation 1: <code>(x - mean) / std</code>.
+<pre>MinMaxScaler().fit_transform(X)
+StandardScaler().fit_transform(X)</pre>
+<div class="fb-explain">Min-max is sensitive to outliers (one extreme value squeezes everything else), so use <code>RobustScaler</code> for outlier-heavy data. Use standardization for linear models, SVM and PCA.</div>` },
+ { cat: "premodel", q: "Why must you fit a scaler (or a median fill) on the training data only?", a: `Anything learned from the data (mean, standard deviation, median, selected features) must come from the training rows only. If you fit on all rows, test information leaks into training and the evaluation looks better than it really is.
+<pre>scaler = StandardScaler().fit(X_train)
+X_train_s = scaler.transform(X_train)
+X_test_s = scaler.transform(X_test)</pre>
+<div class="fb-explain">Stateless cleaning (renaming, parsing dates, extracting parts) is safe before the split. Fitted steps are not.</div>` },
+ { cat: "premodel", q: "What is row granularity and why decide it first?", a: `<strong>Granularity</strong> is what one row represents: one order, one customer, one customer per month. It fixes the key that must be unique, the level of the target and how tables are joined, so every later step depends on it.
+<pre>df["order_id"].is_unique
+df = df.drop_duplicates(subset=["order_id"])</pre>
+<div class="fb-explain">Merging tables with repeated keys multiplies rows (fan-out) and silently changes the grain, so compare row counts before and after each merge.</div>` },
+ { cat: "premodel", q: "Which models need feature scaling, and which do not?", a: `Distance- and gradient-based models need it: k-NN, SVM, k-means, PCA, linear and logistic regression with regularization, and neural networks. Tree-based models (decision tree, random forest, gradient boosting) do not, because they split on thresholds and ignore the scale.
+<div class="fb-explain">Usually leave 0/1 dummy columns unscaled, and do not scale the target.</div>` },
+ { cat: "premodel", q: "What is a proxy variable in modelling, and how do you detect one?", a: `A feature that indirectly encodes a sensitive attribute (for example ZIP code standing in for a protected group), so dropping the sensitive column does not remove the bias. Test whether the other features can predict the sensitive attribute.
+<pre>pd.crosstab(df["zip"], df["group"], normalize="index")
+# cross-validated AUC predicting group from zip: about 0.5 = no, 0.7+ = proxy</pre>
+<div class="fb-explain">A strong link is a warning sign, not proof of unfairness; also check outcomes by group.</div>` },
+ { cat: "interview-examples", q: "How would you build a BNPL (Buy Now Pay Later) default model differently from a churn model?", a: `Three main differences. The target is rarer (about 7%), so judge with ROC-AUC and PR-AUC, not accuracy. Split <strong>by time</strong> (train on the past, test on the future) and exclude anything known only after the order, such as days past due. The final step is a <strong>business decision</strong>: choose an approval cutoff that trades default losses against lost revenue, while keeping the model explainable and fair.
+<pre>cut = int(len(orders) * 0.75)
+Xtr, Xte = X.iloc[:cut], X.iloc[cut:]   # time-based split</pre>
+<div class="fb-explain">In my test, profit peaked at a cutoff of about 0.07 (69% approval); approving everyone lost money.</div>` },
+ { cat: "interview-examples", q: "Walk me through how you would build a model from raw data.", a: `Frame the problem and choose the target and metric; explore the data; split train and test <strong>before</strong> learning anything; build a pipeline (impute, encode, scale) fitted on train only; baseline, then candidate models compared by cross-validation; tune; score the test set once; explain the drivers; deploy and monitor for drift.
+<div class="fb-explain">Structure matters more than detail: problem, data, split, prepare, model, evaluate, deliver.</div>` },
+ { cat: "interview-examples", q: "Why use a baseline model, and what should it be?", a: `A baseline shows whether a real model adds anything. Use a do-nothing model (always predict the majority class or the mean) or a simple one such as logistic regression.
+<pre>DummyClassifier(strategy="prior")   # ROC-AUC 0.50</pre>
+<div class="fb-explain">If a complex model barely beats the baseline, it is not worth the extra complexity.</div>` },
+ { cat: "interview-examples", q: "Accuracy is 78% but the model misses most churners. What do you do?", a: `With imbalanced classes accuracy misleads. Check recall and precision for the minority class, then lower the decision threshold or use class weights, based on the business cost of a missed churner versus a false alarm.
+<pre>probs = model.predict_proba(X_test)[:, 1]
+pred = (probs >= 0.3).astype(int)   # recall 0.44 -> 0.76</pre>
+<div class="fb-explain">The right trade-off is a business decision, not a statistical one.</div>` },
+ { cat: "interview-examples", q: "How is a retail demand forecast different from a churn model, and how do you evaluate it?", a: `The target is a <strong>number</strong> (units sold), so it is regression. Evaluate with MAE and <strong>WAPE</strong> (total absolute error divided by total sales), check <em>bias</em>, and always beat naive baselines such as last week or the same week last year. Build lag features per store with <code>shift()</code> and split <strong>by time</strong>.
+<pre>g = sales.groupby("store")["units"]
+sales["lag_1"] = g.shift(1)
+sales["lag_52"] = g.shift(52)</pre>
+<div class="fb-explain">In my test, boosting reached WAPE 0.128 against 0.203 for the naive last-week forecast.</div>` },
+ { cat: "interview-examples", q: "Why use shift() when creating lag features, and what goes wrong without groupby?", a: `<code>shift(1)</code> moves each value down one row so a row sees <em>last</em> week, not its own sales. Without <code>groupby</code>, the first week of one store would receive the last week of the previous store, and a rolling mean that includes the current row leaks the answer.
+<pre>sales["avg_4"] = g.transform(lambda s: s.shift(1).rolling(4).mean())</pre>` },
 ];
 
 const QUIZ = [
@@ -6312,7 +7751,6 @@ const QUIZ = [
   { cat: "preprocessing", q: "What is data leakage in pre-processing?", options: ["Losing rows during a merge", "Using information from data that should be unseen (e.g. test set) to compute a transformation", "A database connection timing out", "Storing data in the wrong file format"], correct: 1, explain: "Fitting a fill value, scaler, or encoding on the full dataset (including test data) leaks information across the split." },
   { cat: "preprocessing", q: "Why might drop_duplicates() on full rows miss real duplicates?", options: ["It only works on numeric columns", "Same entities can have slightly different formatting that doesn't match exactly", "It automatically removes all rows", "It requires a primary key column"], correct: 1, explain: "Deduplicating on a standardized business key is usually more reliable than an exact full-row match." },
   { cat: "preprocessing", q: "What does errors='coerce' do in pd.to_numeric()?", options: ["Raises an error immediately", "Converts unparseable values to NaN instead of crashing", "Forces all values to strings", "Deletes the column"], correct: 1, explain: "Always check the resulting null count afterward — don't assume the conversion 'just worked.'" },
-
   { cat: "feature-engineering", q: "What is feature leakage?", options: ["A feature with too many missing values", "Using information in a feature that wouldn't actually be available at prediction time", "A feature that's highly correlated with another feature", "A feature stored in the wrong data type"], correct: 1, explain: "The single most damaging feature engineering mistake — it inflates development metrics while being useless in production." },
   { cat: "feature-engineering", q: "When does one-hot encoding become a problem?", options: ["When the categorical column has very few unique values", "When the categorical column has very high cardinality", "When the column is already numeric", "When there are no missing values"], correct: 1, explain: "Thousands of categories means thousands of sparse columns — consider frequency or target encoding instead." },
   { cat: "feature-engineering", q: "Why don't tree-based models generally need feature scaling?", options: ["They automatically scale features internally", "They split on thresholds per feature independently, so scale doesn't affect splits", "They only work with categorical data", "They round all values to integers"], correct: 1, explain: "Distance- and gradient-based models are scale-sensitive; tree splits are not." },
@@ -6333,6 +7771,7 @@ const QUIZ = [
 ];
 
 document.getElementById("stat-flashcards").textContent = FLASHCARDS.length;
+document.getElementById("stat-modules").textContent = MODULES.length;
 document.getElementById("stat-quiz").textContent = QUIZ.length;
 
 /* ===================== MODULE CARDS + MODAL ===================== */
@@ -6353,7 +7792,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
