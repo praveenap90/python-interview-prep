@@ -5863,6 +5863,52 @@ features.columns.tolist()</pre>
           <tr><td><strong>Model importance</strong></td><td>Use a tree model's importance scores</td><td><code>RandomForest.feature_importances_</code></td></tr>
           <tr><td><strong>L1 regularization</strong></td><td>Shrink weak coefficients to exactly 0</td><td><code>LogisticRegression(l1_ratio=1, solver="saga")</code></td></tr>
         </table>
+        <h4>Step map: the five selection methods</h4>
+        <p>Blue methods filter columns without a model (<strong>filter methods</strong>); pink methods use a model to judge columns (<strong>model-based methods</strong>). Each branch reads top to bottom: tool, what it does, when to use it, and the catch.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Feature selection: keep what helps, drop the rest"]):::root
+
+    ROOT --&gt; V["Low variance"]:::filt
+    ROOT --&gt; C["Correlation filter"]:::filt
+    ROOT --&gt; U["Univariate test"]:::filt
+    ROOT --&gt; M["Model importance"]:::modl
+    ROOT --&gt; L["L1 regularization"]:::modl
+
+    V --&gt; V1["VarianceThreshold(threshold=0)"]:::code
+    V1 --&gt; V2["Removes constant or near-constant columns"]:::note
+    V2 --&gt; V3["Use: first, cheapest clean-up"]:::use
+    V3 --&gt; V4["Example removed: constant"]:::opt
+
+    C --&gt; C1["df.corr().abs() &gt; 0.9"]:::code
+    C1 --&gt; C2["Removes one of each near-duplicate pair"]:::note
+    C2 --&gt; C3["Use: before linear models"]:::use
+    C3 --&gt; C4["Example removed: spend_copy"]:::opt
+
+    U --&gt; U1["SelectKBest(f_classif, k)"]:::code
+    U1 --&gt; U2["Scores each feature alone vs the target"]:::note
+    U2 --&gt; U3["Use: quick ranking of many columns"]:::use
+    U3 --&gt; U4["Misses feature interactions"]:::opt
+
+    M --&gt; M1["RandomForest.feature_importances_"]:::code
+    M1 --&gt; M2["Tree model scores each feature"]:::note
+    M2 --&gt; M3["Use: nonlinear patterns"]:::use
+    M3 --&gt; M4["Correlated copies share the credit"]:::opt
+
+    L --&gt; L1["LogisticRegression(l1_ratio=1, solver='saga')"]:::code
+    L1 --&gt; L2["Shrinks weak coefficients to exactly 0"]:::note
+    L2 --&gt; L3["Use: scale first, then read the zeros"]:::use
+    L3 --&gt; L4["Choose C by cross-validation"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef filt fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef modl fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>
+        <p><strong>Rule for all five:</strong> fit the selection on the <strong>training data only</strong>, then apply the same column list to the test set, otherwise the test set influences which features you keep.</p>
         <h4>Real outputs</h4>
         <pre style="margin-bottom:2px">import numpy as np
 import pandas as pd
