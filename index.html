@@ -516,6 +516,7 @@
   .mermaid-zoom-btns { position: absolute; top: 8px; left: 8px; z-index: 2; display: flex; gap: 4px; }
   .mermaid-zoom-btns button { background: var(--pine); color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 5px 9px; cursor: pointer; opacity: 0.85; font-family: inherit; }
   .mermaid-zoom-btns button:hover { opacity: 1; background: var(--pine-deep); }
+  .mermaid-zoom-btns .mz-pct { align-self: center; font-size: 12px; color: var(--ink-soft); min-width: 38px; text-align: center; }
   .mermaid-wrap .mermaid { display: inline-block; min-width: 480px; }
   .mermaid-wrap .mermaid svg { max-width: none; }
   .mermaid-expand-btn { position: absolute; top: 8px; right: 8px; z-index: 2; background: var(--pine); color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 5px 11px; cursor: pointer; opacity: 0.85; font-family: inherit; }
@@ -9602,22 +9603,31 @@ document.getElementById("eda-tabs").addEventListener("click", e => {
   mermaid.initialize({ startOnLoad: true, theme: "default", flowchart: { htmlLabels: true } });
 
   /* Inline charts: draw at readable size (scrollable), with text-size buttons and drag-to-pan */
+  /* Chart text size: one setting for every chart, remembered in this browser (1 = normal, 16px text) */
+  function getChartScale() {
+    let s = 1;
+    try { s = parseFloat(localStorage.getItem("chartTextScale")) || 1; } catch (e) { s = 1; }
+    return Math.min(Math.max(s, 0.5), 3);
+  }
+  function setChartScale(s) {
+    s = Math.min(Math.max(s, 0.5), 3);
+    try { localStorage.setItem("chartTextScale", String(s)); } catch (e) { /* storage unavailable */ }
+    window.__chartScale = s;
+    document.querySelectorAll(".mermaid-wrap").forEach(sizeMermaidSvg);
+  }
   function sizeMermaidSvg(wrap) {
     const svg = wrap.querySelector(".mermaid svg");
     if (!svg) return;
     const vb = svg.viewBox && svg.viewBox.baseVal;
     if (!vb || !vb.width) return;
-    if (!wrap.dataset.scale) {
-      // default size: fit the width, but never smaller than 75% so the text stays readable
-      const avail = Math.max(wrap.clientWidth - 28, 300);
-      wrap.dataset.scale = String(Math.max(0.75, Math.min(1, avail / vb.width)));
-    }
-    const s = parseFloat(wrap.dataset.scale);
+    const s = window.__chartScale || (window.__chartScale = getChartScale());
     svg.removeAttribute("width");
     svg.removeAttribute("height");
     svg.style.maxWidth = "none";
     svg.style.width = (vb.width * s) + "px";
     svg.style.height = (vb.height * s) + "px";
+    const lab = wrap.querySelector(".mz-pct");
+    if (lab) lab.textContent = Math.round(s * 100) + "%";
   }
   function setupMermaidWrap(wrap) {
     if (!wrap.querySelector(".mermaid svg")) return;
@@ -9625,15 +9635,11 @@ document.getElementById("eda-tabs").addEventListener("click", e => {
     if (wrap.querySelector(".mermaid-zoom-btns")) return;
     const box = document.createElement("div");
     box.className = "mermaid-zoom-btns";
-    box.innerHTML = '<button type="button" class="mz-out" title="Smaller text">A&minus;</button><button type="button" class="mz-in" title="Larger text">A+</button>';
-    const change = f => {
-      const s = Math.min(Math.max(parseFloat(wrap.dataset.scale) * f, 0.4), 3.5);
-      wrap.dataset.scale = String(s);
-      sizeMermaidSvg(wrap);
-    };
-    box.querySelector(".mz-out").addEventListener("click", e => { e.stopPropagation(); change(0.8); });
-    box.querySelector(".mz-in").addEventListener("click", e => { e.stopPropagation(); change(1.25); });
+    box.innerHTML = '<button type="button" class="mz-out" title="Smaller chart text (all charts)">A&minus;</button><span class="mz-pct"></span><button type="button" class="mz-in" title="Larger chart text (all charts)">A+</button>';
+    box.querySelector(".mz-out").addEventListener("click", e => { e.stopPropagation(); setChartScale((window.__chartScale || 1) * 0.85); });
+    box.querySelector(".mz-in").addEventListener("click", e => { e.stopPropagation(); setChartScale((window.__chartScale || 1) * 1.2); });
     wrap.appendChild(box);
+    sizeMermaidSvg(wrap);
     // mouse drag to pan (touch uses the browser's own scrolling)
     let drag = null;
     wrap.addEventListener("mousedown", e => {
