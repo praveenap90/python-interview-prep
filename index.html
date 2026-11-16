@@ -7923,7 +7923,7 @@ flowchart LR
         
         <p><strong>Rule of thumb:</strong> normalize for systems that write a lot (orders, payments), and use a star schema for systems that read and aggregate a lot (dashboards, reports).</p>
         `,
-      dmlevels: `
+      dmdesign: `
         <h4>Conceptual, logical and physical models</h4>
         <p>Each level adds detail. You discuss the first with business people, the second with analysts and engineers, and the third with the database team.</p>
         <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
@@ -7954,8 +7954,8 @@ flowchart TD
           <tr><td><strong>Depends on the database?</strong></td><td>No</td><td>No</td><td>Yes</td></tr>
           <tr><td><strong>Typical tool</strong></td><td>Whiteboard, ER sketch</td><td>ER diagram tool</td><td>SQL DDL scripts</td></tr>
         </table><div class="callout" style="border-left:4px solid var(--ochre); padding:8px 12px; margin:10px 0;"><strong>Common mistake:</strong> jumping straight to the physical level (creating tables) before agreeing what the business entities and questions are.</div>
-        `,
-      dmer: `
+        
+        
         <h4>Entities, relationships and keys</h4>
         <p>An <strong>entity</strong> is a thing the business tracks (customer, product, order). An <strong>attribute</strong> describes it (name, price). A <strong>relationship</strong> links entities, with a <strong>cardinality</strong>: one-to-one, one-to-many or many-to-many.</p>
         
@@ -7986,8 +7986,8 @@ flowchart LR
           <tr><td><strong>Natural key</strong></td><td>A real-world identifier</td><td>Email, PAN, passport number</td></tr>
           <tr><td><strong>Surrogate key</strong></td><td>A system-made number with no business meaning</td><td><code>customer_key</code> 1, 2, 3</td></tr>
         </table><p><strong>Natural versus surrogate:</strong> natural keys can change (an email changes) and can be long. Surrogate keys are stable, short and are required for slowly changing dimensions, where one customer has several rows.</p>
-        `,
-      dmnorm: `
+        
+        
         <h4>Normalization: store each fact once</h4>
         <p><strong>Normalization</strong> splits a table so that each fact lives in one place. It prevents three anomalies: <strong>update</strong> (change a value in one row but not the others), <strong>insert</strong> (cannot add a customer without an order) and <strong>delete</strong> (deleting the last order loses the customer).</p>
         <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
@@ -8110,7 +8110,7 @@ flowchart TD
   style S3 fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
 </div></div><div class="callout" style="border-left:4px solid var(--ochre); padding:8px 12px; margin:10px 0;"><strong>When to denormalize:</strong> reporting systems join many tables and read far more than they write, so analysts deliberately repeat attributes in wide dimension tables. That is the star schema in the next tab.</div>
         `,
-      dmstar: `
+      dmwarehouse: `
         <h4>Star schema: facts in the middle, dimensions around them</h4>
         <p>A <strong>fact table</strong> records events with numbers to measure (quantity, revenue). <strong>Dimension tables</strong> describe the who, what and when (customer, product, date). The fact table holds foreign keys to each dimension, so the diagram looks like a star.</p>
         <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
@@ -8373,8 +8373,8 @@ flowchart TD
   style OLTP fill:#FAECE7,stroke:#D85A30,color:#712B13
   style CHG fill:#FAEEDA,stroke:#BA7517,color:#633806
   style OLAP fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
-</div></div>`,
-      dmscd: `
+</div></div>
+        
         <h4>Slowly changing dimensions (SCD)</h4>
         <p>Dimension values change slowly: a customer moves, a product changes category. An <strong>SCD</strong> type decides whether history is kept.</p>
         <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
@@ -9930,7 +9930,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", tokenization: "Tokenization", nlpcleaning: "Cleaning & Stop Words", stemlemma: "Stemming vs Lemmatization", posner: "POS & Named Entities", vectorize: "Text to Numbers", nlpexample: "One Example, Every Step", nlppipeline: "Pipeline & Interview", dmlevels: "Three Levels", dmer: "ER Diagrams & Keys", dmnorm: "Normalization", dmstar: "Star Schema", dmscd: "Slowly Changing Dimensions", dmphys: "Physical Design", dminterview: "Interview Approach", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", tokenization: "Tokenization", nlpcleaning: "Cleaning & Stop Words", stemlemma: "Stemming vs Lemmatization", posner: "POS & Named Entities", vectorize: "Text to Numbers", nlpexample: "One Example, Every Step", nlppipeline: "Pipeline & Interview", dmdesign: "Design: Levels, ER & Normalization", dmwarehouse: "Warehouse: Star Schema & SCD", dmphys: "Physical Design", dminterview: "Interview Approach", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
