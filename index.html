@@ -505,8 +505,13 @@
     .stat-row { gap: 20px; }
     .modal-body { max-height: 60vh; }
   }
-  .mermaid-wrap { background: #fafaf5; border: 1px solid var(--rule); border-radius: 6px; padding: 14px; margin: 10px 0; overflow-x: auto; text-align: center; position: relative; }
+  .mermaid-wrap { background: #fafaf5; border: 1px solid var(--rule); border-radius: 6px; padding: 44px 14px 14px; margin: 10px 0; overflow: auto; max-height: 75vh; text-align: center; position: relative; cursor: grab; -webkit-overflow-scrolling: touch; }
+  .mermaid-wrap.panning { cursor: grabbing; user-select: none; }
+  .mermaid-zoom-btns { position: absolute; top: 8px; left: 8px; z-index: 2; display: flex; gap: 4px; }
+  .mermaid-zoom-btns button { background: var(--pine); color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 5px 9px; cursor: pointer; opacity: 0.85; font-family: inherit; }
+  .mermaid-zoom-btns button:hover { opacity: 1; background: var(--pine-deep); }
   .mermaid-wrap .mermaid { display: inline-block; min-width: 480px; }
+  .mermaid-wrap .mermaid svg { max-width: none; }
   .mermaid-expand-btn { position: absolute; top: 8px; right: 8px; z-index: 2; background: var(--pine); color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 5px 11px; cursor: pointer; opacity: 0.85; font-family: inherit; }
   .mermaid-expand-btn:hover { opacity: 1; background: var(--pine-deep); }
   .mermaid-modal { display: none; position: fixed; inset: 0; background: rgba(15,20,13,0.94); z-index: 1000; flex-direction: column; }
@@ -564,7 +569,7 @@
 
 <section id="modules">
   <div class="wrap">
-    <p class="section-label">▸ sixteen modules</p>
+    <p class="section-label">▸ seventeen modules</p>
     <h2>Click a module to explore</h2>
     <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
     <div class="module-grid" id="module-grid"></div>
@@ -6735,6 +6740,1021 @@ buffer 0.3 short 1363 extra 16213 cost 21664</pre>
           <tr><td>Monitoring</td><td>Track WAPE weekly and retrain when it drifts</td></tr>
         </table>
         `    }
+  },
+  {
+    id: "nlp",
+    icon: "🔤",
+    title: "NLP Text Processing",
+    tagline: "raw text to model-ready tokens",
+    desc: "Tokenization, cleaning and stop words, stemming vs lemmatization, POS tags and named entities, TF-IDF, and a mini sentiment pipeline, with spaCy and real outputs.",
+    tags: ["spaCy", "tokenization", "lemmatization", "TF-IDF"],
+    tabs: {
+      overview: `
+        <h4>NLP text processing: the order of operations</h4>
+        <p>Models need numbers, but text is messy: mixed case, punctuation, links, endings like -ing and -ed. <strong>Text processing</strong> turns raw text into clean, comparable tokens, and then into numeric features. The standard library for the language steps is <strong>spaCy</strong>; scikit-learn turns tokens into numbers.</p>
+        
+        <h4>Step map</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    A(["Raw text"]):::root --&gt; B["Tokenize"]:::tok
+    B --&gt; C["Lowercase"]:::clean
+    C --&gt; D["Remove noise: URLs, punctuation, digits"]:::clean
+    D --&gt; E["Remove stop words, keep negations"]:::clean
+    E --&gt; F["Lemmatize"]:::norm
+    F --&gt; G["Vectorize: bag of words or TF-IDF"]:::vec
+    G --&gt; H(["Model"]):::root
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef tok fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef clean fill:#00b894,stroke:#007a63,color:#fff
+    classDef norm fill:#e84393,stroke:#a8286d,color:#fff
+    classDef vec fill:#e17055,stroke:#b34a30,color:#fff
+</div></div>
+        <h4>The steps at a glance</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:16%">Step</th><th style="width:30%">What it does</th><th style="width:26%">Tool</th><th style="width:28%">Watch out</th></tr>
+          <tr><td><strong>1. Tokenize</strong></td><td>Split text into words and symbols</td><td><code>nlp(text)</code></td><td><code>split()</code> leaves punctuation attached</td></tr>
+          <tr><td><strong>2. Lowercase</strong></td><td><code>Phone</code> and <code>phone</code> become one word</td><td><code>str.lower()</code></td><td>Do it after NER, since capitals help find names</td></tr>
+          <tr><td><strong>3. Remove noise</strong></td><td>Drop URLs, punctuation, numbers</td><td><code>re.sub</code></td><td>Do not remove what the task needs (<code>!!!</code>, prices)</td></tr>
+          <tr><td><strong>4. Stop words</strong></td><td>Drop very common words (the, is, a)</td><td><code>token.is_stop</code></td><td><code>not</code>, <code>no</code>, <code>never</code> are stop words: keep them for sentiment</td></tr>
+          <tr><td><strong>5. Lemmatize</strong></td><td>Reduce words to dictionary form</td><td><code>token.lemma_</code></td><td>Needs the part of speech; slower than stemming</td></tr>
+          <tr><td><strong>6. Vectorize</strong></td><td>Turn tokens into numbers</td><td><code>TfidfVectorizer</code></td><td>Fit on training text only</td></tr>
+        </table>
+        <h4>NLP tasks map: traditional ML vs modern deep learning</h4>
+        <p>This map shows where text processing leads. The cleaning steps above feed the traditional branch directly (CV or TF-IDF input); the modern branch learns its own features from embeddings or raw tokens.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    NLP(("🧠 NLP Tasks"))
+
+    NLP --&gt; TRAD["📊 TRADITIONAL ML&lt;br/&gt;&lt;br/&gt;Hand-crafted features + classic algorithms&lt;br/&gt;&lt;br/&gt;Fast, simple, interpretable, needs less data"]
+    NLP --&gt; MOD["🚀 MODERN: DEEP LEARNING&lt;br/&gt;&lt;br/&gt;Model learns features automatically&lt;br/&gt;&lt;br/&gt;Understands context, needs more data and compute"]
+
+    TRAD --&gt; SA["😊 Sentiment Analysis&lt;br/&gt;&lt;br/&gt;Meaning: identify the positivity or negativity of text&lt;br/&gt;&lt;br/&gt;Technique: rules-based&lt;br/&gt;&lt;br/&gt;Library: VADER&lt;br/&gt;&lt;br/&gt;Input: raw text"]
+    TRAD --&gt; TC["🏷️ Text Classification&lt;br/&gt;&lt;br/&gt;Meaning: classify text into one label or another&lt;br/&gt;&lt;br/&gt;Technique: Naive Bayes&lt;br/&gt;&lt;br/&gt;Library: scikit-learn&lt;br/&gt;&lt;br/&gt;Input: CV / TF-IDF"]
+    TRAD --&gt; TM["🗂️ Topic Modelling&lt;br/&gt;&lt;br/&gt;Meaning: find themes within a corpus&lt;br/&gt;&lt;br/&gt;Technique: NMF&lt;br/&gt;&lt;br/&gt;Library: scikit-learn&lt;br/&gt;&lt;br/&gt;Input: CV / TF-IDF"]
+
+    MOD --&gt; DL["🕸️ Deep Learning&lt;br/&gt;&lt;br/&gt;Meaning: neural networks learn patterns from word embeddings&lt;br/&gt;&lt;br/&gt;Technique: RNN, LSTM, CNN&lt;br/&gt;&lt;br/&gt;Library: PyTorch, TensorFlow&lt;br/&gt;&lt;br/&gt;Input: embeddings"]
+    MOD --&gt; TF["⚡ Transformers&lt;br/&gt;&lt;br/&gt;Meaning: use attention to understand each word in context&lt;br/&gt;&lt;br/&gt;Technique: encoder, decoder, self-attention&lt;br/&gt;&lt;br/&gt;Library: Hugging Face Transformers&lt;br/&gt;&lt;br/&gt;Input: tokens + embeddings"]
+    MOD --&gt; LLM["🤖 LLMs&lt;br/&gt;&lt;br/&gt;Meaning: huge pretrained models that understand and generate text&lt;br/&gt;&lt;br/&gt;Technique: pretrain, fine-tune, prompt&lt;br/&gt;&lt;br/&gt;Library: LLM APIs, Hugging Face&lt;br/&gt;&lt;br/&gt;Input: prompt text"]
+
+    classDef root fill:#FFF9C4,stroke:#F9A825,stroke-width:3px,color:#000000
+    classDef tradHead fill:#A5D6A7,stroke:#2E7D32,stroke-width:3px,color:#000000
+    classDef modHead fill:#F48FB1,stroke:#C2185B,stroke-width:3px,color:#000000
+    classDef sa fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef tc fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef tm fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef dl fill:#FCE4EC,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef tf fill:#E0F7FA,stroke:#00838F,stroke-width:2px,color:#000000
+    classDef llm fill:#EDE7F6,stroke:#4527A0,stroke-width:2px,color:#000000
+
+    class NLP root
+    class TRAD tradHead
+    class MOD modHead
+    class SA sa
+    class TC tc
+    class TM tm
+    class DL dl
+    class TF tf
+    class LLM llm
+
+    linkStyle default stroke:#000000,stroke-width:2px
+</div></div>
+        <h4>NLP pipeline map: raw text to feature matrix</h4>
+        <p>This map follows one review through preprocessing (step 1) and vectorization (step 2) to the feature matrix a classic model needs. The dotted arrow shows that POS tagging can help lemmatization.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    RAW["📄 Raw Text&lt;br/&gt;&lt;br/&gt;Meaning: unprocessed text from reviews, tweets, documents&lt;br/&gt;&lt;br/&gt;Example: 'The movies were AMAZING!!! 😍'"]
+
+    subgraph PRE["🧹 STEP 1: TEXT PREPROCESSING"]
+        direction TB
+        CL["🧼 Cleaning&lt;br/&gt;&lt;br/&gt;Meaning: remove noise such as case, punctuation, HTML, numbers&lt;br/&gt;&lt;br/&gt;Example: 'the movies were amazing'&lt;br/&gt;&lt;br/&gt;Library: re, str methods"]
+        TK["✂️ Tokenization&lt;br/&gt;&lt;br/&gt;Meaning: split text into words or sentences&lt;br/&gt;&lt;br/&gt;Example: ['the', 'movies', 'were', 'amazing']&lt;br/&gt;&lt;br/&gt;Library: NLTK, spaCy"]
+        SW["🚫 Stop Word Removal&lt;br/&gt;&lt;br/&gt;Meaning: drop common words that add little meaning&lt;br/&gt;&lt;br/&gt;Example: ['movies', 'amazing']&lt;br/&gt;&lt;br/&gt;Library: NLTK, spaCy"]
+        ST["🪓 Stemming&lt;br/&gt;&lt;br/&gt;Meaning: chop word endings by rules, may give non-words&lt;br/&gt;&lt;br/&gt;Example: movies → movi&lt;br/&gt;&lt;br/&gt;Library: NLTK PorterStemmer"]
+        LM["📖 Lemmatization&lt;br/&gt;&lt;br/&gt;Meaning: reduce a word to its dictionary form, more accurate&lt;br/&gt;&lt;br/&gt;Example: movies → movie, better → good&lt;br/&gt;&lt;br/&gt;Library: NLTK WordNet, spaCy"]
+        PS["🏷️ POS Tagging&lt;br/&gt;&lt;br/&gt;Meaning: label each word as noun, verb, adjective&lt;br/&gt;&lt;br/&gt;Example: movies → NOUN, amazing → ADJ&lt;br/&gt;&lt;br/&gt;Library: spaCy, NLTK"]
+        AP["⚙️ .apply&lt;br/&gt;&lt;br/&gt;Meaning: run the cleaning function on every row of a DataFrame column&lt;br/&gt;&lt;br/&gt;Example: df['clean'] = df['text'].apply(clean_fn)&lt;br/&gt;&lt;br/&gt;Library: pandas"]
+
+        CL --&gt; TK --&gt; SW
+        SW --&gt; ST
+        SW --&gt; LM
+        PS -.-&gt; LM
+        ST --&gt; AP
+        LM --&gt; AP
+    end
+
+    subgraph VEC["🔢 STEP 2: VECTORIZATION (text to numbers)"]
+        direction TB
+        CV["🔤 Count Vectorizer&lt;br/&gt;&lt;br/&gt;Meaning: count how often each word appears in a document (Bag of Words)&lt;br/&gt;&lt;br/&gt;Example: movie = 1, amazing = 2&lt;br/&gt;&lt;br/&gt;Library: scikit-learn CountVectorizer"]
+        TF["⚖️ TF-IDF&lt;br/&gt;&lt;br/&gt;Meaning: weight words by frequency, rare informative words score higher&lt;br/&gt;&lt;br/&gt;Example: common words get low scores, rare words get high scores&lt;br/&gt;&lt;br/&gt;Library: scikit-learn TfidfVectorizer"]
+    end
+
+    FM["📊 Feature Matrix&lt;br/&gt;&lt;br/&gt;Meaning: rows are documents, columns are words, values are counts or scores&lt;br/&gt;&lt;br/&gt;Input for: Naive Bayes, Logistic Regression, NMF"]
+
+    RAW --&gt; PRE
+    PRE --&gt; VEC
+    VEC --&gt; FM
+
+    classDef raw fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef prep fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef apply fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#000000
+    classDef vec fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px,color:#000000
+    classDef out fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+
+    class RAW raw
+    class CL,TK,SW,ST,LM,PS prep
+    class AP apply
+    class CV,TF vec
+    class FM out
+
+    style PRE fill:#FFF8E1,stroke:#EF6C00,stroke-width:3px,color:#000000
+    style VEC fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000
+
+    linkStyle default stroke:#000000,stroke-width:2px
+</div></div>
+        <h4>NLP tasks in Python: sentiment, classification and topic modelling</h4>
+        <p>This map puts the three classic tasks side by side with their code: VADER for sentiment (rules-based, no training), Naive Bayes or logistic regression for text classification, and NMF for topic modelling. Steps 5 and 6 of classification and step 3 of topic modelling are choose-one steps.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(("🐍 NLP Tasks in Python"))
+
+    subgraph SENT["😊 SENTIMENT ANALYSIS (VADER, rules-based)"]
+        direction TB
+        S1["1. Text / sentence list&lt;br/&gt;&lt;br/&gt;sentences = ['I love this movie', 'Terrible service']"]
+        S2["2. Convert to DataFrame&lt;br/&gt;&lt;br/&gt;df = pd.DataFrame(sentences, columns=['text'])"]
+        S3["3. Import VADER module&lt;br/&gt;&lt;br/&gt;from nltk.sentiment.vader import SentimentIntensityAnalyzer&lt;br/&gt;&lt;br/&gt;sia = SentimentIntensityAnalyzer()"]
+        S4["4. Test on ONE sentence first&lt;br/&gt;&lt;br/&gt;test = sentences[0]&lt;br/&gt;&lt;br/&gt;sia.polarity_scores(test)&lt;br/&gt;&lt;br/&gt;Output: neg, neu, pos, compound"]
+        S5["5. Apply to the ENTIRE column&lt;br/&gt;&lt;br/&gt;df['scores'] = df['text'].apply(sia.polarity_scores)"]
+        S6["6. Pull the compound score&lt;br/&gt;&lt;br/&gt;df['compound'] = df['scores'].apply(lambda d: d['compound'])"]
+        S7["7. Label (optional)&lt;br/&gt;&lt;br/&gt;compound ≥ 0.05 → positive&lt;br/&gt;compound ≤ -0.05 → negative&lt;br/&gt;otherwise → neutral"]
+        S1 --&gt; S2 --&gt; S3 --&gt; S4 --&gt; S5 --&gt; S6 --&gt; S7
+    end
+
+    subgraph CLS["🏷️ TEXT CLASSIFICATION (Naive Bayes or Logistic Regression, scikit-learn)"]
+        direction TB
+        C1["1. Start with DataFrame&lt;br/&gt;&lt;br/&gt;columns: description, label&lt;br/&gt;&lt;br/&gt;df = pd.read_csv('data.csv')"]
+        C2["2. Define text preprocessing function&lt;br/&gt;&lt;br/&gt;def clean_text(text):&lt;br/&gt;lowercase → remove punctuation → tokenize →&lt;br/&gt;remove stop words → lemmatize → join back to string"]
+        C3["3. Pull clean text column with .apply()&lt;br/&gt;&lt;br/&gt;df['clean_text'] = df['description'].apply(clean_text)"]
+        C4["4. Define X and y, then split&lt;br/&gt;&lt;br/&gt;X = df['clean_text']&lt;br/&gt;y = df['label']&lt;br/&gt;&lt;br/&gt;X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)"]
+        C1 --&gt; C2 --&gt; C3 --&gt; C4
+
+        subgraph VEC["🔢 5. VECTORIZATION (choose one)"]
+            direction LR
+            CCV["🔤 Count Vectorizer&lt;br/&gt;&lt;br/&gt;from sklearn.feature_extraction.text import CountVectorizer&lt;br/&gt;&lt;br/&gt;vec = CountVectorizer()&lt;br/&gt;&lt;br/&gt;X_train_v = vec.fit_transform(X_train)&lt;br/&gt;&lt;br/&gt;X_test_v = vec.transform(X_test)"]
+            CTF["⚖️ TF-IDF&lt;br/&gt;&lt;br/&gt;from sklearn.feature_extraction.text import TfidfVectorizer&lt;br/&gt;&lt;br/&gt;vec = TfidfVectorizer()&lt;br/&gt;&lt;br/&gt;X_train_v = vec.fit_transform(X_train)&lt;br/&gt;&lt;br/&gt;X_test_v = vec.transform(X_test)"]
+            CCV ~~~ CTF
+        end
+
+        subgraph MOD["🎯 6. CHOOSE A MODEL (choose one)"]
+            direction LR
+            CNB["Naive Bayes&lt;br/&gt;&lt;br/&gt;from sklearn.naive_bayes import MultinomialNB&lt;br/&gt;&lt;br/&gt;model = MultinomialNB()"]
+            CLR["Logistic Regression&lt;br/&gt;&lt;br/&gt;from sklearn.linear_model import LogisticRegression&lt;br/&gt;&lt;br/&gt;model = LogisticRegression(max_iter=1000)"]
+            CNB ~~~ CLR
+        end
+
+        C4 --&gt; VEC
+        VEC --&gt; MOD
+        MOD --&gt; C7["7. Fit the model&lt;br/&gt;&lt;br/&gt;model.fit(X_train_v, y_train)"]
+        C7 --&gt; C8["8. Predict&lt;br/&gt;&lt;br/&gt;y_pred = model.predict(X_test_v)"]
+        C8 --&gt; C9["9. Evaluate&lt;br/&gt;&lt;br/&gt;accuracy_score(y_test, y_pred)&lt;br/&gt;&lt;br/&gt;classification_report(y_test, y_pred)"]
+    end
+
+    subgraph TOP["🗂️ TOPIC MODELLING (NMF, scikit-learn)"]
+        direction TB
+        T1["1. Start with DataFrame&lt;br/&gt;&lt;br/&gt;column: description&lt;br/&gt;&lt;br/&gt;df = pd.read_csv('data.csv')"]
+        T2["2. Pull clean text column with .apply()&lt;br/&gt;&lt;br/&gt;df['clean_text'] = df['description'].apply(clean_text)&lt;br/&gt;&lt;br/&gt;(same clean_text function as text classification)"]
+        T1 --&gt; T2
+
+        subgraph TVEC["🔢 3. VECTORIZATION (choose one)"]
+            direction LR
+            TCV["🔤 Count Vectorizer&lt;br/&gt;&lt;br/&gt;from sklearn.feature_extraction.text import CountVectorizer&lt;br/&gt;&lt;br/&gt;vec = CountVectorizer(stop_words='english')&lt;br/&gt;&lt;br/&gt;X_df = vec.fit_transform(df['clean_text'])"]
+            TTF["⚖️ TF-IDF&lt;br/&gt;&lt;br/&gt;from sklearn.feature_extraction.text import TfidfVectorizer&lt;br/&gt;&lt;br/&gt;vec = TfidfVectorizer(stop_words='english')&lt;br/&gt;&lt;br/&gt;X_df = vec.fit_transform(df['clean_text'])"]
+            TCV ~~~ TTF
+        end
+
+        T2 --&gt; TVEC
+        TVEC --&gt; T4["4. Import model and fit NMF&lt;br/&gt;&lt;br/&gt;from sklearn.decomposition import NMF&lt;br/&gt;&lt;br/&gt;nmf = NMF(n_components=2)&lt;br/&gt;&lt;br/&gt;W = nmf.fit_transform(X_df)&lt;br/&gt;&lt;br/&gt;H = nmf.components_"]
+        T4 --&gt; T5["5. Get top words per topic&lt;br/&gt;&lt;br/&gt;words = vec.get_feature_names_out()&lt;br/&gt;&lt;br/&gt;H rows = topics, sort weights, take top words&lt;br/&gt;&lt;br/&gt;df['topic'] = W.argmax(axis=1)"]
+        T5 --&gt; T6["🧩 Reusable function&lt;br/&gt;&lt;br/&gt;from sklearn.decomposition import NMF&lt;br/&gt;from sklearn.feature_extraction.text import TfidfVectorizer&lt;br/&gt;&lt;br/&gt;def apply_nmf(docs, k=3, top_n=5):&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;tfidf = TfidfVectorizer(stop_words='english')&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;X = tfidf.fit_transform(docs)  # docs x words (non-negative)&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;model = NMF(n_components=k, init='nndsvda', max_iter=500, random_state=42)&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;W = model.fit_transform(X)  # docs x topics&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;words = tfidf.get_feature_names_out()  # column names of X&lt;br/&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;for i, comp in enumerate(model.components_):  # one topic's word weights&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;top_idx = comp.argsort()[::-1][:top_n]  # biggest weights&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;print(f'Topic {i+1}:', [words[j] for j in top_idx])&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return model, W, words"]
+    end
+
+    ROOT --- SENT
+    ROOT --- CLS
+    ROOT --- TOP
+
+    classDef root fill:#FFF9C4,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef sent fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef key fill:#A5D6A7,stroke:#1B5E20,stroke-width:3px,color:#000000
+    classDef data fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef prep fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef split fill:#FFF9C4,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef cv fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px,color:#000000
+    classDef tf fill:#B2EBF2,stroke:#00838F,stroke-width:2px,color:#000000
+    classDef nb fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef lr fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef fit fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000000
+    classDef pred fill:#FFCDD2,stroke:#C62828,stroke-width:2px,color:#000000
+    classDef eval fill:#A5D6A7,stroke:#1B5E20,stroke-width:3px,color:#000000
+    classDef nmf fill:#FFCC80,stroke:#E65100,stroke-width:2px,color:#000000
+    classDef func fill:#FFF59D,stroke:#F9A825,stroke-width:2px,color:#000000
+
+    class ROOT root
+    class S1,S2,S3,S4,S5,S7 sent
+    class S6 key
+    class C1 data
+    class C2,C3 prep
+    class C4 split
+    class CCV cv
+    class CTF tf
+    class CNB nb
+    class CLR lr
+    class C7 fit
+    class C8 pred
+    class C9 eval
+    class T1 data
+    class T2 prep
+    class TCV cv
+    class TTF tf
+    class T4 nmf
+    class T5 eval
+    class T6 func
+
+    style SENT fill:#F1F8E9,stroke:#2E7D32,stroke-width:3px,color:#000000
+    style CLS fill:#E3F2FD,stroke:#1565C0,stroke-width:3px,color:#000000
+    style TOP fill:#FFF3E0,stroke:#EF6C00,stroke-width:3px,color:#000000
+    style VEC fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000
+    style MOD fill:#FFFDE7,stroke:#F9A825,stroke-width:3px,color:#000000
+    style TVEC fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000
+
+    linkStyle default stroke:#000000,stroke-width:2px
+    linkStyle 9 stroke:none
+    linkStyle 10 stroke:none
+    linkStyle 17 stroke:none
+    linkStyle 22,23,24 fill:none,stroke:#000000,stroke-width:2px
+</div></div>
+        <h4>Neural networks and deep learning flow</h4>
+        <p>This map shows how text models move from traditional ML to neural networks: converting text to numbers, one neuron (logistic regression), layers of neurons, the training loop, and the main architectures to choose from.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    subgraph ALL["🧠 NEURAL NETWORKS AND DEEP LEARNING FLOW"]
+        direction TB
+
+        N1["1. Text to numbers&lt;br/&gt;&lt;br/&gt;Meaning: neural networks only understand numbers, so words are converted into vectors&lt;br/&gt;&lt;br/&gt;Input: TF-IDF, Count Vectorizer, or word embeddings"]
+        N2["2. Logistic regression = ONE neuron&lt;br/&gt;&lt;br/&gt;Meaning: adds up the inputs using weights, then squashes the result into a probability between 0 and 1&lt;br/&gt;&lt;br/&gt;Use: simple yes or no decisions"]
+        N3["3. Neural network = many neurons in layers&lt;br/&gt;&lt;br/&gt;Meaning: stacking neurons lets the model learn complex patterns&lt;br/&gt;&lt;br/&gt;Input layer → Hidden layers → Output layer"]
+        N4["4. NN matrices&lt;br/&gt;&lt;br/&gt;Meaning: the numbers the network learns&lt;br/&gt;&lt;br/&gt;W = weights, how strongly each input matters&lt;br/&gt;b = biases, a shift for each neuron&lt;br/&gt;Activation = decides whether a neuron fires"]
+
+        N1 --&gt; N2 --&gt; N3 --&gt; N4
+
+        subgraph TRAIN["🔁 5. TRAINING LOOP (repeat for many epochs)"]
+            direction LR
+            TF1["Forward pass&lt;br/&gt;&lt;br/&gt;Meaning: input flows through the layers to make a prediction"]
+            TF2["Loss&lt;br/&gt;&lt;br/&gt;Meaning: measures how wrong the prediction was"]
+            TF3["Backpropagation&lt;br/&gt;&lt;br/&gt;Meaning: works out which weights caused the error"]
+            TF4["Update weights&lt;br/&gt;&lt;br/&gt;Meaning: nudge the weights to reduce the error (gradient descent)"]
+            TF1 --&gt; TF2 --&gt; TF3 --&gt; TF4
+            TF4 --&gt;|"next epoch"| TF1
+        end
+
+        subgraph ARCH["🏗️ 6. DEEP LEARNING ARCHITECTURES (choose by task)"]
+            direction LR
+            A1["MLP / Dense&lt;br/&gt;&lt;br/&gt;Meaning: plain stacked layers, every neuron connects to the next layer&lt;br/&gt;&lt;br/&gt;Use: classification on TF-IDF"]
+            A2["RNN / LSTM / GRU&lt;br/&gt;&lt;br/&gt;Meaning: reads words in order and keeps a memory of earlier words&lt;br/&gt;&lt;br/&gt;Use: sequences"]
+            A3["CNN&lt;br/&gt;&lt;br/&gt;Meaning: scans for local word patterns, like short phrases&lt;br/&gt;&lt;br/&gt;Use: short text classification"]
+            A4["Transformer&lt;br/&gt;&lt;br/&gt;Meaning: attention lets every word look at every other word at once&lt;br/&gt;&lt;br/&gt;Use: BERT, GPT, LLMs"]
+            A1 ~~~ A2
+            A2 ~~~ A3
+            A3 ~~~ A4
+        end
+
+        N4 --&gt; TRAIN
+        TRAIN --&gt; ARCH
+        ARCH --&gt; N7["7. Predict&lt;br/&gt;&lt;br/&gt;Meaning: the trained network gives a label or probability for new, unseen text"]
+        N7 --&gt; N8["8. Evaluate&lt;br/&gt;&lt;br/&gt;Meaning: check accuracy on held-out test data to see if the model really learned"]
+    end
+
+    classDef num fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px,color:#000000
+    classDef neuron fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef net fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef mat fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef fwd fill:#B2EBF2,stroke:#00838F,stroke-width:2px,color:#000000
+    classDef loss fill:#FFCDD2,stroke:#C62828,stroke-width:2px,color:#000000
+    classDef back fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef upd fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000000
+    classDef mlp fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef rnn fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef cnn fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef trf fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef pred fill:#FFF59D,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef eval fill:#A5D6A7,stroke:#1B5E20,stroke-width:3px,color:#000000
+
+    class N1 num
+    class N2 neuron
+    class N3 net
+    class N4 mat
+    class TF1 fwd
+    class TF2 loss
+    class TF3 back
+    class TF4 upd
+    class A1 mlp
+    class A2 rnn
+    class A3 cnn
+    class A4 trf
+    class N7 pred
+    class N8 eval
+
+    style ALL fill:#FFFDE7,stroke:#F9A825,stroke-width:4px,color:#000000
+    style TRAIN fill:#E0F7FA,stroke:#00838F,stroke-width:3px,color:#000000
+    style ARCH fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000
+
+    linkStyle default stroke:#000000,stroke-width:2px
+    linkStyle 7 stroke:none
+    linkStyle 8 stroke:none
+    linkStyle 9 stroke:none
+</div></div>
+        <h4>Transformers and LLMs flow</h4>
+        <p>This map follows text through a transformer (tokenizer, embeddings, self-attention, feed-forward layers), then the three model families, how a large language model is built, and where Hugging Face fits in.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    subgraph ALL["⚡ TRANSFORMERS AND LLMs FLOW"]
+        direction TB
+
+        B0["1. Input text&lt;br/&gt;&lt;br/&gt;Meaning: the raw sentence or prompt the model has to process"]
+        B1["2. Tokenizer&lt;br/&gt;&lt;br/&gt;Meaning: splits text into small pieces (subwords) and gives each piece a number ID&lt;br/&gt;&lt;br/&gt;Types: BPE, WordPiece"]
+        B2["3. Embeddings&lt;br/&gt;&lt;br/&gt;Meaning: turns each token ID into a vector that captures its meaning&lt;br/&gt;&lt;br/&gt;Positional encoding: adds word order, since transformers read all words at once"]
+        B3["4. Self-attention&lt;br/&gt;&lt;br/&gt;Meaning: every word decides how much to focus on every other word, so it understands context&lt;br/&gt;&lt;br/&gt;Q = what I look for, K = what I offer, V = what I pass on&lt;br/&gt;Multi-head = several attention views at once"]
+        B4["5. Feed-forward network (FFN)&lt;br/&gt;&lt;br/&gt;Meaning: a small neural network applied to each token to refine its meaning&lt;br/&gt;&lt;br/&gt;Residual + layer norm keep training stable&lt;br/&gt;This block repeats many times (layers)"]
+
+        B0 --&gt; B1 --&gt; B2 --&gt; B3 --&gt; B4
+
+        subgraph FAM["🏛️ 6. ENCODERS AND DECODERS (model families)"]
+            direction LR
+            F1["Encoder-only&lt;br/&gt;&lt;br/&gt;Meaning: reads the whole text to understand it&lt;br/&gt;&lt;br/&gt;Example: BERT&lt;br/&gt;&lt;br/&gt;Use: classification, search, entity recognition"]
+            F2["Decoder-only&lt;br/&gt;&lt;br/&gt;Meaning: predicts the next token, one at a time, to generate text&lt;br/&gt;&lt;br/&gt;Example: GPT, Claude, Llama&lt;br/&gt;&lt;br/&gt;Use: chat, writing, code"]
+            F3["Encoder-decoder&lt;br/&gt;&lt;br/&gt;Meaning: encoder understands the input, decoder writes the output&lt;br/&gt;&lt;br/&gt;Example: T5, original Transformer&lt;br/&gt;&lt;br/&gt;Use: translation, summarization"]
+            F1 ~~~ F2
+            F2 ~~~ F3
+        end
+
+        subgraph LLM["🤖 7. LLM LIFECYCLE (how a large language model is built)"]
+            direction LR
+            L1["Pretraining&lt;br/&gt;&lt;br/&gt;Meaning: learn language by predicting the next token on huge amounts of text"]
+            L2["Fine-tuning&lt;br/&gt;&lt;br/&gt;Meaning: train further on specific tasks or instructions so it follows directions"]
+            L3["Alignment (RLHF)&lt;br/&gt;&lt;br/&gt;Meaning: use human feedback so answers are helpful and safe"]
+            L4["Inference / prompting&lt;br/&gt;&lt;br/&gt;Meaning: you give a prompt and the model generates a reply token by token"]
+            L1 --&gt; L2 --&gt; L3 --&gt; L4
+        end
+
+        B4 --&gt; FAM
+        FAM --&gt; LLM
+        LLM --&gt; HF["🤗 8. Hugging Face (tool, kept separate)&lt;br/&gt;&lt;br/&gt;Meaning: an open hub where pretrained transformer models, tokenizers, and datasets are shared&lt;br/&gt;&lt;br/&gt;Why it matters: download a ready model or fine-tune it instead of training from scratch&lt;br/&gt;&lt;br/&gt;Examples: BERT, GPT-2, Llama, T5"]
+        HF --&gt; OUT["9. Applications&lt;br/&gt;&lt;br/&gt;Meaning: what you finally use it for&lt;br/&gt;&lt;br/&gt;Sentiment analysis, classification, Q and A, summarization, translation, chat"]
+    end
+
+    classDef inp fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef tok fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef emb fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px,color:#000000
+    classDef att fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef ffn fill:#B2EBF2,stroke:#00838F,stroke-width:2px,color:#000000
+    classDef enc fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef dec fill:#FFCDD2,stroke:#C62828,stroke-width:2px,color:#000000
+    classDef encdec fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000000
+    classDef llm1 fill:#FFF59D,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef llm2 fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef llm3 fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef llm4 fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef hf fill:#FFECB3,stroke:#FF8F00,stroke-width:3px,color:#000000
+    classDef out fill:#A5D6A7,stroke:#1B5E20,stroke-width:3px,color:#000000
+
+    class B0 inp
+    class B1 tok
+    class B2 emb
+    class B3 att
+    class B4 ffn
+    class F1 enc
+    class F2 dec
+    class F3 encdec
+    class L1 llm1
+    class L2 llm2
+    class L3 llm3
+    class L4 llm4
+    class HF hf
+    class OUT out
+
+    style ALL fill:#FFFDE7,stroke:#F9A825,stroke-width:4px,color:#000000
+    style FAM fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000
+    style LLM fill:#E0F7FA,stroke:#00838F,stroke-width:3px,color:#000000
+
+    linkStyle default stroke:#000000,stroke-width:2px
+    linkStyle 4 stroke:none
+    linkStyle 5 stroke:none
+</div></div>
+        <h4>Hugging Face flow</h4>
+        <p>This map shows how to use a pretrained model from the Hugging Face Hub: pick a task and model, then take the quick path (pipeline) or the custom path (tokenizer, model, logits, answer), with an optional fine-tuning branch on your own data.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    subgraph ALL["🤗 HUGGING FACE FLOW"]
+        direction TB
+
+        H1["1. Hugging Face Hub&lt;br/&gt;&lt;br/&gt;Meaning: an online library of pretrained models, datasets, and demos that anyone can search and download"]
+        H2["2. Pick a task and a model&lt;br/&gt;&lt;br/&gt;Meaning: decide what you need (sentiment, translation, summarization, Q and A, text generation), then choose a pretrained model for it&lt;br/&gt;&lt;br/&gt;Examples: BERT, DistilBERT, T5, Llama"]
+        D{"Choose approach"}
+
+        H1 --&gt; H2 --&gt; D
+
+        PA["3A. Quick path: pipeline&lt;br/&gt;&lt;br/&gt;Meaning: one ready-made tool that handles tokenizing, the model, and the output for you&lt;br/&gt;&lt;br/&gt;Give it text, get an answer&lt;br/&gt;&lt;br/&gt;Best for: demos and quick tests"]
+
+        PB1["3B. Load the tokenizer&lt;br/&gt;&lt;br/&gt;Meaning: loads the exact tokenizer this model was trained with, which turns text into token IDs&lt;br/&gt;&lt;br/&gt;It must match the model"]
+        PB2["4B. Load the model&lt;br/&gt;&lt;br/&gt;Meaning: downloads the pretrained weights (the learned numbers) and sets up the architecture with the right output head for your task"]
+        PB3["5B. Run the model&lt;br/&gt;&lt;br/&gt;Meaning: token IDs pass through the transformer layers, which produce raw scores called logits"]
+        PB4["6B. Convert scores to an answer&lt;br/&gt;&lt;br/&gt;Meaning: softmax turns scores into probabilities and the top label is picked, or generated tokens are decoded back into text"]
+
+        D --&gt;|"quick"| PA
+        D --&gt;|"custom control"| PB1
+        PB1 --&gt; PB2 --&gt; PB3 --&gt; PB4
+
+        R["7. Prediction&lt;br/&gt;&lt;br/&gt;Meaning: the final output, such as a label with a confidence score, a summary, a translation, or generated text"]
+        PA --&gt; R
+        PB4 --&gt; R
+
+        subgraph FT["🎓 OPTIONAL: FINE-TUNE ON YOUR OWN DATA"]
+            direction TB
+            FT1["8. Load your dataset&lt;br/&gt;&lt;br/&gt;Meaning: your own labeled examples, from the Hub or your files"]
+            FT2["9. Tokenize the dataset&lt;br/&gt;&lt;br/&gt;Meaning: convert every example into token IDs using the model's tokenizer"]
+            FT3["10. Train with Trainer&lt;br/&gt;&lt;br/&gt;Meaning: starts from the pretrained weights and adjusts them slightly on your data; Trainer handles batching, the training loop, and saving"]
+            FT4["11. Evaluate&lt;br/&gt;&lt;br/&gt;Meaning: test on held-out data to check the model really improved"]
+            FT5["12. Share to the Hub&lt;br/&gt;&lt;br/&gt;Meaning: upload your model so you or others can reload it later by name"]
+            FT1 --&gt; FT2 --&gt; FT3 --&gt; FT4 --&gt; FT5
+        end
+
+        R -.-&gt;|"if accuracy is not enough"| FT1
+    end
+
+    classDef hub fill:#FFF59D,stroke:#F9A825,stroke-width:3px,color:#000000
+    classDef pick fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef dec fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef quick fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef tok fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px,color:#000000
+    classDef mod fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef run fill:#B2EBF2,stroke:#00838F,stroke-width:2px,color:#000000
+    classDef ans fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef pred fill:#A5D6A7,stroke:#1B5E20,stroke-width:3px,color:#000000
+    classDef ft fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000000
+    classDef share fill:#FFCDD2,stroke:#C62828,stroke-width:2px,color:#000000
+
+    class H1 hub
+    class H2 pick
+    class D dec
+    class PA quick
+    class PB1 tok
+    class PB2 mod
+    class PB3 run
+    class PB4 ans
+    class R pred
+    class FT1,FT2,FT3,FT4 ft
+    class FT5 share
+
+    style ALL fill:#FFFDE7,stroke:#F9A825,stroke-width:4px,color:#000000
+    style FT fill:#EDE7F6,stroke:#4527A0,stroke-width:3px,color:#000000
+
+    linkStyle default stroke:#000000,stroke-width:2px
+</div></div>
+        <h4>Which NLP approach should you use?</h4>
+        <p>A decision chart for choosing an approach: generate text with an LLM, find themes with topic modelling, score sentiment with rules, or build a classifier, starting with a simple baseline and moving to a fine-tuned transformer only if needed.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    START["🎯 What do you want to do with the text?"]
+
+    START --&gt; Q1{"Generate text?&lt;br/&gt;chat, summarize, translate, answer questions"}
+    Q1 --&gt;|"Yes"| LLM["🤖 Use an LLM or a pretrained transformer&lt;br/&gt;&lt;br/&gt;Meaning: models like GPT, Claude, T5 already know language&lt;br/&gt;&lt;br/&gt;Get them from Hugging Face or an API"]
+    Q1 --&gt;|"No, analyze or label text"| Q2{"Do you have labeled examples?&lt;br/&gt;text with known answers"}
+
+    Q2 --&gt;|"No, want themes"| TM["🗂️ Topic modelling&lt;br/&gt;&lt;br/&gt;Meaning: finds hidden themes in a pile of documents&lt;br/&gt;&lt;br/&gt;Approach: clean text → TF-IDF → NMF"]
+    Q2 --&gt;|"No, just positive or negative"| VAD["😊 Rules-based sentiment&lt;br/&gt;&lt;br/&gt;Meaning: a ready-made word list scores the text&lt;br/&gt;&lt;br/&gt;Approach: VADER on raw text"]
+    Q2 --&gt;|"Yes"| Q3{"Is a simple model accurate enough?"}
+
+    Q3 --&gt;|"Start here"| ML["📊 Traditional ML baseline&lt;br/&gt;&lt;br/&gt;Meaning: fast, cheap, easy to explain&lt;br/&gt;&lt;br/&gt;Approach: clean text → Count Vectorizer or TF-IDF → Naive Bayes or Logistic Regression"]
+    ML --&gt;|"Not accurate enough, or meaning depends on context"| FT["🤗 Fine-tune a pretrained transformer&lt;br/&gt;&lt;br/&gt;Meaning: start from a model that already understands language and adjust it on your labels&lt;br/&gt;&lt;br/&gt;Tool: Hugging Face"]
+
+    classDef start fill:#FFF59D,stroke:#F9A825,stroke-width:3px,color:#000000
+    classDef q fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef llm fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef tm fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef vad fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef ml fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef ft fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000000
+
+    class START start
+    class Q1,Q2,Q3 q
+    class LLM llm
+    class TM tm
+    class VAD vad
+    class ML ml
+    class FT ft
+
+    linkStyle default stroke:#000000,stroke-width:2px
+</div></div>
+        <h4>Setup</h4>
+        <pre style="margin-bottom:2px"># one-time install in the terminal:
+#   pip install spacy
+#   python -m spacy download en_core_web_sm
+import spacy
+spacy.__version__</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">'3.8.18'</pre>
+        <p><strong>spaCy versus NLTK:</strong> spaCy is fast, ships one trained pipeline and returns rich token objects, so it is the usual choice for projects. NLTK is older and more of a toolbox for teaching; it is handy for quick stemming (<code>PorterStemmer</code>).</p>
+        `,
+      tokenization: `
+        <h4>Tokenization: splitting text into tokens</h4>
+        <p>A <strong>token</strong> is one unit of text: a word, a number, a punctuation mark or a symbol. Everything later (stop words, lemmas, features) works token by token.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:24%">Method</th><th style="width:38%">Idea</th><th style="width:38%">Weakness</th></tr>
+          <tr><td><code>text.split()</code></td><td>Split on spaces</td><td>Punctuation stays glued to words; contractions and <code>$1,200</code> are not handled</td></tr>
+          <tr><td>Regex <code>re.findall</code></td><td>Keep only the characters you describe</td><td>You decide every rule yourself, and numbers, apostrophes and abbreviations get lost</td></tr>
+          <tr><td><strong>spaCy</strong> <code>nlp(text)</code></td><td>Rule-based tokenizer with exceptions for abbreviations, contractions and symbols</td><td>Slower, and needs a language model installed</td></tr>
+        </table>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">import re
+import spacy
+nlp = spacy.load("en_core_web_sm")     # one-time install: python -m spacy download en_core_web_sm
+
+text = "Dr. Smith's team isn't buying 3 new laptops; they're paying $1,200 each!"
+print("split :", text.split())
+print("regex :", re.findall(r"[A-Za-z]+", text))
+print("spaCy :", [t.text for t in nlp(text)])</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">split : ['Dr.', "Smith's", 'team', "isn't", 'buying', '3', 'new', 'laptops;', "they're", 'paying', '$1,200', 'each!']
+regex : ['Dr', 'Smith', 's', 'team', 'isn', 't', 'buying', 'new', 'laptops', 'they', 're', 'paying', 'each']
+spaCy : ['Dr.', 'Smith', "'s", 'team', 'is', "n't", 'buying', '3', 'new', 'laptops', ';', 'they', "'re", 'paying', '$', '1,200', 'each', '!']</pre>
+        <pre style="margin-bottom:2px"># Each spaCy token carries useful flags
+doc = nlp("Dr. Smith bought 3 laptops for $1,200 each. Then he left!")
+[(t.text, t.is_alpha, t.is_punct, t.like_num) for t in doc][:10]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('Dr.', False, False, False), ('Smith', True, False, False), ('bought', True, False, False), ('3', False, False, True), ('laptops', True, False, False), ('for', True, False, False), ('$', False, False, False), ('1,200', False, False, True), ('each', True, False, False), ('.', False, True, False)]</pre>
+        <pre style="margin-bottom:2px"># Sentence splitting comes from the same pipeline
+[s.text for s in doc.sents]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['Dr. Smith bought 3 laptops for $1,200 each.', 'Then he left!']</pre>
+        <pre style="margin-bottom:2px"># What is inside the pipeline
+nlp.pipe_names</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['tok2vec', 'tagger', 'parser', 'attribute_ruler', 'lemmatizer', 'ner']</pre>
+        <p><strong>Reading the results:</strong> <code>split()</code> leaves <code>laptops;</code> and <code>each!</code> with punctuation attached, and the regex loses <code>3</code>, <code>$1,200</code> and turns <code>isn't</code> into <code>isn</code> and <code>t</code>. spaCy keeps <code>Dr.</code> whole, separates <code>'s</code> and <code>n't</code>, and splits <code>$</code> from <code>1,200</code>. Each token also has flags (<code>is_alpha</code>, <code>is_punct</code>, <code>like_num</code>) you can filter on.</p>
+        `,
+      nlpcleaning: `
+        <h4>Cleaning text and removing stop words</h4>
+        <p>Cleaning removes variation that does not matter: case, links, punctuation. <strong>Stop words</strong> are very common words such as <em>the</em>, <em>is</em> and <em>a</em>. Removing them shrinks the data and focuses the model on content words.</p>
+        <h4>Step map: cleaning and stop words</h4>
+        <p>Each branch reads top to bottom: the tool, what it does, a real result, when to use it, and the catch. The last branch shows that the task decides how much to remove.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Cleaning text before modelling"]):::root
+
+    ROOT --&gt; A["Lowercase"]:::low
+    ROOT --&gt; B["Remove noise"]:::noise
+    ROOT --&gt; C["Remove stop words"]:::stop
+    ROOT --&gt; D["Keep negations"]:::neg
+    ROOT --&gt; E["Let the task decide"]:::task
+
+    A --&gt; A1["text.lower()"]:::code
+    A1 --&gt; A2["Phone and phone become one word"]:::note
+    A2 --&gt; A3["Use: almost every text task"]:::use
+    A3 --&gt; A4["Catch: loses capitals that mark names"]:::opt
+
+    B --&gt; B1["re.sub(r'https?://[^ ]+', ' ', t)"]:::code
+    B1 --&gt; B2["Drops URLs, punctuation, digits"]:::note
+    B2 --&gt; B3["Loved the NEW phones!! becomes loved the new phones"]:::out
+    B3 --&gt; B4["Catch: ! and ? can signal emotion"]:::opt
+
+    C --&gt; C1["token.is_stop in spaCy"]:::code
+    C1 --&gt; C2["Drops very common words"]:::note
+    C2 --&gt; C3["326 stop words; kept: good, phone, battery, bad"]:::out
+    C3 --&gt; C4["Use: topic models and search"]:::use
+    C4 --&gt; C5["Catch: not is a stop word"]:::opt
+
+    D --&gt; D1["KEEP = not, no, never, n't, nor"]:::code
+    D1 --&gt; D2["Skip these when dropping stop words"]:::note
+    D2 --&gt; D3["isn't bad, no problem, never kept"]:::out
+    D3 --&gt; D4["Use: sentiment and reviews"]:::use
+    D4 --&gt; D5["Result: accuracy 0.47 becomes 1.0"]:::opt
+
+    E --&gt; E1["Topic or search model"]:::code
+    E1 --&gt; E2["Remove stop words"]:::note
+    E2 --&gt; E3["Sentiment model: keep negations"]:::use
+    E3 --&gt; E4["Transformer: keep everything"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef low fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef noise fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef stop fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef neg fill:#d63031,stroke:#8c1f20,color:#fff,stroke-width:2px
+    classDef task fill:#fdcb6e,stroke:#e17055,color:#2d3436,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef out fill:#74b9ff,stroke:#0984e3,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>
+        <pre style="margin-bottom:2px">def basic_clean(t):
+    t = t.lower()                              # 1. one case
+    t = re.sub(r"https?://[^ ]+", " ", t)      # 2. remove URLs
+    t = re.sub(r"[^a-z ]", " ", t)             # 3. keep letters only
+    return re.sub(r" +", " ", t).strip()       # 4. tidy spaces
+basic_clean("Loved the NEW phones!! Battery lasts 2 days. See https://x.co/abc")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">'loved the new phones battery lasts days see'</pre>
+        <pre style="margin-bottom:2px"># Stop words: very common words that carry little meaning
+doc = nlp("This is a very good phone and the battery is not bad")
+print("removed:", [t.text for t in doc if t.is_stop])
+print("kept   :", [t.text for t in doc if not t.is_stop])
+len(nlp.Defaults.stop_words)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">removed: ['This', 'is', 'a', 'very', 'and', 'the', 'is', 'not']
+kept   : ['good', 'phone', 'battery', 'bad']
+326</pre>
+        <pre style="margin-bottom:2px"># The negation trap: spaCy treats not, no, never and n't as stop words
+doc = nlp("This isn't bad, no problem at all, never again")
+[t.text for t in doc if t.is_stop]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['This', 'is', "n't", 'no', 'at', 'all', 'never', 'again']</pre>
+        <pre style="margin-bottom:2px"># Fix: keep the negations when you remove stop words
+KEEP = {"not", "no", "never", "n't", "nor"}
+def drop_stop(doc):
+    return [t.text for t in doc if (not t.is_stop or t.lower_ in KEEP) and t.is_alpha or t.lower_ in KEEP]
+print(drop_stop(nlp("This isn't bad, no problem at all, never again")))
+print(drop_stop(nlp("The delivery was NOT on time")))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">["n't", 'bad', 'no', 'problem', 'never']
+['delivery', 'NOT', 'time']</pre>
+        <p style="border-left:4px solid #d63031; padding-left:12px;"><strong>The negation trap:</strong> spaCy treats <code>not</code>, <code>no</code>, <code>never</code> and <code>n't</code> as stop words. Removing them turns <em>not bad</em> into <em>bad</em> and flips the meaning. For sentiment tasks, keep negations, as the last block does (and see the accuracy difference in the Pipeline tab).</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:26%">Cleaning choice</th><th style="width:34%">Good for</th><th style="width:40%">Risk</th></tr>
+          <tr><td>Lowercase</td><td>Almost everything</td><td>Loses capitals that signal names (<code>Apple</code>)</td></tr>
+          <tr><td>Remove punctuation</td><td>Topic and keyword models</td><td>Loses <code>!</code> and <code>?</code> that signal emotion</td></tr>
+          <tr><td>Remove numbers</td><td>Topic models</td><td>Loses prices, dates and quantities</td></tr>
+          <tr><td>Remove stop words</td><td>Topic models, search</td><td>Breaks negation and short phrases</td></tr>
+          <tr><td>Keep everything</td><td>Deep models and transformers</td><td>Larger, noisier features for classic models</td></tr>
+        </table>`,
+      stemlemma: `
+        <h4>Stemming versus lemmatization</h4>
+        <p>Both reduce related words to a common base so that <em>run</em>, <em>runs</em> and <em>running</em> count as one feature.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Aspect</th><th style="width:38%">Stemming</th><th style="width:42%">Lemmatization</th></tr>
+          <tr><td><strong>What it does</strong></td><td>Chops word endings using fixed rules</td><td>Looks up the dictionary form of the word</td></tr>
+          <tr><td><strong>Output</strong></td><td>A stem, which may not be a real word</td><td>A lemma, which is always a real word</td></tr>
+          <tr><td><strong>Uses context?</strong></td><td>No, it works on each word alone</td><td>Yes, it uses the part of speech (<code>saw</code> as a verb is <code>see</code>, as a noun is <code>saw</code>)</td></tr>
+          <tr><td><strong>Irregular forms</strong></td><td>Poorly: <code>mice</code> stays <code>mice</code>, <code>better</code> stays <code>better</code></td><td>Well: <code>mice</code> becomes <code>mouse</code>, <code>was</code> becomes <code>be</code></td></tr>
+          <tr><td><strong>Examples (run)</strong></td><td><code>studies</code> to <code>studi</code>, <code>universities</code> to <code>univers</code>, <code>was</code> to <code>wa</code>, <code>running</code> to <code>run</code></td><td><code>studies</code> to <code>study</code>, <code>universities</code> to <code>university</code>, <code>was</code> to <code>be</code>, <code>running</code> to <code>run</code></td></tr>
+          <tr><td><strong>Speed</strong></td><td>Very fast</td><td>Slower, needs a trained language model</td></tr>
+          <tr><td><strong>Tool</strong></td><td>NLTK <code>PorterStemmer().stem(word)</code></td><td>spaCy <code>token.lemma_</code></td></tr>
+          <tr><td><strong>Readable features</strong></td><td>Low (<code>studi</code>, <code>wa</code>)</td><td>High, easier to explain to stakeholders</td></tr>
+          <tr><td><strong>Quirks</strong></td><td>Over-stemming can merge unrelated words</td><td>spaCy gives <code>better</code> to <code>well</code></td></tr>
+          <tr><td><strong>Best for</strong></td><td>Search, large text, fast baselines</td><td>Classification and topic models; anything you must read and explain</td></tr>
+          <tr><td><strong>Interview one-liner</strong></td><td>Stemming chops, lemmatization looks up.</td><td>Lemmatization returns a real word using context.</td></tr>
+        </table>
+        <h4>Step map: stemming vs lemmatization</h4>
+        <p>Each branch reads top to bottom: the tool, how it works, a real result, when to use it, and the catch. The third branch shows why lemmatization needs the sentence context.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Reduce words to a base form"]):::root
+
+    ROOT --&gt; S["Stemming"]:::stem
+    ROOT --&gt; L["Lemmatization"]:::lem
+    ROOT --&gt; P["Part of speech matters"]:::pos
+
+    S --&gt; S1["PorterStemmer().stem(word)"]:::code
+    S1 --&gt; S2["Chops endings with fixed rules"]:::note
+    S2 --&gt; S3["studies to studi, was to wa, mice stays mice"]:::out
+    S3 --&gt; S4["Use: search and fast baselines"]:::use
+    S4 --&gt; S5["Catch: stems are not real words"]:::opt
+
+    L --&gt; L1["token.lemma_ (spaCy)"]:::code
+    L1 --&gt; L2["Looks up the dictionary form"]:::note
+    L2 --&gt; L3["studies to study, was to be, mice to mouse"]:::out
+    L3 --&gt; L4["Use: features you can read and explain"]:::use
+    L4 --&gt; L5["Catch: slower, needs a language model"]:::opt
+
+    P --&gt; P1["nlp(text) tags each token first"]:::code
+    P1 --&gt; P2["Same spelling, different role"]:::note
+    P2 --&gt; P3["saw as verb to see, saw as noun stays saw"]:::out
+    P3 --&gt; P4["Use: lemmatize full sentences, not single words"]:::use
+    P4 --&gt; P5["Catch: better becomes well"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef stem fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef lem fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef pos fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef out fill:#74b9ff,stroke:#0984e3,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>
+        <h4>Real outputs</h4>
+        <pre style="margin-bottom:2px">from nltk.stem import PorterStemmer
+stemmer = PorterStemmer()
+words = ["running", "studies", "universities", "was", "mice", "better"]
+[(w, stemmer.stem(w), nlp(w)[0].lemma_) for w in words]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('running', 'run', 'run'), ('studies', 'studi', 'study'), ('universities', 'univers', 'university'), ('was', 'wa', 'be'), ('mice', 'mice', 'mouse'), ('better', 'better', 'well')]</pre>
+        <pre style="margin-bottom:2px"># Lemmatization uses the part of speech: the same spelling can have different lemmas
+[(t.text, t.lemma_, t.pos_) for t in nlp("I saw the saw and the saws")]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('I', 'I', 'PRON'), ('saw', 'see', 'VERB'), ('the', 'the', 'DET'), ('saw', 'saw', 'NOUN'), ('and', 'and', 'CCONJ'), ('the', 'the', 'DET'), ('saws', 'saw', 'NOUN')]</pre>
+        <pre style="margin-bottom:2px">[(t.text, t.lemma_) for t in nlp("The children were running and the mice ate better cheeses")]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('The', 'the'), ('children', 'child'), ('were', 'be'), ('running', 'run'), ('and', 'and'), ('the', 'the'), ('mice', 'mouse'), ('ate', 'eat'), ('better', 'well'), ('cheeses', 'cheese')]</pre>
+        <p><strong>Reading the results:</strong> the stemmer gives <code>studi</code>, <code>univers</code> and <code>wa</code>, which are not words, and leaves <code>mice</code> alone. The lemmatizer gives <code>study</code>, <code>university</code>, <code>be</code> and <code>mouse</code>. It also uses context: the verb <code>saw</code> becomes <code>see</code>, while the noun <code>saw</code> stays <code>saw</code>. Be aware that <code>better</code> becomes <code>well</code>, a quirk of spaCy's rules.</p>
+        `,
+      posner: `
+        <h4>Part-of-speech tags and named entities</h4>
+        <p><strong>POS tags</strong> label each token's grammatical role (noun, verb, adjective). <strong>Named entity recognition (NER)</strong> finds real-world things in text: organizations, places, people, dates and amounts. Both are trained models inside the spaCy pipeline.</p>
+        <h4>Step map: POS tags and named entities</h4>
+        <p>Each branch reads top to bottom: the tool, what it does, a real result, when to use it, and the catch. The last two branches cover when to run these steps and how to turn them into features.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    ROOT(["Reading text with spaCy: nlp(text)"]):::root
+
+    ROOT --&gt; P["POS tags"]:::pos
+    ROOT --&gt; N["Named entities"]:::ner
+    ROOT --&gt; W["When to run them"]:::when
+    ROOT --&gt; F["Use as features"]:::feat
+
+    P --&gt; P1["token.pos_ and token.tag_"]:::code
+    P1 --&gt; P2["Labels each token's grammar role"]:::note
+    P2 --&gt; P3["Apple PROPN, looking VERB, startup NOUN"]:::out
+    P3 --&gt; P4["Use: filter nouns, help lemmatization"]:::use
+    P4 --&gt; P5["Catch: tags depend on the sentence"]:::opt
+
+    N --&gt; N1["doc.ents with e.label_"]:::code
+    N1 --&gt; N2["Finds real-world things in text"]:::note
+    N2 --&gt; N3["Apple ORG, London GPE, 5 March 2025 DATE, $2 million MONEY"]:::out
+    N3 --&gt; N4["Use: extract who, where, when, how much"]:::use
+    N4 --&gt; N5["Catch: statistical, check on your own text"]:::opt
+
+    W --&gt; W1["Run on the original text"]:::code
+    W1 --&gt; W2["Capitals and punctuation help"]:::note
+    W2 --&gt; W3["Order: POS and NER, then lowercase and clean"]:::use
+    W3 --&gt; W4["Catch: capitals help, so lowercased text can lower accuracy"]:::opt
+
+    F --&gt; F1["Counter(e.label_ for e in doc.ents)"]:::code
+    F1 --&gt; F2["Count entities per text"]:::note
+    F2 --&gt; F3["Example counts: ORG 4, GPE 2, PERSON 1"]:::out
+    F3 --&gt; F4["Use: mask PERSON, keep texts about a place"]:::use
+    F4 --&gt; F5["Catch: some labels are wrong, review samples"]:::opt
+
+    classDef root fill:#6c5ce7,stroke:#4834d4,color:#fff,stroke-width:3px
+    classDef pos fill:#0984e3,stroke:#074a8a,color:#fff,stroke-width:2px
+    classDef ner fill:#e84393,stroke:#a8286d,color:#fff,stroke-width:2px
+    classDef when fill:#00b894,stroke:#007a63,color:#fff,stroke-width:2px
+    classDef feat fill:#e17055,stroke:#b34a30,color:#fff,stroke-width:2px
+    classDef code fill:#2d3436,stroke:#000,color:#fff,stroke-width:1px
+    classDef note fill:#dfe6e9,stroke:#636e72,color:#2d3436,stroke-width:1px
+    classDef out fill:#74b9ff,stroke:#0984e3,color:#2d3436,stroke-width:1px
+    classDef use fill:#ffeaa7,stroke:#e17055,color:#2d3436,stroke-width:1px
+    classDef opt fill:#fab1a0,stroke:#d63031,color:#2d3436,stroke-width:1px
+</div></div>
+        <pre style="margin-bottom:2px">doc = nlp("Apple is looking at buying a U.K. startup")
+[(t.text, t.pos_, t.tag_) for t in doc]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('Apple', 'PROPN', 'NNP'), ('is', 'AUX', 'VBZ'), ('looking', 'VERB', 'VBG'), ('at', 'ADP', 'IN'), ('buying', 'VERB', 'VBG'), ('a', 'DET', 'DT'), ('U.K.', 'PROPN', 'NNP'), ('startup', 'NOUN', 'NN')]</pre>
+        <pre style="margin-bottom:2px"># Named entity recognition: find people, organizations, places, dates and amounts
+doc = nlp("Apple opened a store in London on 5 March 2025 for $2 million.")
+[(e.text, e.label_) for e in doc.ents]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('Apple', 'ORG'), ('London', 'GPE'), ('5 March 2025', 'DATE'), ('$2 million', 'MONEY')]</pre>
+        <pre style="margin-bottom:2px"># Count entity types across many texts (a common feature-extraction step)
+from collections import Counter
+texts = ["Amazon hired 200 people in Seattle.", "Google paid 50 million dollars to Reuters.", "Satya Nadella joined Microsoft in Dublin in 2024."]
+Counter(e.label_ for d in nlp.pipe(texts) for e in d.ents)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">Counter({'ORG': 4, 'GPE': 2, 'CARDINAL': 1, 'MONEY': 1, 'PERSON': 1, 'DATE': 1})</pre>
+        
+        <h4>Common entity labels</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:20%">Label</th><th style="width:40%">Meaning</th><th style="width:40%">Example</th></tr>
+          <tr><td><code>ORG</code></td><td>Company or organization</td><td>Apple</td></tr>
+          <tr><td><code>GPE</code></td><td>Country, city or state</td><td>London</td></tr>
+          <tr><td><code>PERSON</code></td><td>Person</td><td>Maria</td></tr>
+          <tr><td><code>DATE</code></td><td>Date or period</td><td>5 March 2025</td></tr>
+          <tr><td><code>MONEY</code></td><td>Amount of money</td><td>$2 million</td></tr>
+        </table><p><strong>Use in practice:</strong> entities become features (number of organizations mentioned), anonymization (mask <code>PERSON</code> before sharing data) or filters (keep only texts about a given place). NER is a statistical model, so check it on your own text: it can mislabel unusual names.</p>
+        <p><strong>When to run what:</strong> NER and POS work best on the original text with its capitals and punctuation, so run them before lowercasing and removing noise.</p>
+        `,
+      vectorize: `
+        <h4>Turning text into numbers</h4>
+        <p>Models cannot read words, so each text becomes a row of numbers. <strong>Bag of words</strong> counts each word. <strong>TF-IDF</strong> (term frequency times inverse document frequency) weights a word up when it is frequent in one document and down when it appears in every document.</p>
+        <pre style="margin-bottom:2px">from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+docs = ["great phone great battery", "terrible battery slow phone", "great camera"]
+cv = CountVectorizer()
+counts = cv.fit_transform(docs)
+print(cv.get_feature_names_out().tolist())
+counts.toarray().tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['battery', 'camera', 'great', 'phone', 'slow', 'terrible']
+[[1, 0, 2, 1, 0, 0], [1, 0, 0, 1, 1, 1], [0, 1, 1, 0, 0, 0]]</pre>
+        <pre style="margin-bottom:2px"># TF-IDF: a word is weighted up when frequent in a document and down when common everywhere
+tf = TfidfVectorizer()
+X = tf.fit_transform(docs)
+print(X.shape)
+X.toarray().round(2)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">(3, 6)
+array([[0.41, 0.  , 0.82, 0.41, 0.  , 0.  ],
+       [0.43, 0.  , 0.  , 0.43, 0.56, 0.56],
+       [0.  , 0.8 , 0.61, 0.  , 0.  , 0.  ]])</pre>
+        <pre style="margin-bottom:2px"># Word pairs (n-grams) keep a little word order: "not good" differs from "good"
+tf2 = TfidfVectorizer(ngram_range=(1, 2))
+tf2.fit(["not good battery", "good battery"])
+tf2.get_feature_names_out().tolist()</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['battery', 'good', 'good battery', 'not', 'not good']</pre>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:24%">Method</th><th style="width:26%">Value in each cell</th><th style="width:26%">Strength</th><th style="width:24%">Weakness</th></tr>
+          <tr><td><strong>CountVectorizer</strong></td><td>Word count</td><td>Simple and fast</td><td>Common words dominate</td></tr>
+          <tr><td><strong>TfidfVectorizer</strong></td><td>Count weighted by rarity</td><td>Highlights distinctive words</td><td>Still ignores word order</td></tr>
+          <tr><td><strong>n-grams</strong> <code>(1, 2)</code></td><td>Counts of word pairs too</td><td>Captures <code>not good</code></td><td>Many more columns</td></tr>
+        </table><p><strong>Reading the results:</strong> in the TF-IDF matrix, <code>great</code> appears twice in the first review so it gets the top weight (0.82), while <code>phone</code> and <code>battery</code>, which appear in several reviews, get less (0.41). <strong>Always fit the vectorizer on training text only</strong> and use <code>transform</code> on the test text, the same leakage rule as scalers and imputers.</p>
+        `,
+      nlpexample: `
+        <h4>One example, every step: tokens, lemmas, stop words and cleaning</h4>
+        <p>Follow a single review through the whole process. The sentence has a contraction, a number, a URL, punctuation and stop words, so it exercises every step.</p>
+        
+        <h4>1. Tokens, lemmas and flags</h4>
+        <pre style="margin-bottom:2px">import re
+import spacy
+import pandas as pd
+nlp = spacy.load("en_core_web_sm")
+
+text = "The delivery wasn't on time, and the 3 boxes were damaged! See https://x.co/abc"
+doc = nlp(text)
+len(doc)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">16</pre>
+        <pre style="margin-bottom:2px"># Every token with its lemma, part of speech and flags
+pd.DataFrame([(t.text, t.lemma_, t.pos_, t.is_stop, t.is_alpha) for t in doc],
+             columns=["token", "lemma", "pos", "is_stop", "is_alpha"])</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">               token             lemma    pos  is_stop  is_alpha
+0                The               the    DET     True      True
+1           delivery          delivery   NOUN    False      True
+2                was                be    AUX     True      True
+3                n't               not   PART     True     False
+4                 on                on    ADP     True      True
+5               time              time   NOUN    False      True
+6                  ,                 ,  PUNCT    False     False
+7                and               and  CCONJ     True      True
+8                the               the    DET     True      True
+9                  3                 3    NUM    False     False
+10             boxes               box   NOUN    False      True
+11              were                be    AUX     True      True
+12           damaged            damage   VERB    False      True
+13                 !                 !  PUNCT    False     False
+14               See               see   VERB     True      True
+15  https://x.co/abc  https://x.co/abc   NOUN    False     False</pre>
+        <p>spaCy splits <code>wasn't</code> into <code>was</code> and <code>n't</code> and gives each token a lemma, a part-of-speech tag and flags such as <code>is_stop</code> and <code>is_alpha</code>. The lemma of <code>n't</code> is <code>not</code>, which is how the negation can be recovered.</p>
+        
+        <h4>2. Clean with regex first (the common mistake)</h4>
+        <pre style="margin-bottom:2px"># Cleaning with regex FIRST: the apostrophe is removed, so wasn't is torn apart
+regex_first = re.sub(r"[^a-z ]", " ", re.sub(r"https?://[^ ]+", " ", text.lower()))
+print(repr(regex_first))
+[(t.text, t.is_stop) for t in nlp(regex_first) if not t.is_space]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">'the delivery wasn t on time  and the   boxes were damaged  see  '
+[('the', True), ('delivery', False), ('wasn', False), ('t', False), ('on', True), ('time', False), ('and', True), ('the', True), ('boxes', False), ('were', True), ('damaged', False), ('see', True)]</pre>
+        <p style="border-left:4px solid #d63031; padding-left:12px;"><strong>Order matters:</strong> removing punctuation with a regex before tokenizing deletes the apostrophe, so <code>wasn't</code> becomes the junk tokens <code>wasn</code> and <code>t</code> and the negation is lost.</p>
+        
+        <h4>3. Tokenize first, then filter by flags</h4>
+        <pre style="margin-bottom:2px"># Cleaning with tokenization FIRST, then filtering by token flags (the better order)
+keep = {"not", "no", "never", "nor"}
+final = []
+for t in doc:
+    lemma = t.lemma_.lower()
+    if lemma in keep or (t.is_alpha and not t.is_stop):
+        final.append(lemma)
+final</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">['delivery', 'not', 'time', 'box', 'damage']</pre>
+        <pre style="margin-bottom:2px"># The same logic as one reusable function
+def clean(t):
+    return " ".join(w.lemma_.lower() for w in nlp(t)
+                    if w.lemma_.lower() in keep or (w.is_alpha and not w.is_stop))
+clean(text)</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">'delivery not time box damage'</pre>
+        
+        <h4>What happened to each token</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:26%">Token</th><th style="width:24%">Lemma</th><th style="width:12%">POS</th><th style="width:38%">What happened</th></tr>
+          <tr><td><code>The</code></td><td><code>the</code></td><td>DET</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>delivery</code></td><td><code>delivery</code></td><td>NOUN</td><td><strong>Kept</strong></td></tr>
+          <tr><td><code>was</code></td><td><code>be</code></td><td>AUX</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>n't</code></td><td><code>not</code></td><td>PART</td><td><strong>Kept</strong> as a negation (lemma <code>not</code>)</td></tr>
+          <tr><td><code>on</code></td><td><code>on</code></td><td>ADP</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>time</code></td><td><code>time</code></td><td>NOUN</td><td><strong>Kept</strong></td></tr>
+          <tr><td><code>,</code></td><td><code>,</code></td><td>PUNCT</td><td>Dropped: punctuation</td></tr>
+          <tr><td><code>and</code></td><td><code>and</code></td><td>CCONJ</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>the</code></td><td><code>the</code></td><td>DET</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>3</code></td><td><code>3</code></td><td>NUM</td><td>Dropped: number</td></tr>
+          <tr><td><code>boxes</code></td><td><code>box</code></td><td>NOUN</td><td><strong>Kept</strong> as <code>box</code></td></tr>
+          <tr><td><code>were</code></td><td><code>be</code></td><td>AUX</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>damaged</code></td><td><code>damage</code></td><td>VERB</td><td><strong>Kept</strong> as <code>damage</code></td></tr>
+          <tr><td><code>!</code></td><td><code>!</code></td><td>PUNCT</td><td>Dropped: punctuation</td></tr>
+          <tr><td><code>See</code></td><td><code>see</code></td><td>VERB</td><td>Dropped: stop word</td></tr>
+          <tr><td><code>https://x.co/abc</code></td><td><code>https://x.co/abc</code></td><td>NOUN</td><td>Dropped: URL</td></tr>
+        </table>
+        <h4>Summary</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Concept</th><th style="width:78%">What it did to this sentence</th></tr>
+          <tr><td><strong>Tokens</strong></td><td>16 tokens, including punctuation, a number, a URL and the split contraction <code>n't</code></td></tr>
+          <tr><td><strong>Lemmas</strong></td><td><code>boxes</code> to <code>box</code>, <code>damaged</code> to <code>damage</code>, <code>was</code> and <code>were</code> to <code>be</code>, and <code>n't</code> to <code>not</code></td></tr>
+          <tr><td><strong>Stop words</strong></td><td>Dropped <code>The</code>, <code>was</code>, <code>on</code>, <code>and</code>, <code>the</code>, <code>were</code> and <code>See</code>; the negation was kept on purpose</td></tr>
+          <tr><td><strong>Cleaning</strong></td><td>Dropped the comma, <code>!</code>, the number <code>3</code> and the URL, using token flags instead of regex</td></tr>
+          <tr><td><strong>Result</strong></td><td><code>delivery not time box damage</code>: 5 tokens, ready for TF-IDF</td></tr>
+        </table><p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;I tokenize first, so contractions like wasn't stay as was and not, then filter with token flags: I drop punctuation, numbers, URLs and stop words, keep negations, and use the lemma of what remains. That turns the review into delivery, not, time, box, damage, ready for TF-IDF.&rdquo;</p>
+        `,
+      nlppipeline: `
+        <h4>Putting it together: a clean() function and a mini sentiment model</h4>
+        <p>A reusable <code>clean()</code> function plus a vectorizer and a classifier in one pipeline is the standard text-classification workflow. The data below is <strong>synthetic</strong>, with half the reviews using negation, so it shows the effect of the negation trap clearly.</p>
+        <pre style="margin-bottom:2px">import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+
+def clean(t, keep_neg=True):
+    """Tokenize FIRST (so n't stays one token), then keep content words and, optionally, negations"""
+    keep = {"not", "no", "never", "nor"} if keep_neg else set()
+    out = []
+    for w in nlp(t):
+        lemma = w.lemma_.lower()
+        if lemma in keep or (w.is_alpha and not w.is_stop):   # drops punctuation, numbers, URLs, stop words
+            out.append(lemma)
+    return " ".join(out)
+
+clean("The delivery wasn't on time, and the 3 boxes were damaged! See https://x.co/abc")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">'delivery not time box damage'</pre>
+        <pre style="margin-bottom:2px"># Synthetic review data (1 = positive, 0 = negative). Half the reviews use negation: "not terrible" is positive
+rng = np.random.default_rng(3)
+aspects = ["battery", "screen", "camera", "delivery", "support", "design"]
+pos = ["great", "excellent", "wonderful", "fast", "smooth"]
+neg = ["terrible", "awful", "slow", "poor", "broken"]
+rows = []
+for _ in range(600):
+    a, kind = rng.choice(aspects), rng.integers(0, 4)
+    if kind == 0:   rows.append((f"The {a} is {rng.choice(pos)}", 1))
+    elif kind == 1: rows.append((f"The {a} is {rng.choice(neg)}", 0))
+    elif kind == 2: rows.append((f"The {a} is not {rng.choice(neg)} at all", 1))
+    else:           rows.append((f"The {a} is not {rng.choice(pos)}", 0))
+texts, labels = zip(*rows)
+rows[:4]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('The support is great', 1), ('The screen is smooth', 1), ('The design is not terrible at all', 1), ('The battery is slow', 0)]</pre>
+        <pre style="margin-bottom:2px"># Same model, two cleaning choices. Split first, then fit TF-IDF inside the pipeline (training text only)
+from sklearn.feature_extraction.text import TfidfVectorizer
+for keep_neg in (False, True):
+    cleaned = [clean(t, keep_neg) for t in texts]
+    Xtr, Xte, ytr, yte = train_test_split(cleaned, labels, test_size=0.25, random_state=1, stratify=labels)
+    model = Pipeline([("tfidf", TfidfVectorizer(ngram_range=(1, 2))), ("clf", LogisticRegression(max_iter=1000))]).fit(Xtr, ytr)
+    print("keep negations:", keep_neg, "-&gt; test accuracy", round(float(model.score(Xte, yte)), 2))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">keep negations: False -&gt; test accuracy 0.47
+keep negations: True -&gt; test accuracy 1.0</pre>
+        <pre style="margin-bottom:2px"># Predict new text with the model that kept negations (clean the new text the same way)
+new = ["The battery is great", "The screen is awful", "The delivery is not fast", "The camera is not terrible at all"]
+list(zip(new, model.predict([clean(t) for t in new]).tolist()))</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">[('The battery is great', 1), ('The screen is awful', 0), ('The delivery is not fast', 0), ('The camera is not terrible at all', 1)]</pre>
+        <pre style="margin-bottom:2px"># Which words and word pairs push the prediction up or down?
+names = model[0].get_feature_names_out()
+coef = model[1].coef_[0]
+order = np.argsort(coef)
+print("negative:", [(str(names[i]), round(float(coef[i]), 2)) for i in order[:4]])
+print("positive:", [(str(names[i]), round(float(coef[i]), 2)) for i in order[::-1][:4]])</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">negative: [('not great', -2.77), ('not fast', -2.73), ('not smooth', -2.72), ('not wonderful', -2.68)]
+positive: [('not poor', 2.87), ('not terrible', 2.84), ('not slow', 2.76), ('not awful', 2.76)]</pre>
+        <p><strong>Reading the results:</strong> with the same model, removing negations gave 0.47 accuracy (about a coin flip) and keeping them gave 1.0, because <em>not terrible</em> is positive and <em>not great</em> is negative. The top coefficients are word pairs such as <code>not great</code> and <code>not terrible</code>, which is why the bigrams <code>(1, 2)</code> help. Real reviews are far messier, so expect much lower accuracy; the point is the method.</p>
+        
+        <h4>The spoken answer</h4>
+        <p style="border-left:4px solid var(--ochre); padding-left:12px; font-style:italic;">&ldquo;For text I start with tokenization, using spaCy because a plain split leaves punctuation attached. I lowercase, remove URLs and punctuation, and remove stop words, but I keep negations like not and never, because dropping them flips the sentiment. I lemmatize so that running and ran count as one word. Then I turn the text into TF-IDF features, with unigrams and bigrams, and put the vectorizer and the model in one pipeline so that it is fitted on the training text only. I check the result on a held-out set, and I look at the top coefficients to see which words drive the prediction.&rdquo;</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:40%">Pitfall</th><th style="width:60%">Fix</th></tr>
+          <tr><td>Fitting TF-IDF on all the data</td><td>Fit on training text only; use a Pipeline</td></tr>
+          <tr><td>Removing negations</td><td>Keep <code>not</code>, <code>no</code>, <code>never</code> for sentiment</td></tr>
+          <tr><td>Regex before tokenizing</td><td>Tokenize first: stripping apostrophes turns <code>wasn't</code> into <code>wasn</code> and <code>t</code></td></tr>
+          <tr><td>Different cleaning at train and predict time</td><td>Use the same <code>clean()</code> function in both</td></tr>
+          <tr><td>Huge vocabulary</td><td>Set <code>min_df</code>, <code>max_features</code> or use lemmas</td></tr>
+          <tr><td>Imbalanced classes</td><td>Use recall or PR-AUC, as in the BNPL example</td></tr>
+        </table>
+        <h4>Which NLP approach should you use?</h4>
+        <p>A decision chart for choosing an approach: generate text with an LLM, find themes with topic modelling, score sentiment with rules, or build a classifier, starting with a simple baseline and moving to a fine-tuned transformer only if needed.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    START["🎯 What do you want to do with the text?"]
+
+    START --&gt; Q1{"Generate text?&lt;br/&gt;chat, summarize, translate, answer questions"}
+    Q1 --&gt;|"Yes"| LLM["🤖 Use an LLM or a pretrained transformer&lt;br/&gt;&lt;br/&gt;Meaning: models like GPT, Claude, T5 already know language&lt;br/&gt;&lt;br/&gt;Get them from Hugging Face or an API"]
+    Q1 --&gt;|"No, analyze or label text"| Q2{"Do you have labeled examples?&lt;br/&gt;text with known answers"}
+
+    Q2 --&gt;|"No, want themes"| TM["🗂️ Topic modelling&lt;br/&gt;&lt;br/&gt;Meaning: finds hidden themes in a pile of documents&lt;br/&gt;&lt;br/&gt;Approach: clean text → TF-IDF → NMF"]
+    Q2 --&gt;|"No, just positive or negative"| VAD["😊 Rules-based sentiment&lt;br/&gt;&lt;br/&gt;Meaning: a ready-made word list scores the text&lt;br/&gt;&lt;br/&gt;Approach: VADER on raw text"]
+    Q2 --&gt;|"Yes"| Q3{"Is a simple model accurate enough?"}
+
+    Q3 --&gt;|"Start here"| ML["📊 Traditional ML baseline&lt;br/&gt;&lt;br/&gt;Meaning: fast, cheap, easy to explain&lt;br/&gt;&lt;br/&gt;Approach: clean text → Count Vectorizer or TF-IDF → Naive Bayes or Logistic Regression"]
+    ML --&gt;|"Not accurate enough, or meaning depends on context"| FT["🤗 Fine-tune a pretrained transformer&lt;br/&gt;&lt;br/&gt;Meaning: start from a model that already understands language and adjust it on your labels&lt;br/&gt;&lt;br/&gt;Tool: Hugging Face"]
+
+    classDef start fill:#FFF59D,stroke:#F9A825,stroke-width:3px,color:#000000
+    classDef q fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#000000
+    classDef llm fill:#F8BBD0,stroke:#C2185B,stroke-width:2px,color:#000000
+    classDef tm fill:#FFE0B2,stroke:#EF6C00,stroke-width:2px,color:#000000
+    classDef vad fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000000
+    classDef ml fill:#BBDEFB,stroke:#1565C0,stroke-width:2px,color:#000000
+    classDef ft fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000000
+
+    class START start
+    class Q1,Q2,Q3 q
+    class LLM llm
+    class TM tm
+    class VAD vad
+    class ML ml
+    class FT ft
+
+    linkStyle default stroke:#000000,stroke-width:2px
+</div></div>
+      `
+    }
   }
 
 ];
@@ -7758,6 +8778,118 @@ sales["lag_52"] = g.shift(52)</pre>
 <div class="fb-explain">In my test, boosting reached WAPE 0.128 against 0.203 for the naive last-week forecast.</div>` },
  { cat: "interview-examples", q: "Why use shift() when creating lag features, and what goes wrong without groupby?", a: `<code>shift(1)</code> moves each value down one row so a row sees <em>last</em> week, not its own sales. Without <code>groupby</code>, the first week of one store would receive the last week of the previous store, and a rolling mean that includes the current row leaks the answer.
 <pre>sales["avg_4"] = g.transform(lambda s: s.shift(1).rolling(4).mean())</pre>` },
+ { cat: "nlp", sub: "Text Processing", q: "What is tokenization, and why use spaCy instead of split()?", a: `Tokenization splits text into units (words, numbers, punctuation). <code>split()</code> leaves punctuation glued to words and ignores contractions, while spaCy has rules for abbreviations, contractions and symbols.
+<pre>[t.text for t in nlp("isn't buying $1,200!")]
+# ['is', "n't", 'buying', '$', '1,200', '!']</pre>` },
+ { cat: "nlp", sub: "Text Processing", q: "What is the difference between stemming and lemmatization?", a: `<strong>Stemming</strong> chops endings with rules and can return non-words (<code>studies</code> becomes <code>studi</code>). <strong>Lemmatization</strong> returns the dictionary form using the part of speech (<code>studies</code> becomes <code>study</code>, <code>mice</code> becomes <code>mouse</code>). Stemming is faster; lemmas are cleaner.
+<pre>[(t.text, t.lemma_) for t in nlp("mice ate cheeses")]</pre>` },
+ { cat: "nlp", sub: "Text Processing", q: "What are stop words, and when should you not remove them?", a: `Stop words are very common words (<em>the, is, a</em>) that carry little meaning, so removing them shrinks the data for topic and search models. Do not remove them blindly for sentiment: spaCy counts <code>not</code>, <code>no</code> and <code>never</code> as stop words, so <em>not bad</em> becomes <em>bad</em>.
+<div class="fb-explain">In my test, dropping negations gave 0.47 accuracy and keeping them gave 1.0.</div>` },
+ { cat: "nlp", sub: "Text Processing", q: "What is TF-IDF?", a: `A weight for each word in a document: <strong>term frequency</strong> (how often it appears there) times <strong>inverse document frequency</strong> (how rare it is across all documents). Distinctive words score high and words that appear everywhere score low. Fit it on training text only.
+<pre>from sklearn.feature_extraction.text import TfidfVectorizer
+X = TfidfVectorizer(ngram_range=(1, 2)).fit_transform(docs)</pre>` },
+ { cat: "nlp", sub: "Text Processing", q: "What is named entity recognition (NER)?", a: `NER finds real-world entities in text and labels them: <code>ORG</code>, <code>GPE</code> (place), <code>PERSON</code>, <code>DATE</code>, <code>MONEY</code>. Run it before lowercasing, since capitals help.
+<pre>[(e.text, e.label_) for e in nlp("Apple opened a store in London.").ents]
+# [('Apple', 'ORG'), ('London', 'GPE')]</pre>` },
+ { cat: "nlp", sub: "Text Processing", q: "Walk me through preparing text for a sentiment model.", a: `Tokenize with spaCy, lowercase, remove URLs and punctuation, remove stop words but keep negations, lemmatize, then vectorize with TF-IDF (unigrams and bigrams). Put the vectorizer and classifier in one <code>Pipeline</code> so TF-IDF is fitted on training text only, and use the same <code>clean()</code> function at prediction time.` },
+ { cat: "nlp", sub: "Choosing an approach", q: "You need to generate text: chat, summarize, translate, or answer questions. Which approach fits?", a: `<strong>An LLM or pretrained transformer</strong>
+<div class="fb-explain">Generation needs models that already know language, such as GPT, Claude, or T5. You can get them from Hugging Face or an API. Traditional ML, VADER, and NMF only analyze or label text.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "You have a pile of documents, no labels, and want to find hidden themes. What do you use?", a: `<strong>Topic modelling with NMF</strong>
+<div class="fb-explain">Topic modelling finds themes without labels. The flow is clean text, then TF-IDF or Count Vectorizer, then NMF.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "You have no labels and just need positive or negative sentiment on raw text. What is the quickest option?", a: `<strong>Rules-based VADER</strong>
+<div class="fb-explain">VADER uses a ready-made word list, so it needs no training data. Apply it to raw text and use the compound score.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "You have labeled text. What should you try first?", a: `<strong>A traditional ML baseline: TF-IDF with Naive Bayes or Logistic Regression</strong>
+<div class="fb-explain">Start with a fast, cheap, explainable baseline. Move to something heavier only if the results are not good enough.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "When should you move from a traditional ML baseline to a fine-tuned transformer?", a: `<strong>When accuracy is not enough or the meaning depends on context</strong>
+<div class="fb-explain">Transformers understand context but need more data and compute. Choose by cost and benefit, not by what is newest.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "What does fine-tuning a pretrained model mean?", a: `<strong>Starting from a model that already understands language and adjusting it on your labels</strong>
+<div class="fb-explain">Fine-tuning reuses what the model already learned, so you need far less data and compute than training from scratch.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "What is the best order to learn NLP topics?", a: `<strong>Preprocessing, vectorization, traditional ML, neural networks, transformers and LLMs, Hugging Face</strong>
+<div class="fb-explain">Each step builds on the one before. Preprocessing and vectorization feed every model, and transformers build on neural networks.</div>` },
+ { cat: "nlp", sub: "Choosing an approach", q: "A strong interview answer for a new text classification task is...", a: `<strong>Start with TF-IDF plus Logistic Regression, check results, and move to a fine-tuned transformer only if needed</strong>
+<div class="fb-explain">This shows you can choose by cost and benefit: build a simple baseline first, then justify extra complexity with evidence.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "What is the order of the main text preprocessing steps?", a: `<strong>Cleaning, tokenization, stop word removal, stemming or lemmatization, then vectorization</strong>
+<div class="fb-explain">Cleaning removes noise, tokenization splits the text, stop words are dropped, words are reduced to a base form, and finally the text is turned into numbers.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "What is tokenization?", a: `<strong>Splitting text into smaller pieces, usually words or sentences</strong>
+<div class="fb-explain">Example: 'the movies were amazing' becomes ['the', 'movies', 'were', 'amazing']. Libraries: NLTK, spaCy.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "What are stop words and why remove them?", a: `<strong>Common words like is, the, a, of that add little meaning</strong>
+<div class="fb-explain">Removing them cuts noise and keeps the words that carry the meaning. Be careful in tasks like sentiment, where words like 'not' matter.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "Stemming vs lemmatization: what is the difference?", a: `<strong>Stemming chops endings by rules; lemmatization returns the real dictionary form</strong>
+<div class="fb-explain">Stemming is fast but crude (movies becomes movi). Lemmatization is slower but more accurate (movies becomes movie, better becomes good).</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "What does POS tagging do and how does it help?", a: `<strong>It labels each word as a noun, verb, adjective, and so on</strong>
+<div class="fb-explain">Lemmatization uses the tag to pick the right base form, and the tags can also be used as features.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "Why use .apply() in text preprocessing?", a: `<strong>To run your cleaning function on every row of a DataFrame column</strong>
+<div class="fb-explain">Example: df['clean_text'] = df['description'].apply(clean_text). You write the steps once in a function, then apply it to the whole column.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "What is vectorization?", a: `<strong>Converting text into numbers so a model can use it</strong>
+<div class="fb-explain">Models cannot read words. The result is a feature matrix: rows are documents, columns are words or features, values are counts or scores.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "Count Vectorizer vs TF-IDF: what is the difference?", a: `<strong>Count Vectorizer counts words; TF-IDF weights words by how rare and informative they are</strong>
+<div class="fb-explain">Count Vectorizer is Bag of Words. TF-IDF gives common words low scores and rare, informative words high scores.</div>` },
+ { cat: "nlp", sub: "NLP pipeline", q: "Why call fit_transform on training data but only transform on test data?", a: `<strong>To avoid leaking information from the test set</strong>
+<div class="fb-explain">fit_transform learns the vocabulary (and IDF weights) from the training data. The test data must use that same vocabulary, so it only gets transform.</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "Sentiment analysis with VADER: what technique, what input, what output?", a: `<strong>Rules-based technique, raw text input, scores for neg, neu, pos, and compound</strong>
+<div class="fb-explain">VADER needs no training. The compound score runs from -1 (most negative) to +1 (most positive).</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "What compound score thresholds are used to label VADER sentiment?", a: `<strong>At or above 0.05 is positive, at or below -0.05 is negative, otherwise neutral</strong>
+<div class="fb-explain">These are VADER's standard cut-offs. The compound score is the single value you use for labels.</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "Why test VADER on one sentence before using .apply() on the whole column?", a: `<strong>To check the output format first</strong>
+<div class="fb-explain">Test with sentences[0] and look at the scores. Then apply it to the entire column and pull out the compound value.</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "How does Naive Bayes classify text?", a: `<strong>It uses word probabilities for each class and picks the most likely class</strong>
+<div class="fb-explain">It is fast and a strong baseline. Use MultinomialNB from scikit-learn with Count Vectorizer or TF-IDF input.</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "How does Logistic Regression work for text classification?", a: `<strong>It learns a weight for each word and turns the weighted sum into a probability</strong>
+<div class="fb-explain">It is a linear classifier using a sigmoid function. Same inputs as Naive Bayes (Count Vectorizer or TF-IDF), so you can swap one for the other.</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "What does NMF do in topic modelling?", a: `<strong>It factorizes the document-word matrix: V is approximately W times H</strong>
+<div class="fb-explain">V is documents by words (from TF-IDF or Count Vectorizer). W is documents by topics and H is topics by words. It needs no labels.</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "In NMF, what do W and H hold?", a: `<strong>W: how much each document belongs to each topic. H: word weights for each topic</strong>
+<div class="fb-explain">In scikit-learn, W comes from fit_transform and H is components_. Assign each document its top topic with W.argmax(axis=1).</div>` },
+ { cat: "nlp", sub: "Traditional ML", q: "How do you find the top words of a topic after fitting NMF?", a: `<strong>Sort one row of components_ by weight, take the biggest, and map them to feature names</strong>
+<div class="fb-explain">Use the vectorizer's get_feature_names_out() for the word names. Each row of components_ is one topic.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "How is logistic regression related to a neural network?", a: `<strong>Logistic regression is a single neuron</strong>
+<div class="fb-explain">It takes a weighted sum of the inputs and squashes it with a sigmoid into a probability between 0 and 1. A neural network stacks many of these in layers.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "What are the layers of a basic neural network?", a: `<strong>Input layer, hidden layers, output layer</strong>
+<div class="fb-explain">The input layer holds the vectorized text, hidden layers learn patterns, and the output layer gives the class probabilities.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "What are W, b, and the activation function?", a: `<strong>W = weights, b = biases, activation = decides whether a neuron fires</strong>
+<div class="fb-explain">W says how strongly each input matters, b shifts each neuron, and the activation (ReLU, tanh, sigmoid, softmax) adds non-linearity.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "Why do neural networks need activation functions?", a: `<strong>To add non-linearity so the network can learn complex patterns</strong>
+<div class="fb-explain">Without them, stacked layers collapse into one linear model. ReLU is common in hidden layers; sigmoid or softmax is common at the output.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "What are the four steps of the training loop?", a: `<strong>Forward pass, loss, backpropagation, update weights</strong>
+<div class="fb-explain">The network predicts, measures how wrong it was, works out which weights caused the error, then nudges them. This repeats every epoch.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "What does backpropagation do?", a: `<strong>It computes how much each weight contributed to the error</strong>
+<div class="fb-explain">These gradients tell the optimizer (gradient descent or Adam) which direction to change each weight.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "What is an epoch?", a: `<strong>One full pass over the whole training data</strong>
+<div class="fb-explain">Training usually runs for many epochs. Too few underfit the model; too many can overfit.</div>` },
+ { cat: "nlp", sub: "Neural networks", q: "Match each architecture: MLP, RNN/LSTM, CNN, Transformer", a: `<strong>MLP: stacked dense layers. RNN/LSTM: reads in order with memory. CNN: local word patterns. Transformer: attention over all words</strong>
+<div class="fb-explain">MLP suits TF-IDF input, RNN/LSTM suits sequences, CNN suits short text classification, and Transformers power BERT, GPT, and LLMs.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What does a tokenizer do in a transformer?", a: `<strong>It splits text into subword tokens and gives each token a number ID</strong>
+<div class="fb-explain">Common methods are BPE and WordPiece. Subwords let the model handle rare or new words.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What are embeddings?", a: `<strong>Vectors that capture the meaning of each token</strong>
+<div class="fb-explain">Each token ID is mapped to a vector. Similar meanings end up close together.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "Why do transformers need positional encoding?", a: `<strong>Because they read all words at once and would lose word order</strong>
+<div class="fb-explain">Positional encoding is added to the embeddings so the model knows which word comes first, second, and so on.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What is self-attention?", a: `<strong>Each word decides how much to focus on every other word</strong>
+<div class="fb-explain">This lets the model understand context, for example which noun a pronoun refers to.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What do Q, K, and V mean in attention?", a: `<strong>Query = what I look for, Key = what I offer, Value = what I pass on</strong>
+<div class="fb-explain">Attention scores come from comparing Q with K, then those scores weight the V vectors. Formula: softmax(Q times K-transpose / square root of d) times V.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What is multi-head attention?", a: `<strong>Several attention views running at the same time</strong>
+<div class="fb-explain">Each head can focus on a different relationship, such as grammar or meaning, and the results are combined.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What does the feed-forward network (FFN) do in a transformer block?", a: `<strong>It refines each token with a small neural network</strong>
+<div class="fb-explain">It is applied to each token separately. Residual connections and layer norm keep training stable, and the block repeats many times.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "Encoder vs decoder: what is the difference?", a: `<strong>The encoder understands the whole input; the decoder generates output one token at a time</strong>
+<div class="fb-explain">The decoder uses masked attention so it cannot see future tokens. Encoder-decoder models add cross-attention to read the encoder's output.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "Which family are BERT, GPT, and T5?", a: `<strong>BERT: encoder-only. GPT: decoder-only. T5: encoder-decoder</strong>
+<div class="fb-explain">Encoder-only for understanding tasks, decoder-only for generation and chat, encoder-decoder for translation and summarization.</div>` },
+ { cat: "nlp", sub: "Transformers and LLMs", q: "What are the stages of building an LLM?", a: `<strong>Pretraining, fine-tuning, alignment (RLHF), then inference or prompting</strong>
+<div class="fb-explain">Pretraining predicts the next token on huge text, fine-tuning teaches tasks or instructions, RLHF uses human feedback for helpful and safe answers, and inference generates replies token by token.</div>` },
+ { cat: "nlp", sub: "Hugging Face", q: "What is the Hugging Face Hub?", a: `<strong>An online library of pretrained models, datasets, and demos</strong>
+<div class="fb-explain">You can search by task, language, or size, and download models such as BERT, T5, and Llama instead of training from scratch.</div>` },
+ { cat: "nlp", sub: "Hugging Face", q: "Hugging Face: pipeline vs the custom path. What is the difference?", a: `<strong>pipeline is a one-line ready-made tool; the custom path loads the tokenizer and model yourself</strong>
+<div class="fb-explain">pipeline handles tokenizing, the model, and the output, so it is best for demos and quick tests. The custom path gives you more control.</div>` },
+ { cat: "nlp", sub: "Hugging Face", q: "Why must you load the tokenizer that matches the model?", a: `<strong>The model was trained with that exact tokenizer and vocabulary</strong>
+<div class="fb-explain">A different tokenizer would give different token IDs, so the model would receive meaningless input.</div>` },
+ { cat: "nlp", sub: "Hugging Face", q: "What are logits and how do you turn them into an answer?", a: `<strong>Logits are raw scores; softmax turns them into probabilities and you take the top label</strong>
+<div class="fb-explain">For generation, the predicted tokens are decoded back into text instead.</div>` },
+ { cat: "nlp", sub: "Hugging Face", q: "What are the steps to fine-tune a model with Hugging Face?", a: `<strong>Load dataset, tokenize it, train with Trainer, evaluate, share to the Hub</strong>
+<div class="fb-explain">Training starts from pretrained weights and adjusts them slightly. Trainer handles batching, the training loop, and saving.</div>` },
+ { cat: "nlp", sub: "Hugging Face", q: "Why start from a pretrained Hugging Face model instead of training your own?", a: `<strong>It saves data, time, and compute</strong>
+<div class="fb-explain">The model already understands language, so you only need to adapt it to your task.</div>` },
 ];
 
 const QUIZ = [
@@ -7838,7 +8970,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", tokenization: "Tokenization", nlpcleaning: "Cleaning & Stop Words", stemlemma: "Stemming vs Lemmatization", posner: "POS & Named Entities", vectorize: "Text to Numbers", nlpexample: "One Example, Every Step", nlppipeline: "Pipeline & Interview", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
@@ -8433,6 +9565,62 @@ document.getElementById("eda-tabs").addEventListener("click", e => {
 <script>
   mermaid.initialize({ startOnLoad: true, theme: "default", flowchart: { htmlLabels: true } });
 
+  /* Inline charts: draw at readable size (scrollable), with text-size buttons and drag-to-pan */
+  function sizeMermaidSvg(wrap) {
+    const svg = wrap.querySelector(".mermaid svg");
+    if (!svg) return;
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    if (!vb || !vb.width) return;
+    if (!wrap.dataset.scale) {
+      // default size: fit the width, but never smaller than 75% so the text stays readable
+      const avail = Math.max(wrap.clientWidth - 28, 300);
+      wrap.dataset.scale = String(Math.max(0.75, Math.min(1, avail / vb.width)));
+    }
+    const s = parseFloat(wrap.dataset.scale);
+    svg.removeAttribute("width");
+    svg.removeAttribute("height");
+    svg.style.maxWidth = "none";
+    svg.style.width = (vb.width * s) + "px";
+    svg.style.height = (vb.height * s) + "px";
+  }
+  function setupMermaidWrap(wrap) {
+    if (!wrap.querySelector(".mermaid svg")) return;
+    sizeMermaidSvg(wrap);
+    if (wrap.querySelector(".mermaid-zoom-btns")) return;
+    const box = document.createElement("div");
+    box.className = "mermaid-zoom-btns";
+    box.innerHTML = '<button type="button" class="mz-out" title="Smaller text">A&minus;</button><button type="button" class="mz-in" title="Larger text">A+</button>';
+    const change = f => {
+      const s = Math.min(Math.max(parseFloat(wrap.dataset.scale) * f, 0.4), 3.5);
+      wrap.dataset.scale = String(s);
+      sizeMermaidSvg(wrap);
+    };
+    box.querySelector(".mz-out").addEventListener("click", e => { e.stopPropagation(); change(0.8); });
+    box.querySelector(".mz-in").addEventListener("click", e => { e.stopPropagation(); change(1.25); });
+    wrap.appendChild(box);
+    // mouse drag to pan (touch uses the browser's own scrolling)
+    let drag = null;
+    wrap.addEventListener("mousedown", e => {
+      if (e.target.closest("button")) return;
+      drag = { x: e.clientX, y: e.clientY, l: wrap.scrollLeft, t: wrap.scrollTop };
+      wrap.classList.add("panning");
+    });
+    window.addEventListener("mousemove", e => {
+      if (!drag) return;
+      wrap.scrollLeft = drag.l - (e.clientX - drag.x);
+      wrap.scrollTop = drag.t - (e.clientY - drag.y);
+    });
+    window.addEventListener("mouseup", () => { drag = null; wrap.classList.remove("panning"); });
+  }
+  function setupAllMermaidWraps() { document.querySelectorAll(".mermaid-wrap").forEach(setupMermaidWrap); }
+  let mermaidSetupQueued = false;
+  new MutationObserver(() => {
+    if (mermaidSetupQueued) return;
+    mermaidSetupQueued = true;
+    requestAnimationFrame(() => { mermaidSetupQueued = false; setupAllMermaidWraps(); });
+  }).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener("load", () => setTimeout(setupAllMermaidWraps, 300));
+
   let mermaidZoomLevel = 1;
   let mermaidPan = { x: 0, y: 0 };
   let mermaidDragging = false;
@@ -8498,23 +9686,51 @@ document.getElementById("eda-tabs").addEventListener("click", e => {
     applyMermaidTransform();
   }
 
-  (function () {
+  function initMermaidModalControls() {
     const canvas = document.getElementById("mermaid-modal-canvas");
     if (!canvas) return;
-    canvas.addEventListener("mousedown", (e) => {
-      mermaidDragging = true;
-      mermaidDragStart = { x: e.clientX - mermaidPan.x, y: e.clientY - mermaidPan.y };
-      canvas.classList.add("dragging");
+    const pointers = new Map();
+    let pinchStart = null;
+    canvas.addEventListener("pointerdown", (e) => {
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* synthetic or unsupported pointer */ }
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 1) {
+        mermaidDragging = true;
+        mermaidDragStart = { x: e.clientX - mermaidPan.x, y: e.clientY - mermaidPan.y };
+        canvas.classList.add("dragging");
+      } else if (pointers.size === 2) {
+        const [a, b] = Array.from(pointers.values());
+        pinchStart = { d: Math.hypot(a.x - b.x, a.y - b.y), z: mermaidZoomLevel };
+        mermaidDragging = false;
+      }
     });
-    window.addEventListener("mousemove", (e) => {
-      if (!mermaidDragging) return;
-      mermaidPan = { x: e.clientX - mermaidDragStart.x, y: e.clientY - mermaidDragStart.y };
-      applyMermaidTransform();
+    canvas.addEventListener("pointermove", (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 2 && pinchStart) {
+        const [a, b] = Array.from(pointers.values());
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        mermaidZoomLevel = Math.min(Math.max(pinchStart.z * d / pinchStart.d, 0.3), 8);
+        applyMermaidTransform();
+      } else if (mermaidDragging) {
+        mermaidPan = { x: e.clientX - mermaidDragStart.x, y: e.clientY - mermaidDragStart.y };
+        applyMermaidTransform();
+      }
     });
-    window.addEventListener("mouseup", () => {
-      mermaidDragging = false;
-      canvas.classList.remove("dragging");
-    });
+    const endPointer = (e) => {
+      pointers.delete(e.pointerId);
+      pinchStart = null;
+      if (pointers.size === 1) {
+        const rest = Array.from(pointers.values())[0];
+        mermaidDragging = true;
+        mermaidDragStart = { x: rest.x - mermaidPan.x, y: rest.y - mermaidPan.y };
+      } else if (pointers.size === 0) {
+        mermaidDragging = false;
+        canvas.classList.remove("dragging");
+      }
+    };
+    canvas.addEventListener("pointerup", endPointer);
+    canvas.addEventListener("pointercancel", endPointer);
     canvas.addEventListener(
       "wheel",
       (e) => {
@@ -8530,7 +9746,10 @@ document.getElementById("eda-tabs").addEventListener("click", e => {
       if (e.key === "+" || e.key === "=") mermaidZoom(1.25);
       if (e.key === "-" || e.key === "_") mermaidZoom(0.8);
     });
-  })();
+  }
+  // the modal markup comes after this script, so wait for the page before looking it up
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initMermaidModalControls);
+  else initMermaidModalControls();
 </script>
 
 <div id="mermaid-modal" class="mermaid-modal" onclick="if(event.target===this) closeMermaidModal()">
