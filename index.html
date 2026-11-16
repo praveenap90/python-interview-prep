@@ -184,23 +184,26 @@
     inset: 0;
     background: rgba(22, 48, 38, 0.55);
     display: none;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: center;
-    padding: 40px 16px;
+    padding: 0;
     z-index: 100;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .modal-overlay.open { display: flex; }
 
   .modal-box {
     background: var(--paper);
-    max-width: 760px;
     width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
     overflow: hidden;
   }
+  .modal-header, .modal-tabs { flex: none; }
 
   .modal-header {
     background: var(--pine-deep);
@@ -247,7 +250,7 @@
 
   .modal-tab-btn.active { color: var(--pine-deep); border-bottom-color: var(--ochre); font-weight: 700; }
 
-  .modal-body { padding: 26px 28px 32px; max-height: 55vh; overflow-y: auto; }
+  .modal-body { padding: 26px max(28px, calc((100% - 1240px) / 2)) 48px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 
   .modal-body h4 { color: var(--pine-deep); font-size: 16px; margin: 18px 0 8px; }
   .modal-body h4:first-child { margin-top: 0; }
@@ -503,9 +506,12 @@
   @media (max-width: 640px) {
     h1.title { font-size: 28px; }
     .stat-row { gap: 20px; }
-    .modal-body { max-height: 60vh; }
+    .modal-body { padding-left: 16px; padding-right: 16px; }
+    .modal-tabs { flex-wrap: nowrap; overflow-x: auto; padding: 8px 12px 0; }
+    .modal-tab-btn { white-space: nowrap; flex: none; }
+    .modal-header { padding: 16px 16px; }
   }
-  .mermaid-wrap { background: #fafaf5; border: 1px solid var(--rule); border-radius: 6px; padding: 44px 14px 14px; margin: 10px 0; overflow: auto; max-height: 75vh; text-align: center; position: relative; cursor: grab; -webkit-overflow-scrolling: touch; }
+  .mermaid-wrap { background: #fafaf5; border: 1px solid var(--rule); border-radius: 6px; padding: 44px 14px 14px; margin: 10px 0; overflow: auto; max-height: 80vh; text-align: center; position: relative; cursor: grab; -webkit-overflow-scrolling: touch; }
   .mermaid-wrap.panning { cursor: grabbing; user-select: none; }
   .mermaid-zoom-btns { position: absolute; top: 8px; left: 8px; z-index: 2; display: flex; gap: 4px; }
   .mermaid-zoom-btns button { background: var(--pine); color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 5px 9px; cursor: pointer; opacity: 0.85; font-family: inherit; }
@@ -8890,6 +8896,36 @@ X = TfidfVectorizer(ngram_range=(1, 2)).fit_transform(docs)</pre>` },
 <div class="fb-explain">Training starts from pretrained weights and adjusts them slightly. Trainer handles batching, the training loop, and saving.</div>` },
  { cat: "nlp", sub: "Hugging Face", q: "Why start from a pretrained Hugging Face model instead of training your own?", a: `<strong>It saves data, time, and compute</strong>
 <div class="fb-explain">The model already understands language, so you only need to adapt it to your task.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "You are handed a dataset and asked to build a model. What do you do first?", a: `<strong>Clarify the goal before touching the data</strong>
+<div class="fb-explain">Ask what the target is, what success looks like, and whether it is classification, regression, clustering, or finding themes. Restating the problem shows structure.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "What do you check when you first look at the data?", a: `<strong>Rows and columns, data types, missing values, duplicates, and class balance</strong>
+<div class="fb-explain">These checks decide your cleaning steps and your metric. For example, a heavily imbalanced target means accuracy alone will mislead you.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "What is your path for raw text?", a: `<strong>Clean, tokenize, remove stop words, lemmatize (with .apply()), then vectorize with Count Vectorizer or TF-IDF</strong>
+<div class="fb-explain">Write the cleaning steps as one function and apply it to the text column. Then a baseline like Naive Bayes or Logistic Regression can use the feature matrix.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "What is your path for a table?", a: `<strong>Fix missing values, duplicates, and outliers, then encode categories, scale numbers, and create useful features</strong>
+<div class="fb-explain">The goal is to make every column model-ready without losing information.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "Why split the data before fitting the vectorizer or scaler?", a: `<strong>To avoid data leakage</strong>
+<div class="fb-explain">Fit on the training set only, then transform the test set. Otherwise information from the test set leaks into training and the score looks better than it really is.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "What is data leakage?", a: `<strong>Information from the test set or from the future getting into training</strong>
+<div class="fb-explain">It inflates scores and the model fails on new data. Interviewers often probe for this.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "Why build a simple baseline first?", a: `<strong>It gives you a number to beat and is fast and easy to explain</strong>
+<div class="fb-explain">Any extra complexity must then be justified by an improvement over the baseline.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "What baselines would you pick for text, tables, and unlabeled data?", a: `<strong>Text: Naive Bayes or Logistic Regression. Table: Linear or Logistic Regression, decision tree. No labels: clustering or NMF</strong>
+<div class="fb-explain">All of them are quick to train and easy to interpret.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "Which metric do you use for imbalanced classes?", a: `<strong>Precision, recall, and F1 instead of plain accuracy</strong>
+<div class="fb-explain">If 95 percent of rows are one class, a model that always predicts it gets 95 percent accuracy and is useless. A confusion matrix shows where it fails.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "Which metric do you use for regression?", a: `<strong>RMSE or MAE</strong>
+<div class="fb-explain">Both measure the size of the error in the target's units. RMSE punishes large errors more.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "How do you improve a model after the baseline?", a: `<strong>Change one thing at a time and compare with the baseline</strong>
+<div class="fb-explain">Try better features, tune settings, a stronger model, or fine-tune a transformer if context matters. Changing many things at once hides what helped.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "How do you get insights from a text model?", a: `<strong>Look at top words per class (or per topic), and review the mistakes</strong>
+<div class="fb-explain">Logistic Regression coefficients show which words push toward each class, and NMF shows the main themes. Insights explain why, not just the score.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "How do you get insights from a table model?", a: `<strong>Use feature importance or coefficients, then review the errors</strong>
+<div class="fb-explain">This shows which columns drive the prediction and where the model struggles.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "What if the interviewer gives you data with no labels?", a: `<strong>Use unsupervised methods such as clustering or NMF topic modelling, and ask whether labels exist</strong>
+<div class="fb-explain">Asking shows good judgment. Without labels you can find groups and themes but cannot compute accuracy.</div>` },
+ { cat: "nlp", sub: "Interview approach", q: "How do you wrap up an interview model answer?", a: `<strong>State the result, what drives it, the limitations, and the next steps in plain language</strong>
+<div class="fb-explain">Interviewers want the story, not just the score: what you found, how sure you are, and what you would do next.</div>` },
 ];
 
 const QUIZ = [
