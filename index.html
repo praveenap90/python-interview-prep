@@ -576,7 +576,7 @@
 
 <section id="modules">
   <div class="wrap">
-    <p class="section-label">▸ seventeen modules</p>
+    <p class="section-label">▸ eighteen modules</p>
     <h2>Click a module to explore</h2>
     <p class="lead">Each card opens into notes, workflow, concepts, a real-world example, and exam tips — the same shape every time, just a different subject.</p>
     <div class="module-grid" id="module-grid"></div>
@@ -7762,6 +7762,836 @@ flowchart TD
 </div></div>
       `
     }
+  },
+  {
+    id: "data-modelling",
+    icon: "🗄️",
+    title: "Data Modelling Process",
+    tagline: "from business question to tables",
+    desc: "Conceptual, logical and physical models, ER diagrams and keys, normalization to 3NF, star schema with facts and dimensions, slowly changing dimensions, and physical design, with real SQL outputs.",
+    tags: ["ER diagram", "normalization", "star schema", "SCD"],
+    tabs: {
+      overview: `
+        <h4>Data modelling: designing the tables before you fill them</h4>
+        <p>A <strong>data model</strong> is the plan for what data you store and how the pieces relate. A good model answers the business questions quickly and correctly, and stops the same fact from being stored in two places. The same process serves a transactional database and a data warehouse; only the final shape differs.</p>
+        
+        <h4>The modelling process</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    R(["1. Requirements&lt;br/&gt;business questions"]):::a --&gt; C["2. Conceptual model&lt;br/&gt;entities and relationships"]:::b
+    C --&gt; L["3. Logical model&lt;br/&gt;attributes, keys, normalization"]:::c
+    L --&gt; P["4. Physical model&lt;br/&gt;types, constraints, indexes"]:::d
+    P --&gt; I["5. Implement and test&lt;br/&gt;load data, run real queries"]:::e
+    I --&gt; V(["6. Evolve&lt;br/&gt;new needs, history, performance"]):::f
+    V -.-&gt; R
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div>
+        <h4>Complete data modelling flow</h4>
+        <p>All steps in one chart, from scoping the business process to handling change over time. Use it as the checklist when you design a star schema.</p>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  subgraph P1["PHASE 1: PREPARE"]
+    scope["&lt;b&gt;1. Scope&lt;/b&gt;&lt;br/&gt;pick the business process&lt;br/&gt;and the questions to answer"]
+    transform["&lt;b&gt;2. Transform&lt;/b&gt;&lt;br/&gt;clean, standardize, dedupe"]
+  end
+  subgraph P2["PHASE 2: DESIGN THE FACT TABLE"]
+    fact["&lt;b&gt;3. Identify fact tables&lt;/b&gt;&lt;br/&gt;measurable events&lt;br/&gt;(orders, clicks, payments)"]
+    grain["&lt;b&gt;4. Declare the grain&lt;/b&gt;&lt;br/&gt;what does one row represent?"]
+    metrics["&lt;b&gt;5. Define metrics&lt;/b&gt;&lt;br/&gt;numeric measures at that grain&lt;br/&gt;(qty, amount)"]
+  end
+  subgraph P3["PHASE 3: DESIGN DIMENSIONS AND KEYS"]
+    dim["&lt;b&gt;6. Dimension tables&lt;/b&gt;&lt;br/&gt;who, what, where, when"]
+    sk["&lt;b&gt;7. Surrogate keys&lt;/b&gt;&lt;br/&gt;integer key per dimension row"]
+    fk["&lt;b&gt;8. Foreign keys&lt;/b&gt;&lt;br/&gt;fact rows point to dimensions"]
+    clean["&lt;b&gt;9. Remove unnecessary columns&lt;/b&gt;&lt;br/&gt;keep only what is used"]
+  end
+  subgraph P4["PHASE 4: HANDLE CHANGE OVER TIME"]
+    q{"Does history&lt;br/&gt;matter?"}
+    scd1["&lt;b&gt;10. SCD type 1&lt;/b&gt;&lt;br/&gt;overwrite the old value"]
+    scd2["&lt;b&gt;11. SCD type 2&lt;/b&gt;&lt;br/&gt;new row per change&lt;br/&gt;valid_from, valid_to, is_current"]
+  end
+  done["&lt;b&gt;Star schema ready&lt;/b&gt;&lt;br/&gt;one fact table + dimension tables"]
+  scope --&gt; transform --&gt; fact --&gt; grain --&gt; metrics --&gt; dim --&gt; sk --&gt; fk --&gt; clean --&gt; q
+  q --&gt;|"No"| scd1
+  q --&gt;|"Yes"| scd2
+  scd1 --&gt; done
+  scd2 --&gt; done
+  classDef a fill:#D3D1C7,stroke:#5F5E5A,stroke-width:1px,color:#2C2C2A
+  classDef b fill:#CECBF6,stroke:#534AB7,stroke-width:1px,color:#26215C
+  classDef c fill:#9FE1CB,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef d fill:#F5C4B3,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef e fill:#FAC775,stroke:#854F0B,stroke-width:1px,color:#412402
+  class scope,transform a
+  class fact,grain,metrics b
+  class dim,sk,fk,clean c
+  class q,scd1,scd2 d
+  class done e
+  style P1 fill:#F1EFE8,stroke:#888780,color:#444441
+  style P2 fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
+  style P3 fill:#E1F5EE,stroke:#1D9E75,color:#085041
+  style P4 fill:#FAECE7,stroke:#D85A30,color:#712B13
+</div></div>
+        <h4>The steps at a glance</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Step</th><th style="width:42%">Question it answers</th><th style="width:36%">Output</th></tr>
+          <tr><td><strong>1. Requirements</strong></td><td>What must the data answer or support?</td><td>List of business questions and reports</td></tr>
+          <tr><td><strong>2. Conceptual</strong></td><td>What things does the business have?</td><td>Entities and relationships</td></tr>
+          <tr><td><strong>3. Logical</strong></td><td>What do we know about each thing?</td><td>Attributes, keys, normalized tables</td></tr>
+          <tr><td><strong>4. Physical</strong></td><td>How will this database store it?</td><td>Data types, constraints, indexes, partitions</td></tr>
+          <tr><td><strong>5. Implement and test</strong></td><td>Does it work on real queries?</td><td>Loaded tables and checked results</td></tr>
+          <tr><td><strong>6. Evolve</strong></td><td>What changes over time?</td><td>History handling, new columns, tuning</td></tr>
+        </table>
+        <h4>Which model for which system?</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    Q{"What is the system for?"}:::a
+    Q --&gt;|"Running the business:&lt;br/&gt;many small writes"| O["OLTP"]:::b
+    Q --&gt;|"Analysis and reports:&lt;br/&gt;big reads and aggregates"| W["Warehouse / OLAP"]:::c
+    O --&gt; O1["Normalize to 3NF"]:::b
+    O --&gt; O2["Row store, keys and indexes"]:::b
+    W --&gt; W1["Star schema: facts and dimensions"]:::c
+    W --&gt; W2["Denormalize on purpose, columnar store"]:::c
+    W --&gt; W3["SCD2 for history"]:::c
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div><h4>Transactional vs star vs snowflake schema</h4>
+        <p>The same orders data shaped three ways. In the chart, orange tables are transactional, yellow is a fact table, green are dimensions and purple are the extra sub-dimensions that make a snowflake.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+  subgraph T["TRANSACTIONAL (OLTP, 3NF)"]
+    t1["&lt;b&gt;orders&lt;/b&gt;"] --&gt; t2["&lt;b&gt;customers&lt;/b&gt;"]
+    t2 --&gt; t3["&lt;b&gt;zip_codes&lt;/b&gt;"]
+    t1 --&gt; t4["&lt;b&gt;order_items&lt;/b&gt;"]
+    t4 --&gt; t5["&lt;b&gt;products&lt;/b&gt;"]
+  end
+  subgraph S["STAR"]
+    s0["&lt;b&gt;fact_sales&lt;/b&gt;"]
+    s1["&lt;b&gt;dim_customer&lt;/b&gt;&lt;br/&gt;name, city, state"]
+    s2["&lt;b&gt;dim_product&lt;/b&gt;&lt;br/&gt;name, category"]
+    s3["&lt;b&gt;dim_date&lt;/b&gt;"]
+    s1 --&gt; s0
+    s2 --&gt; s0
+    s3 --&gt; s0
+  end
+  subgraph W["SNOWFLAKE"]
+    w0["&lt;b&gt;fact_sales&lt;/b&gt;"]
+    w1["&lt;b&gt;dim_customer&lt;/b&gt;"]
+    w2["&lt;b&gt;dim_city&lt;/b&gt;"]
+    w3["&lt;b&gt;dim_state&lt;/b&gt;"]
+    w4["&lt;b&gt;dim_product&lt;/b&gt;"]
+    w5["&lt;b&gt;dim_category&lt;/b&gt;"]
+    w1 --&gt; w0
+    w2 --&gt; w1
+    w3 --&gt; w2
+    w4 --&gt; w0
+    w5 --&gt; w4
+  end
+  classDef o fill:#F5C4B3,stroke:#993C1D,color:#4A1B0C
+  classDef f fill:#FAC775,stroke:#854F0B,color:#412402
+  classDef d fill:#9FE1CB,stroke:#0F6E56,color:#04342C
+  classDef x fill:#CECBF6,stroke:#534AB7,color:#26215C
+  class t1,t2,t3,t4,t5 o
+  class s0,w0 f
+  class s1,s2,s3 d
+  class w1,w4 d
+  class w2,w3,w5 x
+  style T fill:#FAECE7,stroke:#D85A30,color:#712B13
+  style S fill:#E1F5EE,stroke:#1D9E75,color:#085041
+  style W fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
+</div></div>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%"></th><th style="width:28%">Transactional (OLTP, 3NF)</th><th style="width:27%">Star</th><th style="width:27%">Snowflake</th></tr>
+          <tr><td><strong>Purpose</strong></td><td>Run the business: many small writes</td><td>Analytics and reports</td><td>Analytics with less duplication</td></tr>
+          <tr><td><strong>Shape</strong></td><td>Many normalized tables linked by foreign keys</td><td>One fact table, single dimension tables around it</td><td>Fact table whose dimensions split into sub-dimensions</td></tr>
+          <tr><td><strong>Normalization</strong></td><td>3NF: each fact stored once</td><td>Dimensions denormalized on purpose</td><td>Dimensions normalized again</td></tr>
+          <tr><td><strong>Joins per report query</strong></td><td>Many</td><td>Few</td><td>More than star</td></tr>
+          <tr><td><strong>Report query speed</strong></td><td>Slowest</td><td>Fastest, simplest</td><td>Slightly slower than star</td></tr>
+          <tr><td><strong>Update cost</strong></td><td>Cheapest: one row changes</td><td>Repeated values change in many rows</td><td>One row in a small table</td></tr>
+          <tr><td><strong>Storage</strong></td><td>Smallest</td><td>Largest</td><td>In between</td></tr>
+          <tr><td><strong>Typical store</strong></td><td>Postgres, MySQL, SQL Server</td><td>Warehouse (Snowflake, BigQuery)</td><td>Same warehouses</td></tr>
+        </table>
+        <p><strong>Choose:</strong> transactional when the system takes writes and consistency matters most; star as the default for dashboards and reporting; snowflake when a dimension is very large or shared, or its hierarchy changes often. The name has nothing to do with Snowflake the product: a star schema can live in Snowflake.</p>
+        
+        <p><strong>Rule of thumb:</strong> normalize for systems that write a lot (orders, payments), and use a star schema for systems that read and aggregate a lot (dashboards, reports).</p>
+        `,
+      dmlevels: `
+        <h4>Conceptual, logical and physical models</h4>
+        <p>Each level adds detail. You discuss the first with business people, the second with analysts and engineers, and the third with the database team.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    M(["Data model"]):::a
+    M --&gt; C["Conceptual&lt;br/&gt;WHAT the business has"]:::b
+    M --&gt; L["Logical&lt;br/&gt;HOW it is structured"]:::c
+    M --&gt; P["Physical&lt;br/&gt;WHERE and WITH WHAT"]:::d
+    C --&gt; C1["Entities: Customer, Order, Product"]:::b
+    C --&gt; C2["Relationships: Customer places Order"]:::b
+    L --&gt; L1["Attributes and data meaning"]:::c
+    L --&gt; L2["Primary and foreign keys"]:::c
+    L --&gt; L3["Normalized tables"]:::c
+    P --&gt; P1["Data types and constraints"]:::d
+    P --&gt; P2["Indexes and partitions"]:::d
+    P --&gt; P3["Database-specific: Snowflake, Postgres"]:::d
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div><table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:16%"></th><th style="width:24%">Conceptual</th><th style="width:30%">Logical</th><th style="width:30%">Physical</th></tr>
+          <tr><td><strong>Audience</strong></td><td>Business stakeholders</td><td>Analysts, architects</td><td>DBAs, data engineers</td></tr>
+          <tr><td><strong>Defines</strong></td><td>Entities and relationships</td><td>Attributes, keys, normalization</td><td>Types, constraints, indexes, partitions</td></tr>
+          <tr><td><strong>Example</strong></td><td>Customer places Order</td><td><code>orders(order_id PK, customer_id FK, order_date)</code></td><td><code>order_id BIGINT NOT NULL</code>, index on <code>customer_id</code></td></tr>
+          <tr><td><strong>Depends on the database?</strong></td><td>No</td><td>No</td><td>Yes</td></tr>
+          <tr><td><strong>Typical tool</strong></td><td>Whiteboard, ER sketch</td><td>ER diagram tool</td><td>SQL DDL scripts</td></tr>
+        </table><div class="callout" style="border-left:4px solid var(--ochre); padding:8px 12px; margin:10px 0;"><strong>Common mistake:</strong> jumping straight to the physical level (creating tables) before agreeing what the business entities and questions are.</div>
+        `,
+      dmer: `
+        <h4>Entities, relationships and keys</h4>
+        <p>An <strong>entity</strong> is a thing the business tracks (customer, product, order). An <strong>attribute</strong> describes it (name, price). A <strong>relationship</strong> links entities, with a <strong>cardinality</strong>: one-to-one, one-to-many or many-to-many.</p>
+        
+        <h4>ER diagram of the orders example</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart LR
+    CU["CUSTOMER&lt;br/&gt;PK customer_id&lt;br/&gt;name, city"]:::a
+    OR["ORDERS&lt;br/&gt;PK order_id&lt;br/&gt;FK customer_id&lt;br/&gt;order_date"]:::b
+    OI["ORDER_ITEMS&lt;br/&gt;PK order_id + product_id&lt;br/&gt;FK order_id, FK product_id&lt;br/&gt;qty"]:::c
+    PR["PRODUCT&lt;br/&gt;PK product_id&lt;br/&gt;name, category, unit_price"]:::d
+    CU --&gt;|"1 places many"| OR
+    OR --&gt;|"1 contains many"| OI
+    PR --&gt;|"1 appears in many"| OI
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div><p>An order has many products and a product is in many orders: a <strong>many-to-many</strong> relationship. A relational database cannot store it directly, so it is resolved with a <strong>bridge table</strong> (<code>order_items</code>) that holds one row per order and product pair, plus its own attribute (<code>qty</code>).</p>
+        
+        <h4>Types of keys</h4>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:22%">Key</th><th style="width:44%">Meaning</th><th style="width:34%">Example</th></tr>
+          <tr><td><strong>Primary key (PK)</strong></td><td>Uniquely identifies a row; never null</td><td><code>customer_id</code></td></tr>
+          <tr><td><strong>Foreign key (FK)</strong></td><td>Points to a primary key in another table; keeps data consistent</td><td><code>orders.customer_id</code></td></tr>
+          <tr><td><strong>Composite key</strong></td><td>A key made of two or more columns</td><td><code>(order_id, product_id)</code></td></tr>
+          <tr><td><strong>Natural key</strong></td><td>A real-world identifier</td><td>Email, PAN, passport number</td></tr>
+          <tr><td><strong>Surrogate key</strong></td><td>A system-made number with no business meaning</td><td><code>customer_key</code> 1, 2, 3</td></tr>
+        </table><p><strong>Natural versus surrogate:</strong> natural keys can change (an email changes) and can be long. Surrogate keys are stable, short and are required for slowly changing dimensions, where one customer has several rows.</p>
+        `,
+      dmnorm: `
+        <h4>Normalization: store each fact once</h4>
+        <p><strong>Normalization</strong> splits a table so that each fact lives in one place. It prevents three anomalies: <strong>update</strong> (change a value in one row but not the others), <strong>insert</strong> (cannot add a customer without an order) and <strong>delete</strong> (deleting the last order loses the customer).</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    F(["Flat table: one row per order line&lt;br/&gt;customer and product details repeated"]):::d
+    F --&gt;|"atomic values, no repeating groups"| N1["1NF"]:::b
+    N1 --&gt;|"every non-key column depends on the WHOLE key"| N2["2NF&lt;br/&gt;split out products"]:::c
+    N2 --&gt;|"non-key columns depend ONLY on the key"| N3["3NF&lt;br/&gt;split out customers"]:::a
+    N3 --&gt; OK(["Each fact stored once&lt;br/&gt;no update, insert or delete anomalies"]):::f
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div>
+        <h4>The problem: one flat table</h4>
+        <p>This table repeats the customer city and the product price on every row. The data below is a small synthetic example.</p>
+        <pre style="margin-bottom:2px">import sqlite3, pandas as pd
+c = sqlite3.connect(":memory:")
+q = lambda sql: pd.read_sql(sql, c)
+c.executescript("""
+CREATE TABLE orders_flat(order_id INT, order_date TEXT, customer_name TEXT, customer_city TEXT, product TEXT, category TEXT, unit_price REAL, qty INT);
+INSERT INTO orders_flat VALUES
+(1,'2025-01-05','Asha','Pune','Laptop','Electronics',800,1),
+(1,'2025-01-05','Asha','Pune','Mouse','Electronics',20,2),
+(2,'2025-01-09','Ben','Delhi','Desk','Furniture',150,1),
+(3,'2025-02-02','Asha','Pune','Desk','Furniture',150,2),
+(4,'2025-02-11','Chen','Mumbai','Laptop','Electronics',800,1);
+""")
+q("SELECT * FROM orders_flat")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id  order_date customer_name customer_city product     category  unit_price  qty
+0         1  2025-01-05          Asha          Pune  Laptop  Electronics       800.0    1
+1         1  2025-01-05          Asha          Pune   Mouse  Electronics        20.0    2
+2         2  2025-01-09           Ben         Delhi    Desk    Furniture       150.0    1
+3         3  2025-02-02          Asha          Pune    Desk    Furniture       150.0    2
+4         4  2025-02-11          Chen        Mumbai  Laptop  Electronics       800.0    1</pre>
+        <pre style="margin-bottom:2px">c.execute("UPDATE orders_flat SET customer_city='Bengaluru' WHERE order_id=1 AND product='Laptop'")
+q("SELECT DISTINCT customer_name, customer_city FROM orders_flat WHERE customer_name='Asha'")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">  customer_name customer_city
+0          Asha     Bengaluru
+1          Asha          Pune</pre>
+        <p><strong>Reading the result:</strong> after updating only one row, Asha now has two cities. Nothing in the table says which one is right. That is an update anomaly.</p>
+        
+        <h4>The fix: 3NF</h4>
+        <p>Split into <code>customers</code>, <code>products</code>, <code>orders</code> and <code>order_items</code>. Each city and each price is stored once, and foreign keys connect the tables.</p>
+        <pre style="margin-bottom:2px">c.executescript("""
+CREATE TABLE customers(customer_id INTEGER PRIMARY KEY, name TEXT, city TEXT);
+CREATE TABLE products(product_id INTEGER PRIMARY KEY, name TEXT, category TEXT, unit_price REAL);
+CREATE TABLE orders(order_id INTEGER PRIMARY KEY, order_date TEXT, customer_id INT REFERENCES customers(customer_id));
+CREATE TABLE order_items(order_id INT REFERENCES orders(order_id), product_id INT REFERENCES products(product_id), qty INT, PRIMARY KEY(order_id, product_id));
+INSERT INTO customers VALUES (1,'Asha','Pune'),(2,'Ben','Delhi'),(3,'Chen','Mumbai');
+INSERT INTO products VALUES (1,'Laptop','Electronics',800),(2,'Mouse','Electronics',20),(3,'Desk','Furniture',150);
+INSERT INTO orders VALUES (1,'2025-01-05',1),(2,'2025-01-09',2),(3,'2025-02-02',1),(4,'2025-02-11',3);
+INSERT INTO order_items VALUES (1,1,1),(1,2,2),(2,3,1),(3,3,2),(4,1,1);
+""")
+q("SELECT * FROM customers")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   customer_id  name    city
+0            1  Asha    Pune
+1            2   Ben   Delhi
+2            3  Chen  Mumbai</pre>
+        <pre style="margin-bottom:2px">q("""SELECT o.order_id, c.name AS customer, p.name AS product, i.qty, p.unit_price * i.qty AS line_total
+FROM order_items i JOIN orders o USING(order_id) JOIN customers c USING(customer_id) JOIN products p USING(product_id)
+ORDER BY 1, 3""")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   order_id customer product  qty  line_total
+0         1     Asha  Laptop    1       800.0
+1         1     Asha   Mouse    2        40.0
+2         2      Ben    Desk    1       150.0
+3         3     Asha    Desk    2       300.0
+4         4     Chen  Laptop    1       800.0</pre>
+        <p><strong>Reading the result:</strong> Asha's city is stored once, and a join rebuilds every original order line with the right line total.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:14%">Form</th><th style="width:46%">Rule</th><th style="width:40%">Fix</th></tr>
+          <tr><td><strong>1NF</strong></td><td>One value per cell, no repeating groups</td><td>Split lists into rows</td></tr>
+          <tr><td><strong>2NF</strong></td><td>Every non-key column depends on the whole key</td><td>Move partial dependencies to their own table (product details out of order lines)</td></tr>
+          <tr><td><strong>3NF</strong></td><td>Non-key columns depend only on the key, not on other non-key columns</td><td>Move them to their own table (customer city out of orders)</td></tr>
+        </table>
+        <h4>The same ladder with real tables</h4>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  subgraph S0["UNNORMALIZED: a list inside one cell"]
+    raw["&lt;b&gt;orders_raw&lt;/b&gt;&lt;br/&gt;order_id · customer · city · zip&lt;br/&gt;products (a list in one cell)"]
+  end
+  subgraph S1["1NF: atomic values, one row per product"]
+    n1["&lt;b&gt;order_lines&lt;/b&gt;&lt;br/&gt;PK (order_id, product_id)&lt;br/&gt;qty · product_name · price&lt;br/&gt;customer · city · zip"]
+  end
+  subgraph S2["2NF: remove partial dependencies"]
+    oi2["&lt;b&gt;order_items&lt;/b&gt;&lt;br/&gt;PK (order_id, product_id)&lt;br/&gt;qty"]
+    pr2["&lt;b&gt;products&lt;/b&gt;&lt;br/&gt;PK product_id&lt;br/&gt;product_name · price"]
+    od2["&lt;b&gt;orders&lt;/b&gt;&lt;br/&gt;PK order_id&lt;br/&gt;customer · city · zip"]
+  end
+  subgraph S3["3NF: remove transitive dependencies"]
+    keep3["&lt;b&gt;order_items + products&lt;/b&gt;&lt;br/&gt;unchanged from 2NF"]
+    ord3["&lt;b&gt;orders&lt;/b&gt;&lt;br/&gt;PK order_id&lt;br/&gt;FK customer_id"]
+    cust3["&lt;b&gt;customers&lt;/b&gt;&lt;br/&gt;PK customer_id&lt;br/&gt;name · FK zip"]
+    zip3["&lt;b&gt;zip_codes&lt;/b&gt;&lt;br/&gt;PK zip&lt;br/&gt;city"]
+  end
+  raw --&gt;|"make values atomic"| n1
+  n1 --&gt;|"needs whole key"| oi2
+  n1 --&gt;|"product_id only"| pr2
+  n1 --&gt;|"order_id only"| od2
+  oi2 -.-&gt; keep3
+  pr2 -.-&gt; keep3
+  od2 --&gt;|"order and customer"| ord3
+  od2 --&gt;|"customer is an entity"| cust3
+  od2 --&gt;|"city depends on zip"| zip3
+  ord3 -. FK .-&gt; cust3
+  cust3 -. FK .-&gt; zip3
+  classDef c0 fill:#F5C4B3,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef c1 fill:#FAC775,stroke:#854F0B,stroke-width:1px,color:#412402
+  classDef c2 fill:#9FE1CB,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef c3 fill:#CECBF6,stroke:#534AB7,stroke-width:1px,color:#26215C
+  class raw c0
+  class n1 c1
+  class oi2,pr2,od2 c2
+  class keep3,ord3,cust3,zip3 c3
+  style S0 fill:#FAECE7,stroke:#D85A30,color:#712B13
+  style S1 fill:#FAEEDA,stroke:#BA7517,color:#633806
+  style S2 fill:#E1F5EE,stroke:#1D9E75,color:#085041
+  style S3 fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
+</div></div><div class="callout" style="border-left:4px solid var(--ochre); padding:8px 12px; margin:10px 0;"><strong>When to denormalize:</strong> reporting systems join many tables and read far more than they write, so analysts deliberately repeat attributes in wide dimension tables. That is the star schema in the next tab.</div>
+        `,
+      dmstar: `
+        <h4>Star schema: facts in the middle, dimensions around them</h4>
+        <p>A <strong>fact table</strong> records events with numbers to measure (quantity, revenue). <strong>Dimension tables</strong> describe the who, what and when (customer, product, date). The fact table holds foreign keys to each dimension, so the diagram looks like a star.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    FS(["FACT_SALES&lt;br/&gt;grain: one row per order line&lt;br/&gt;qty, revenue"]):::d
+    DD["DIM_DATE&lt;br/&gt;day, month, quarter"]:::a
+    DC["DIM_CUSTOMER&lt;br/&gt;name, city"]:::b
+    DP["DIM_PRODUCT&lt;br/&gt;name, category"]:::c
+    DD --&gt; FS
+    DC --&gt; FS
+    DP --&gt; FS
+    FS --&gt; Q(["Query: join facts to dimensions,&lt;br/&gt;GROUP BY dimension attributes"]):::f
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div>
+        <h4>ER diagrams: transactional vs star vs snowflake</h4>
+        <p>The same sales data as an entity-relationship diagram in three designs. Tables tagged <code>[oltp]</code> are the normalized transactional model, <code>[star]</code> the star schema (one level of dimensions) and <code>[snow]</code> the snowflake schema, where <code>category</code> and <code>region</code> are split out of the product and store dimensions.</p>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+erDiagram
+  T_CUSTOMERS["customers [oltp]"] {
+    int customer_id PK
+    string name
+    string city
+  }
+  T_ORDERS["orders [oltp]"] {
+    int order_id PK
+    int customer_id FK
+    date order_date
+  }
+  T_ORDER_ITEMS["order_items [oltp]"] {
+    int order_id PK, FK
+    int product_id PK, FK
+    int qty
+  }
+  T_PRODUCTS["products [oltp]"] {
+    int product_id PK
+    string name
+    int category_id FK
+  }
+  T_CATEGORIES["categories [oltp]"] {
+    int category_id PK
+    string name
+  }
+  T_CUSTOMERS ||--o{ T_ORDERS : places
+  T_ORDERS ||--|{ T_ORDER_ITEMS : contains
+  T_PRODUCTS ||--o{ T_ORDER_ITEMS : appears_in
+  T_CATEGORIES ||--o{ T_PRODUCTS : groups
+
+  S_DIM_CUSTOMER["dim_customer [star]"] {
+    int customer_key PK
+    string name
+    string city
+  }
+  S_DIM_PRODUCT["dim_product [star]"] {
+    int product_key PK
+    string name
+    string category
+  }
+  S_DIM_DATE["dim_date [star]"] {
+    int date_key PK
+    int year
+    int month
+  }
+  S_DIM_STORE["dim_store [star]"] {
+    int store_key PK
+    string name
+    string region
+  }
+  S_FACT_SALES["fact_sales [star]"] {
+    int customer_key FK
+    int product_key FK
+    int date_key FK
+    int store_key FK
+    int quantity
+    decimal sales_amount
+  }
+  S_DIM_CUSTOMER ||--o{ S_FACT_SALES : has
+  S_DIM_PRODUCT ||--o{ S_FACT_SALES : has
+  S_DIM_DATE ||--o{ S_FACT_SALES : has
+  S_DIM_STORE ||--o{ S_FACT_SALES : has
+
+  W_DIM_CATEGORY["dim_category [snow]"] {
+    int category_key PK
+    string category_name
+  }
+  W_DIM_REGION["dim_region [snow]"] {
+    int region_key PK
+    string region
+    string country
+  }
+  W_DIM_CUSTOMER["dim_customer [snow]"] {
+    int customer_key PK
+    string name
+    string city
+  }
+  W_DIM_PRODUCT["dim_product [snow]"] {
+    int product_key PK
+    string name
+    int category_key FK
+  }
+  W_DIM_DATE["dim_date [snow]"] {
+    int date_key PK
+    int year
+    int month
+  }
+  W_DIM_STORE["dim_store [snow]"] {
+    int store_key PK
+    string name
+    int region_key FK
+  }
+  W_FACT_SALES["fact_sales [snow]"] {
+    int customer_key FK
+    int product_key FK
+    int date_key FK
+    int store_key FK
+    int quantity
+    decimal sales_amount
+  }
+  W_DIM_CATEGORY ||--o{ W_DIM_PRODUCT : groups
+  W_DIM_REGION ||--o{ W_DIM_STORE : groups
+  W_DIM_CUSTOMER ||--o{ W_FACT_SALES : has
+  W_DIM_PRODUCT ||--o{ W_FACT_SALES : has
+  W_DIM_DATE ||--o{ W_FACT_SALES : has
+  W_DIM_STORE ||--o{ W_FACT_SALES : has
+</div></div>
+        <p><strong>What to notice:</strong> in the transactional model, <code>order_items</code> is a bridge table and a report needs up to five joins. In the star schema every dimension is one join from <code>fact_sales</code>. In the snowflake schema <code>dim_product</code> points to <code>dim_category</code> and <code>dim_store</code> points to <code>dim_region</code>, so the same report needs two more joins.</p>
+        
+        <h4>Which schema fits? Side-by-side summary</h4>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  root["&lt;b&gt;Which schema fits?&lt;/b&gt;&lt;br/&gt;write-heavy apps vs read-heavy analytics"]
+  subgraph C[" "]
+    h3["&lt;b&gt;Snowflake schema&lt;/b&gt;"]
+    c1["&lt;b&gt;What it is for&lt;/b&gt;&lt;br/&gt;Analytics with less duplication&lt;br/&gt;e.g. large or changing&lt;br/&gt;hierarchies, storage-sensitive&lt;br/&gt;warehouses"]
+    c2["&lt;b&gt;How it is built&lt;/b&gt;&lt;br/&gt;A star whose dimensions split&lt;br/&gt;into normalized sub-dimensions&lt;br/&gt;(roughly 3NF)"]
+    c3["&lt;b&gt;Example tables&lt;/b&gt;&lt;br/&gt;fact_sales joined to dim_customer,&lt;br/&gt;then dim_city, then dim_state"]
+    c4["&lt;b&gt;Joins and report speed&lt;/b&gt;&lt;br/&gt;More joins (fact, dimension,&lt;br/&gt;sub-dimension)&lt;br/&gt;Slightly slower than star"]
+    c5["&lt;b&gt;Write cost and storage&lt;/b&gt;&lt;br/&gt;Cheaper writes than star: a change&lt;br/&gt;touches one row in a small table&lt;br/&gt;Storage between star and OLTP"]
+    c6["&lt;b&gt;Data quality&lt;/b&gt;&lt;br/&gt;Better than star"]
+    c7["&lt;b&gt;Typical store and users&lt;/b&gt;&lt;br/&gt;Same warehouses&lt;br/&gt;Used by analysts, usually with&lt;br/&gt;a modeller’s help"]
+    h3 --&gt; c1 --&gt; c2 --&gt; c3 --&gt; c4 --&gt; c5 --&gt; c6 --&gt; c7
+  end
+  subgraph B[" "]
+    h2["&lt;b&gt;Star schema&lt;/b&gt;"]
+    b1["&lt;b&gt;What it is for&lt;/b&gt;&lt;br/&gt;Analytics and reports&lt;br/&gt;e.g. BI dashboards, most&lt;br/&gt;data warehouses"]
+    b2["&lt;b&gt;How it is built&lt;/b&gt;&lt;br/&gt;One fact table with one flat&lt;br/&gt;dimension table per entity;&lt;br/&gt;dimensions deliberately&lt;br/&gt;denormalized"]
+    b3["&lt;b&gt;Example tables&lt;/b&gt;&lt;br/&gt;fact_sales joined to&lt;br/&gt;dim_customer (name, city, state)"]
+    b4["&lt;b&gt;Joins and report speed&lt;/b&gt;&lt;br/&gt;Few joins (fact to each&lt;br/&gt;dimension)&lt;br/&gt;Fastest and simplest reports"]
+    b5["&lt;b&gt;Write cost and storage&lt;/b&gt;&lt;br/&gt;Costlier writes: repeated values&lt;br/&gt;change in many rows&lt;br/&gt;Larger storage from repeated&lt;br/&gt;attributes"]
+    b6["&lt;b&gt;Data quality&lt;/b&gt;&lt;br/&gt;Depends on the load process"]
+    b7["&lt;b&gt;Typical store and users&lt;/b&gt;&lt;br/&gt;Warehouses such as Snowflake&lt;br/&gt;or BigQuery&lt;br/&gt;Used by analysts and BI tools"]
+    h2 --&gt; b1 --&gt; b2 --&gt; b3 --&gt; b4 --&gt; b5 --&gt; b6 --&gt; b7
+  end
+  subgraph A[" "]
+    h1["&lt;b&gt;Transactional (OLTP, 3NF)&lt;/b&gt;"]
+    a1["&lt;b&gt;What it is for&lt;/b&gt;&lt;br/&gt;Running the business with many&lt;br/&gt;small inserts and updates&lt;br/&gt;e.g. orders, banking, bookings,&lt;br/&gt;inventory"]
+    a2["&lt;b&gt;How it is built&lt;/b&gt;&lt;br/&gt;Many 3NF tables linked by&lt;br/&gt;foreign keys; each fact is&lt;br/&gt;stored once"]
+    a3["&lt;b&gt;Example tables&lt;/b&gt;&lt;br/&gt;orders, order_items, customers,&lt;br/&gt;products, zip_codes"]
+    a4["&lt;b&gt;Joins and report speed&lt;/b&gt;&lt;br/&gt;Many joins per query&lt;br/&gt;Slowest for reports"]
+    a5["&lt;b&gt;Write cost and storage&lt;/b&gt;&lt;br/&gt;Cheapest writes: a change&lt;br/&gt;touches one row&lt;br/&gt;Smallest storage"]
+    a6["&lt;b&gt;Data quality&lt;/b&gt;&lt;br/&gt;Strong: keys and constraints&lt;br/&gt;prevent anomalies"]
+    a7["&lt;b&gt;Typical store and users&lt;/b&gt;&lt;br/&gt;Postgres, MySQL, SQL Server&lt;br/&gt;Used by applications"]
+    h1 --&gt; a1 --&gt; a2 --&gt; a3 --&gt; a4 --&gt; a5 --&gt; a6 --&gt; a7
+  end
+  root --&gt; h3
+  root --&gt; h2
+  root --&gt; h1
+  classDef rt fill:#D3D1C7,stroke:#5F5E5A,stroke-width:1px,color:#2C2C2A
+  classDef H1 fill:#F0997B,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef K1 fill:#FAECE7,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef H2 fill:#AFA9EC,stroke:#534AB7,stroke-width:1px,color:#26215C
+  classDef K2 fill:#EEEDFE,stroke:#534AB7,stroke-width:1px,color:#26215C
+  classDef H3 fill:#5DCAA5,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef K3 fill:#E1F5EE,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  class root rt
+  class h1 H1
+  class a1,a2,a3,a4,a5,a6,a7 K1
+  class h2 H2
+  class b1,b2,b3,b4,b5,b6,b7 K2
+  class h3 H3
+  class c1,c2,c3,c4,c5,c6,c7 K3
+  style A fill:none,stroke:none
+  style B fill:none,stroke:none
+  style C fill:none,stroke:none
+</div></div>
+        <h4>Fix the grain first</h4>
+        <p>The <strong>grain</strong> says what one row of the fact table means, for example one row per order line. Decide it before anything else: mixing grains (some rows per order, some per line) makes totals wrong.</p>
+        
+        <h4>Build it and query it</h4>
+        <pre style="margin-bottom:2px">c.executescript("""
+CREATE TABLE dim_date(date_key INTEGER PRIMARY KEY, full_date TEXT, month TEXT, quarter TEXT);
+CREATE TABLE dim_customer(customer_key INTEGER PRIMARY KEY, name TEXT, city TEXT);
+CREATE TABLE dim_product(product_key INTEGER PRIMARY KEY, name TEXT, category TEXT);
+CREATE TABLE fact_sales(date_key INT, customer_key INT, product_key INT, qty INT, revenue REAL);
+INSERT INTO dim_date VALUES (20250105,'2025-01-05','2025-01','2025-Q1'),(20250109,'2025-01-09','2025-01','2025-Q1'),(20250202,'2025-02-02','2025-02','2025-Q1'),(20250211,'2025-02-11','2025-02','2025-Q1');
+INSERT INTO dim_customer VALUES (1,'Asha','Pune'),(2,'Ben','Delhi'),(3,'Chen','Mumbai');
+INSERT INTO dim_product VALUES (1,'Laptop','Electronics'),(2,'Mouse','Electronics'),(3,'Desk','Furniture');
+INSERT INTO fact_sales VALUES (20250105,1,1,1,800),(20250105,1,2,2,40),(20250109,2,3,1,150),(20250202,1,3,2,300),(20250211,3,1,1,800);
+""")
+q("SELECT COUNT(*) AS fact_rows FROM fact_sales")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   fact_rows
+0          5</pre>
+        <pre style="margin-bottom:2px">q("""SELECT d.month, p.category, SUM(f.revenue) AS revenue, SUM(f.qty) AS qty
+FROM fact_sales f JOIN dim_date d USING(date_key) JOIN dim_product p USING(product_key)
+GROUP BY 1, 2 ORDER BY 1, 2""")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">     month     category  revenue  qty
+0  2025-01  Electronics    840.0    3
+1  2025-01    Furniture    150.0    1
+2  2025-02  Electronics    800.0    1
+3  2025-02    Furniture    300.0    2</pre>
+        <p><strong>Reading the result:</strong> the fact table has 5 rows, the same as the order lines. Joining to <code>dim_date</code> and <code>dim_product</code> gives revenue by month and category. A star query is always the same shape: join the fact to dimensions, group by dimension attributes, sum the measures.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:26%">Term</th><th style="width:74%">Meaning</th></tr>
+          <tr><td><strong>Additive measure</strong></td><td>Can be summed across all dimensions (revenue, qty)</td></tr>
+          <tr><td><strong>Semi-additive</strong></td><td>Sums across some dimensions but not time (account balance)</td></tr>
+          <tr><td><strong>Non-additive</strong></td><td>Cannot be summed (ratios, percentages): store the parts and divide after summing</td></tr>
+          <tr><td><strong>Snowflake schema</strong></td><td>Dimensions normalized into sub-dimensions (product to category): less repetition, more joins</td></tr>
+          <tr><td><strong>Conformed dimension</strong></td><td>One shared dimension (like date) used by several fact tables</td></tr>
+          <tr><td><strong>Degenerate dimension</strong></td><td>An identifier kept on the fact table with no table of its own (order number)</td></tr>
+        </table>
+        <h4>From OLTP source tables to the OLAP schema</h4>
+        <p>The same example seen as tables: the four normalized source tables at the top, the changes applied in the middle, and the resulting star schema at the bottom.</p>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  subgraph OLTP["OLTP: source tables (normalized, built for writes)"]
+    t1["&lt;b&gt;customers&lt;/b&gt;&lt;br/&gt;customer_id PK&lt;br/&gt;name, email, phone&lt;br/&gt;password_hash&lt;br/&gt;city, country, created_at"]
+    t2["&lt;b&gt;orders&lt;/b&gt;&lt;br/&gt;order_id PK&lt;br/&gt;customer_id FK&lt;br/&gt;order_date, status&lt;br/&gt;shipping_address&lt;br/&gt;payment_method"]
+    t3["&lt;b&gt;order_items&lt;/b&gt;&lt;br/&gt;order_item_id PK&lt;br/&gt;order_id FK, product_id FK&lt;br/&gt;quantity, unit_price&lt;br/&gt;discount"]
+    t4["&lt;b&gt;products&lt;/b&gt;&lt;br/&gt;product_id PK&lt;br/&gt;name, category, brand&lt;br/&gt;price, description&lt;br/&gt;supplier_id, stock_qty"]
+  end
+  subgraph CHG["CHANGE: what happens between them"]
+    c1["&lt;b&gt;Customer change&lt;/b&gt;&lt;br/&gt;Drop email, phone, password&lt;br/&gt;Add customer_key (surrogate)&lt;br/&gt;SCD type 2 on city, country"]
+    c4["&lt;b&gt;Date change&lt;/b&gt;&lt;br/&gt;order_date becomes its own&lt;br/&gt;table: day, month,&lt;br/&gt;quarter, year"]
+    c3["&lt;b&gt;Sales change&lt;/b&gt;&lt;br/&gt;Join orders and order_items&lt;br/&gt;Keep completed orders only&lt;br/&gt;Add revenue, swap IDs for keys"]
+    c2["&lt;b&gt;Product change&lt;/b&gt;&lt;br/&gt;Drop description, supplier_id,&lt;br/&gt;stock_qty, price&lt;br/&gt;Add product_key, SCD type 1"]
+  end
+  subgraph OLAP["OLAP: star schema (built for analysis)"]
+    o1["&lt;b&gt;dim_customer&lt;/b&gt;&lt;br/&gt;customer_key PK&lt;br/&gt;customer_id, name&lt;br/&gt;city, country, signup_date&lt;br/&gt;valid_from, valid_to, is_current"]
+    o4["&lt;b&gt;dim_date&lt;/b&gt;&lt;br/&gt;date_key PK&lt;br/&gt;full_date, month&lt;br/&gt;quarter, year"]
+    o3["&lt;b&gt;fact_sales&lt;/b&gt;&lt;br/&gt;order_id, order_line&lt;br/&gt;customer_key FK, product_key FK&lt;br/&gt;date_key FK&lt;br/&gt;units_sold, unit_price, revenue"]
+    o2["&lt;b&gt;dim_product&lt;/b&gt;&lt;br/&gt;product_key PK&lt;br/&gt;product_id, name&lt;br/&gt;category, brand"]
+  end
+  t1 --&gt; c1 --&gt; o1
+  t2 --&gt; c4 --&gt; o4
+  t2 --&gt; c3
+  t3 --&gt; c3 --&gt; o3
+  t4 --&gt; c2 --&gt; o2
+  classDef oltp fill:#F5C4B3,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef chg fill:#FAC775,stroke:#854F0B,stroke-width:1px,color:#412402
+  classDef dim fill:#9FE1CB,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef fact fill:#CECBF6,stroke:#534AB7,stroke-width:1px,color:#26215C
+  class t1,t2,t3,t4 oltp
+  class c1,c2,c3,c4 chg
+  class o1,o2,o4 dim
+  class o3 fact
+  style OLTP fill:#FAECE7,stroke:#D85A30,color:#712B13
+  style CHG fill:#FAEEDA,stroke:#BA7517,color:#633806
+  style OLAP fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
+</div></div>`,
+      dmscd: `
+        <h4>Slowly changing dimensions (SCD)</h4>
+        <p>Dimension values change slowly: a customer moves, a product changes category. An <strong>SCD</strong> type decides whether history is kept.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+    Q{"A dimension attribute changed.&lt;br/&gt;Do you need the history?"}:::a
+    Q --&gt;|"No, just correct it"| T1["Type 1&lt;br/&gt;overwrite"]:::b
+    Q --&gt;|"Yes, full history"| T2["Type 2&lt;br/&gt;new row with valid_from, valid_to, is_current"]:::c
+    Q --&gt;|"Only previous value"| T3["Type 3&lt;br/&gt;add a previous_value column"]:::d
+    Q --&gt;|"Never changes"| T0["Type 0&lt;br/&gt;keep original"]:::f
+    T2 --&gt; N(["Needs a surrogate key,&lt;br/&gt;because customer_id repeats"]):::e
+    classDef a fill:#6c5ce7,stroke:#4834d4,color:#fff
+    classDef b fill:#0984e3,stroke:#074a8a,color:#fff
+    classDef c fill:#00b894,stroke:#007a63,color:#fff
+    classDef d fill:#e17055,stroke:#b34a30,color:#fff
+    classDef e fill:#e84393,stroke:#a8286d,color:#fff
+    classDef f fill:#fdcb6e,stroke:#b8860b,color:#222
+</div></div><table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:10%">Type</th><th style="width:34%">What happens</th><th style="width:22%">History?</th><th style="width:34%">Use when</th></tr>
+          <tr><td><strong>0</strong></td><td>Never changes</td><td>Original only</td><td>Birth date, signup date</td></tr>
+          <tr><td><strong>1</strong></td><td>Overwrite the old value</td><td>No</td><td>Fixing typos</td></tr>
+          <tr><td><strong>2</strong></td><td>Add a new row with validity dates</td><td>Full</td><td>Reports must show the city at the time of sale</td></tr>
+          <tr><td><strong>3</strong></td><td>Add a column for the previous value</td><td>Only one step back</td><td>You only compare current and previous</td></tr>
+        </table>
+        <h4>SCD Type 2 in practice</h4>
+        <p>Asha moves from Pune to Bengaluru on 2025-03-01. The old row is closed and a new row is added with a new surrogate key.</p>
+        <pre style="margin-bottom:2px">c.executescript("""
+CREATE TABLE dim_customer_scd(customer_key INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INT, name TEXT, city TEXT, valid_from TEXT, valid_to TEXT, is_current INT);
+INSERT INTO dim_customer_scd(customer_id,name,city,valid_from,valid_to,is_current) VALUES (1,'Asha','Pune','2024-01-01','9999-12-31',1);
+-- Asha moves on 2025-03-01: close the old row, insert the new one
+UPDATE dim_customer_scd SET valid_to='2025-03-01', is_current=0 WHERE customer_id=1 AND is_current=1;
+INSERT INTO dim_customer_scd(customer_id,name,city,valid_from,valid_to,is_current) VALUES (1,'Asha','Bengaluru','2025-03-01','9999-12-31',1);
+""")
+q("SELECT customer_key, city, valid_from, valid_to, is_current FROM dim_customer_scd")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   customer_key       city  valid_from    valid_to  is_current
+0             1       Pune  2024-01-01  2025-03-01           0
+1             2  Bengaluru  2025-03-01  9999-12-31           1</pre>
+        <pre style="margin-bottom:2px">q("SELECT city FROM dim_customer_scd WHERE customer_id=1 AND '2025-01-05' BETWEEN valid_from AND valid_to")</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">   city
+0  Pune</pre>
+        <p><strong>Reading the result:</strong> there are two rows for one customer. Looking up Asha as of 2025-01-05 returns Pune, so sales made before the move keep their original city, while the current row (<code>is_current = 1</code>) shows Bengaluru.</p>
+        <h4>Every kind of change in a warehouse</h4>
+        <p>SCD types are only one of three kinds of change. Facts and source data change too, and each has its own handling pattern.</p>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  root["&lt;b&gt;Data changes&lt;/b&gt; in a warehouse"]
+  s["&lt;b&gt;Slowly changing dimensions&lt;/b&gt;&lt;br/&gt;descriptive attributes change"]
+  f["&lt;b&gt;Fact table changes&lt;/b&gt;&lt;br/&gt;events, corrections, timing"]
+  r["&lt;b&gt;Source data changes&lt;/b&gt;&lt;br/&gt;upstream rows and schema"]
+  root --&gt; s
+  root --&gt; f
+  root --&gt; r
+  s0["&lt;b&gt;Type 0: retain&lt;/b&gt;&lt;br/&gt;Value never changes"]
+  s1["&lt;b&gt;Type 1: overwrite&lt;/b&gt;&lt;br/&gt;No history kept"]
+  s2["&lt;b&gt;Type 2: new row&lt;/b&gt;&lt;br/&gt;valid_from, valid_to, is_current&lt;br/&gt;Full history"]
+  s3["&lt;b&gt;Type 3: new column&lt;/b&gt;&lt;br/&gt;Keeps the previous value only&lt;br/&gt;Limited history"]
+  s --&gt; s0
+  s0 --- s1
+  s1 --- s2
+  s2 --- s3
+  f1["&lt;b&gt;New events&lt;/b&gt;&lt;br/&gt;Append only (insert)"]
+  f2["&lt;b&gt;Corrections&lt;/b&gt;&lt;br/&gt;Adjustment rows, or MERGE&lt;br/&gt;(update in place)"]
+  f3["&lt;b&gt;Late-arriving facts&lt;/b&gt;&lt;br/&gt;Join to the dimension row valid&lt;br/&gt;on the event date (SCD 2)"]
+  f4["&lt;b&gt;Late-arriving dimensions&lt;/b&gt;&lt;br/&gt;Insert an unknown placeholder&lt;br/&gt;row, backfill later"]
+  f5["&lt;b&gt;Reloads and backfills&lt;/b&gt;&lt;br/&gt;Idempotent loads,&lt;br/&gt;partition overwrite"]
+  f6["&lt;b&gt;Grain or measure change&lt;/b&gt;&lt;br/&gt;Add a column, or build a&lt;br/&gt;new fact table"]
+  f --&gt; f1
+  f1 --- f2
+  f2 --- f3
+  f3 --- f4
+  f4 --- f5
+  f5 --- f6
+  r1["&lt;b&gt;New and updated rows&lt;/b&gt;&lt;br/&gt;Incremental load by watermark&lt;br/&gt;(updated_at) or CDC"]
+  r2["&lt;b&gt;Deleted rows&lt;/b&gt;&lt;br/&gt;Soft-delete flag or&lt;br/&gt;CDC tombstones"]
+  r3["&lt;b&gt;Schema changes&lt;/b&gt;&lt;br/&gt;Absorb in staging, add nullable&lt;br/&gt;columns, version the contract"]
+  r4["&lt;b&gt;Duplicates and replays&lt;/b&gt;&lt;br/&gt;Deduplicate by business key,&lt;br/&gt;keep the latest version"]
+  r5["&lt;b&gt;Changed source keys&lt;/b&gt;&lt;br/&gt;Keep the natural key,&lt;br/&gt;map to a surrogate key"]
+  r --&gt; r1
+  r1 --- r2
+  r2 --- r3
+  r3 --- r4
+  r4 --- r5
+  classDef rt fill:#D3D1C7,stroke:#5F5E5A,stroke-width:1px,color:#2C2C2A
+  classDef H1 fill:#AFA9EC,stroke:#534AB7,stroke-width:1px,color:#26215C
+  classDef K1 fill:#EEEDFE,stroke:#534AB7,stroke-width:1px,color:#26215C
+  classDef H2 fill:#5DCAA5,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef K2 fill:#E1F5EE,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef H3 fill:#F0997B,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef K3 fill:#FAECE7,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  class root rt
+  class s H1
+  class s0,s1,s2,s3 K1
+  class f H2
+  class f1,f2,f3,f4,f5,f6 K2
+  class r H3
+  class r1,r2,r3,r4,r5 K3
+</div></div>
+        `,
+      dmphys: `
+        <h4>Physical design: making it work in a real database</h4>
+        <p>The physical model turns the logical tables into real definitions. The main choices are below.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:18%">Choice</th><th style="width:44%">What to decide</th><th style="width:38%">Example</th></tr>
+          <tr><td><strong>Data types</strong></td><td>Smallest type that fits; dates as DATE, money as DECIMAL</td><td><code>DECIMAL(10,2)</code>, not FLOAT, for prices</td></tr>
+          <tr><td><strong>Constraints</strong></td><td>Rules the database enforces</td><td><code>NOT NULL</code>, <code>UNIQUE</code>, <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>, <code>CHECK</code></td></tr>
+          <tr><td><strong>Indexes</strong></td><td>Speed up lookups and joins on columns you filter by</td><td>Index on <code>orders.customer_id</code></td></tr>
+          <tr><td><strong>Partitioning</strong></td><td>Split big tables, usually by date</td><td>Partition by <code>order_date</code> month</td></tr>
+          <tr><td><strong>Naming</strong></td><td>Consistent, readable names</td><td><code>dim_customer</code>, <code>fact_sales</code>, <code>snake_case</code></td></tr>
+        </table>
+        <h4>An index changes the query plan</h4>
+        <p>The same query on <code>orders</code>, before and after adding an index on <code>customer_id</code>:</p>
+        <pre style="margin-bottom:2px">q("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE customer_id=1")[["detail"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">        detail
+0  SCAN orders</pre>
+        <pre style="margin-bottom:2px">c.execute("CREATE INDEX idx_orders_cust ON orders(customer_id)")
+q("EXPLAIN QUERY PLAN SELECT * FROM orders WHERE customer_id=1")[["detail"]]</pre>
+        <pre style="border-left:3px solid var(--ochre); margin-top:0">                                                      detail
+0  SEARCH orders USING INDEX idx_orders_cust (customer_id=?)</pre>
+        <p><strong>Reading the results:</strong> <code>SCAN</code> reads every row, while <code>SEARCH ... USING INDEX</code> jumps straight to the matching rows. On 4 rows the difference is invisible, but on millions it is the difference between seconds and milliseconds. Indexes cost extra storage and slow writes, so add them for real query patterns, not everywhere.</p>
+        <div class="callout" style="border-left:4px solid var(--ochre); padding:8px 12px; margin:10px 0;"><strong>Snowflake and other cloud warehouses:</strong> they do not use traditional indexes. They organize data in micro-partitions and let you define a clustering key on large tables, and primary and foreign keys are informational and not enforced. The modelling process stays the same; the physical tuning differs.</div>
+        `,
+      dminterview: `
+        <h4>Answering a data modelling question in an interview</h4>
+        <p>A typical prompt: *Design the data model for an online store* or *for a bank's loan payments*. Follow the same steps out loud.</p>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:26%">Step</th><th style="width:74%">Say or do</th></tr>
+          <tr><td><strong>1. Clarify</strong></td><td>Ask what questions the model must answer and what the main events are</td></tr>
+          <tr><td><strong>2. Entities</strong></td><td>List the nouns: customer, product, order, payment</td></tr>
+          <tr><td><strong>3. Relationships</strong></td><td>State the cardinality and resolve many-to-many with a bridge table</td></tr>
+          <tr><td><strong>4. Keys</strong></td><td>Name the primary and foreign keys; mention surrogate keys</td></tr>
+          <tr><td><strong>5. Normalize or star</strong></td><td>3NF for the operational system; star schema for analytics, after stating the grain</td></tr>
+          <tr><td><strong>6. History</strong></td><td>Say which dimensions need SCD2 and why</td></tr>
+          <tr><td><strong>7. Physical</strong></td><td>Mention data types, indexes, partitions, and testing with real queries</td></tr>
+        </table>
+        <h4>The spoken answer</h4>
+        <blockquote style="border-left:4px solid var(--ochre); padding:6px 14px; margin:10px 0; font-style:italic;">I start by asking what business questions the model must answer, then sketch the conceptual model: entities like customer, product and order. I turn that into a logical model with keys and relationships, normalized to 3NF for the operational system. For analytics I build a star schema: I pick the grain first, such as one row per order line, then put the measures in the fact table and the descriptive attributes in dimensions. If attributes like a customer's city change, I use SCD Type 2 to keep history. Finally I choose data types, constraints and indexes for the physical model, and I test it with the real queries.</blockquote>
+        <table style="table-layout:fixed; overflow-wrap:anywhere;">
+          <tr><th style="width:40%">Pitfall</th><th style="width:60%">Fix</th></tr>
+          <tr><td>Mixed grain in a fact table</td><td>State one grain and keep to it</td></tr>
+          <tr><td>Using a natural key as the dimension key</td><td>Use a surrogate key</td></tr>
+          <tr><td>Over-normalizing a reporting model</td><td>Use a star schema</td></tr>
+          <tr><td>Losing history on updates</td><td>Use SCD2 for attributes that matter in reports</td></tr>
+          <tr><td>Indexing every column</td><td>Index the columns used in filters and joins</td></tr>
+        </table>
+        <h4>Worked example: design a sales star schema</h4>
+        <p>A full walk-through you can narrate in an interview: from the business questions to a finished star schema, using the same steps as the build-steps chart.</p>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  n1["&lt;b&gt;1. Scope&lt;/b&gt;&lt;br/&gt;Which customers are our top buyers?&lt;br/&gt;Which products earn the most and least revenue?&lt;br/&gt;How do sales trend over time?&lt;br/&gt;&lt;b&gt;Metrics:&lt;/b&gt; sales (units sold) and revenue"]
+  n2["&lt;b&gt;Source tables (OLTP)&lt;/b&gt;&lt;br/&gt;customers · orders · order_items · products"]
+  n3["&lt;b&gt;2. Transform&lt;/b&gt;&lt;br/&gt;Keep completed orders only&lt;br/&gt;revenue = quantity × unit_price − discount&lt;br/&gt;Fix date types, trim text, dedupe customers"]
+  n4["&lt;b&gt;3. Identify the fact table&lt;/b&gt;&lt;br/&gt;fact_sales: each sale is a measurable event&lt;br/&gt;built from order_items joined to orders"]
+  n5["&lt;b&gt;4. Declare the grain&lt;/b&gt;&lt;br/&gt;One row per order line item&lt;br/&gt;(one product within one order)"]
+  n6["&lt;b&gt;5. Define metrics&lt;/b&gt;&lt;br/&gt;units_sold = quantity&lt;br/&gt;revenue = quantity × unit_price − discount"]
+  n7["&lt;b&gt;6. Dimension tables&lt;/b&gt;&lt;br/&gt;dim_customer (who) · dim_product (what)&lt;br/&gt;dim_date (when)"]
+  n8["&lt;b&gt;7. Surrogate keys&lt;/b&gt;&lt;br/&gt;customer_key · product_key · date_key&lt;br/&gt;natural IDs kept as plain columns"]
+  n9["&lt;b&gt;8. Foreign keys&lt;/b&gt;&lt;br/&gt;fact_sales holds customer_key,&lt;br/&gt;product_key and date_key"]
+  n10["&lt;b&gt;9. Remove unnecessary columns&lt;/b&gt;&lt;br/&gt;Drop password, phone, shipping address,&lt;br/&gt;description, stock_qty, supplier_id"]
+  q{"Does the attribute&lt;br/&gt;need history?"}
+  scd2["&lt;b&gt;SCD type 2&lt;/b&gt;&lt;br/&gt;dim_customer city and country&lt;br/&gt;new row per move, keeps old sales&lt;br/&gt;with the old location"]
+  scd1["&lt;b&gt;SCD type 1&lt;/b&gt;&lt;br/&gt;dim_product name and brand fixes&lt;br/&gt;overwrite, no history"]
+  done["&lt;b&gt;Result: star schema&lt;/b&gt;&lt;br/&gt;fact_sales + 3 dimensions&lt;br/&gt;answers all three business questions"]
+  n1 --&gt; n2 --&gt; n3 --&gt; n4 --&gt; n5 --&gt; n6 --&gt; n7 --&gt; n8 --&gt; n9 --&gt; n10 --&gt; q
+  q --&gt;|"Yes: customer location"| scd2
+  q --&gt;|"No: product name fixes"| scd1
+  scd2 --&gt; done
+  scd1 --&gt; done
+  classDef a fill:#D3D1C7,stroke:#5F5E5A,stroke-width:1px,color:#2C2C2A
+  classDef b fill:#CECBF6,stroke:#534AB7,stroke-width:1px,color:#26215C
+  classDef c fill:#9FE1CB,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef d fill:#F5C4B3,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef e fill:#FAC775,stroke:#854F0B,stroke-width:1px,color:#412402
+  class n1,n2,n3 a
+  class n4,n5,n6 b
+  class n7,n8,n9,n10 c
+  class q,scd1,scd2 d
+  class done e
+</div></div>
+        <h4>From OLTP source tables to the OLAP schema</h4>
+        <p>The same example seen as tables: the four normalized source tables at the top, the changes applied in the middle, and the resulting star schema at the bottom.</p>
+        <div class="mermaid-wrap" style="max-height:none;"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+  subgraph OLTP["OLTP: source tables (normalized, built for writes)"]
+    t1["&lt;b&gt;customers&lt;/b&gt;&lt;br/&gt;customer_id PK&lt;br/&gt;name, email, phone&lt;br/&gt;password_hash&lt;br/&gt;city, country, created_at"]
+    t2["&lt;b&gt;orders&lt;/b&gt;&lt;br/&gt;order_id PK&lt;br/&gt;customer_id FK&lt;br/&gt;order_date, status&lt;br/&gt;shipping_address&lt;br/&gt;payment_method"]
+    t3["&lt;b&gt;order_items&lt;/b&gt;&lt;br/&gt;order_item_id PK&lt;br/&gt;order_id FK, product_id FK&lt;br/&gt;quantity, unit_price&lt;br/&gt;discount"]
+    t4["&lt;b&gt;products&lt;/b&gt;&lt;br/&gt;product_id PK&lt;br/&gt;name, category, brand&lt;br/&gt;price, description&lt;br/&gt;supplier_id, stock_qty"]
+  end
+  subgraph CHG["CHANGE: what happens between them"]
+    c1["&lt;b&gt;Customer change&lt;/b&gt;&lt;br/&gt;Drop email, phone, password&lt;br/&gt;Add customer_key (surrogate)&lt;br/&gt;SCD type 2 on city, country"]
+    c4["&lt;b&gt;Date change&lt;/b&gt;&lt;br/&gt;order_date becomes its own&lt;br/&gt;table: day, month,&lt;br/&gt;quarter, year"]
+    c3["&lt;b&gt;Sales change&lt;/b&gt;&lt;br/&gt;Join orders and order_items&lt;br/&gt;Keep completed orders only&lt;br/&gt;Add revenue, swap IDs for keys"]
+    c2["&lt;b&gt;Product change&lt;/b&gt;&lt;br/&gt;Drop description, supplier_id,&lt;br/&gt;stock_qty, price&lt;br/&gt;Add product_key, SCD type 1"]
+  end
+  subgraph OLAP["OLAP: star schema (built for analysis)"]
+    o1["&lt;b&gt;dim_customer&lt;/b&gt;&lt;br/&gt;customer_key PK&lt;br/&gt;customer_id, name&lt;br/&gt;city, country, signup_date&lt;br/&gt;valid_from, valid_to, is_current"]
+    o4["&lt;b&gt;dim_date&lt;/b&gt;&lt;br/&gt;date_key PK&lt;br/&gt;full_date, month&lt;br/&gt;quarter, year"]
+    o3["&lt;b&gt;fact_sales&lt;/b&gt;&lt;br/&gt;order_id, order_line&lt;br/&gt;customer_key FK, product_key FK&lt;br/&gt;date_key FK&lt;br/&gt;units_sold, unit_price, revenue"]
+    o2["&lt;b&gt;dim_product&lt;/b&gt;&lt;br/&gt;product_key PK&lt;br/&gt;product_id, name&lt;br/&gt;category, brand"]
+  end
+  t1 --&gt; c1 --&gt; o1
+  t2 --&gt; c4 --&gt; o4
+  t2 --&gt; c3
+  t3 --&gt; c3 --&gt; o3
+  t4 --&gt; c2 --&gt; o2
+  classDef oltp fill:#F5C4B3,stroke:#993C1D,stroke-width:1px,color:#4A1B0C
+  classDef chg fill:#FAC775,stroke:#854F0B,stroke-width:1px,color:#412402
+  classDef dim fill:#9FE1CB,stroke:#0F6E56,stroke-width:1px,color:#04342C
+  classDef fact fill:#CECBF6,stroke:#534AB7,stroke-width:1px,color:#26215C
+  class t1,t2,t3,t4 oltp
+  class c1,c2,c3,c4 chg
+  class o1,o2,o4 dim
+  class o3 fact
+  style OLTP fill:#FAECE7,stroke:#D85A30,color:#712B13
+  style CHG fill:#FAEEDA,stroke:#BA7517,color:#633806
+  style OLAP fill:#EEEDFE,stroke:#7F77DD,color:#3C3489
+</div></div>`
+    }
   }
 
 ];
@@ -8927,6 +9757,99 @@ X = TfidfVectorizer(ngram_range=(1, 2)).fit_transform(docs)</pre>` },
 <div class="fb-explain">Asking shows good judgment. Without labels you can find groups and themes but cannot compute accuracy.</div>` },
  { cat: "nlp", sub: "Interview approach", q: "How do you wrap up an interview model answer?", a: `<strong>State the result, what drives it, the limitations, and the next steps in plain language</strong>
 <div class="fb-explain">Interviewers want the story, not just the score: what you found, how sure you are, and what you would do next.</div>` },
+ { cat: "data-modelling", sub: "Basics", q: "What are the conceptual, logical and physical data models?", a: `<strong>Conceptual:</strong> entities and relationships, no technical detail (Customer places Order). <strong>Logical:</strong> attributes, keys and normalization, independent of any database. <strong>Physical:</strong> data types, constraints, indexes and partitions for a specific database.` },
+ { cat: "data-modelling", sub: "Basics", q: "What is the data modelling process?", a: `Requirements (business questions), then conceptual, logical and physical models, then implement and test with real queries, then evolve as needs change. Start from the questions the data must answer, not from the tables.` },
+ { cat: "data-modelling", sub: "Basics", q: "What are entity, attribute and cardinality?", a: `An <strong>entity</strong> is a thing the business tracks (customer). An <strong>attribute</strong> describes it (city). <strong>Cardinality</strong> is how many of one relate to the other: 1:1, 1:N or M:N.` },
+ { cat: "data-modelling", sub: "Basics", q: "How do you model a many-to-many relationship?", a: `Add a <strong>bridge (junction) table</strong> holding the keys of both sides, usually as a composite primary key, plus any attribute of the pairing.
+<pre>order_items(order_id, product_id, qty, PRIMARY KEY(order_id, product_id))</pre>` },
+ { cat: "data-modelling", sub: "Keys", q: "Primary key versus foreign key?", a: `A <strong>primary key</strong> uniquely identifies each row and cannot be null. A <strong>foreign key</strong> is a column that references a primary key in another table, so the database rejects orphan rows.` },
+ { cat: "data-modelling", sub: "Keys", q: "Surrogate key versus natural key?", a: `A <strong>natural key</strong> is a real-world identifier (email, PAN) and can change. A <strong>surrogate key</strong> is a system-made number with no meaning: stable and short, and required for SCD Type 2, where one customer has several rows.` },
+ { cat: "data-modelling", sub: "Keys", q: "What is a composite key?", a: `A primary key made of two or more columns that are unique only together, such as <code>(order_id, product_id)</code> in an order-lines table.` },
+ { cat: "data-modelling", sub: "Normalization", q: "What is normalization and why do it?", a: `Splitting tables so that each fact is stored once. It prevents update, insert and delete anomalies and keeps data consistent. It is the standard for transactional (OLTP) systems.` },
+ { cat: "data-modelling", sub: "Normalization", q: "What are update, insert and delete anomalies?", a: `<strong>Update:</strong> a value changed in one row but not its copies. <strong>Insert:</strong> you cannot store a customer until they have an order. <strong>Delete:</strong> deleting the last order also loses the customer's details.` },
+ { cat: "data-modelling", sub: "Normalization", q: "Explain 1NF, 2NF and 3NF.", a: `<strong>1NF:</strong> one value per cell, no repeating groups. <strong>2NF:</strong> every non-key column depends on the whole key (no partial dependency). <strong>3NF:</strong> non-key columns depend only on the key, not on other non-key columns (no transitive dependency).` },
+ { cat: "data-modelling", sub: "Normalization", q: "When would you denormalize?", a: `For reporting and analytics, where reads and aggregates dominate and joins are costly. You deliberately repeat attributes in wide dimension tables (a star schema), accepting duplication for faster, simpler queries.` },
+ { cat: "data-modelling", sub: "Warehouse", q: "What are fact and dimension tables?", a: `A <strong>fact table</strong> stores measurable events (qty, revenue) with foreign keys to dimensions. <strong>Dimension tables</strong> store descriptive context (customer, product, date) that you group and filter by.` },
+ { cat: "data-modelling", sub: "Warehouse", q: "What is the grain of a fact table and why decide it first?", a: `The grain defines what one row means (one row per order line). Every measure and dimension must fit that grain; mixing grains double-counts and makes totals wrong.` },
+ { cat: "data-modelling", sub: "Warehouse", q: "Star schema versus snowflake schema?", a: `<strong>Star:</strong> dimensions are single denormalized tables joined directly to the fact: fewer joins, simpler queries. <strong>Snowflake:</strong> dimensions are normalized into sub-tables: less repetition, more joins. Star is the usual default.` },
+ { cat: "data-modelling", sub: "Warehouse", q: "What are additive, semi-additive and non-additive measures?", a: `<strong>Additive:</strong> sum across everything (revenue). <strong>Semi-additive:</strong> sum across some dimensions but not time (account balance). <strong>Non-additive:</strong> never sum (ratios): store numerator and denominator and divide after aggregating.` },
+ { cat: "data-modelling", sub: "Warehouse", q: "What is a conformed dimension?", a: `A dimension shared by several fact tables with the same keys and meaning (such as a date or customer dimension), so results from different facts can be compared and combined.` },
+ { cat: "data-modelling", sub: "Warehouse", q: "What is a degenerate dimension?", a: `An identifier kept on the fact table that has no dimension table of its own because it has no other attributes, for example the order number.` },
+ { cat: "data-modelling", sub: "SCD", q: "What is a slowly changing dimension?", a: `A dimension attribute that changes occasionally (a customer's city). The SCD type decides whether you overwrite it or keep history.` },
+ { cat: "data-modelling", sub: "SCD", q: "Explain SCD Types 0, 1, 2 and 3.", a: `<strong>0:</strong> never changes. <strong>1:</strong> overwrite, no history. <strong>2:</strong> add a new row with <code>valid_from</code>, <code>valid_to</code>, <code>is_current</code>, full history. <strong>3:</strong> add a column for the previous value, one step of history.` },
+ { cat: "data-modelling", sub: "SCD", q: "How do you implement SCD Type 2?", a: `Close the current row (set <code>valid_to</code> and <code>is_current = 0</code>) and insert a new row with a new surrogate key and the new value.
+<pre>UPDATE dim_customer_scd SET valid_to='2025-03-01', is_current=0
+WHERE customer_id=1 AND is_current=1;
+INSERT INTO dim_customer_scd ... VALUES (1,'Asha','Bengaluru','2025-03-01','9999-12-31',1);</pre>` },
+ { cat: "data-modelling", sub: "SCD", q: "Why does SCD Type 2 need a surrogate key?", a: `Because the business key (customer_id) now appears on several rows, one per version. The fact table must point to the exact version that was current at the time of the sale, so each version gets its own surrogate key.` },
+ { cat: "data-modelling", sub: "Physical", q: "What is decided in the physical model?", a: `Data types, constraints (NOT NULL, UNIQUE, FK, CHECK), indexes, partitioning, and naming, all for a particular database. For money use DECIMAL, not FLOAT.` },
+ { cat: "data-modelling", sub: "Physical", q: "What does an index do, and what is the cost?", a: `It lets the database find matching rows without scanning the table (<code>SCAN</code> becomes <code>SEARCH USING INDEX</code>). The cost is extra storage and slower writes, so index the columns used in filters and joins.` },
+ { cat: "data-modelling", sub: "Physical", q: "OLTP versus OLAP modelling?", a: `<strong>OLTP:</strong> many small writes, normalized to 3NF, row store. <strong>OLAP:</strong> big reads and aggregates, star schema, denormalized, often a columnar warehouse like Snowflake.` },
+ { cat: "data-modelling", sub: "Physical", q: "Do cloud warehouses like Snowflake use indexes and enforce keys?", a: `No traditional indexes: data sits in micro-partitions and you can set a clustering key on very large tables. Primary and foreign keys are informational and not enforced, so loading logic must keep data consistent.` },
+ { cat: "data-modelling", sub: "Interview approach", q: "How do you answer 'design a data model for an online store'?", a: `Clarify the business questions, list the entities (customer, product, order), state cardinalities and resolve many-to-many with a bridge table, name the keys, normalize to 3NF for the operational system, then give a star schema for analytics with the grain stated first. Mention SCD2 for changing attributes, and finish with indexes, types and testing on real queries.` },
+ { cat: "data-modelling", sub: "Interview approach", q: "Give a 30-second spoken answer on data modelling.", a: `I ask what questions the model must answer, sketch entities and relationships, then define keys and normalize to 3NF for the operational system. For analytics I choose the grain, build a fact table with measures and dimensions around it, and use SCD Type 2 where history matters. Then I pick data types, constraints and indexes, and test with real queries.` },
+ { cat: "data-modelling", sub: "Interview approach", q: "What are common data modelling mistakes?", a: `Skipping requirements, mixing grains in a fact table, using natural keys as dimension keys, over-normalizing a reporting model, losing history by overwriting, and indexing every column.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Data model?", a: `The plan for what data you store and how the pieces relate.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Conceptual model?", a: `A business-level view of entities and relationships, with no technical detail.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Logical model?", a: `Adds attributes, keys and normalization, independent of any database product.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Physical model?", a: `The real implementation: data types, constraints, indexes and partitions for a specific database.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Entity?", a: `A thing the business tracks, such as customer, product or order.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Attribute?", a: `A property that describes an entity, such as name or price.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Relationship?", a: `A link between two entities, such as 'customer places order'.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Cardinality?", a: `How many rows on one side relate to the other: 1:1, 1:N or M:N.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is ER diagram (ERD)?", a: `A diagram of entities, attributes and relationships.` },
+ { cat: "data-modelling", sub: "Glossary: Core concepts", q: "What is Schema?", a: `The structure of a database: its tables, columns, keys and relationships.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Primary key (PK)?", a: `A column (or columns) that uniquely identifies each row and is never null.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Foreign key (FK)?", a: `A column that references another table's primary key, so orphan rows are rejected.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Composite key?", a: `A key made of two or more columns that are unique only together.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Natural key?", a: `A real-world identifier such as email or PAN. It can change.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Surrogate key?", a: `A system-generated number with no business meaning. It is stable, and SCD Type 2 needs it.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Business key?", a: `The identifier the business uses for an entity, such as <code>customer_id</code> in the source system.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Bridge (junction) table?", a: `A table that resolves a many-to-many relationship, such as <code>order_items</code>.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Constraint?", a: `A rule the database enforces: <code>NOT NULL</code>, <code>UNIQUE</code>, <code>CHECK</code>, PK or FK.` },
+ { cat: "data-modelling", sub: "Glossary: Keys and integrity", q: "What is Referential integrity?", a: `The guarantee that every foreign key points to an existing primary key.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is Normalization?", a: `Splitting tables so that each fact is stored once.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is 1NF?", a: `One value per cell and no repeating groups.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is 2NF?", a: `Every non-key column depends on the whole key.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is 3NF?", a: `Non-key columns depend only on the key, not on other non-key columns.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is Update, insert and delete anomalies?", a: `Errors caused by repeated data: a change missed in some rows, a record that cannot be added alone, or a record lost on delete.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is Denormalization?", a: `Deliberately repeating data to make reads faster and simpler.` },
+ { cat: "data-modelling", sub: "Glossary: Normalization", q: "What is Functional dependency?", a: `One column's value determines another's, for example <code>zip</code> determines <code>city</code>.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is OLTP?", a: `Online transaction processing: many small reads and writes, normalized.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is OLAP?", a: `Online analytical processing: large reads and aggregates, usually a star schema.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Data warehouse?", a: `A central store of cleaned data from many sources, built for analysis.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Fact table?", a: `A table of measurable events, such as sales, with foreign keys to dimensions.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Dimension table?", a: `A table of descriptive context (who, what, where, when) used to group and filter.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Grain?", a: `What one row of the fact table means, such as one row per order line.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Measure (metric)?", a: `A numeric value in a fact table, such as quantity or revenue.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Additive, semi-additive, non-additive?", a: `Measures that can be summed across everything, across some dimensions only (not time), or never.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Star schema?", a: `A fact table with one flat, denormalized dimension per entity around it.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Snowflake schema?", a: `A star whose dimensions are split into normalized sub-dimensions.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Conformed dimension?", a: `A dimension shared by several fact tables with the same keys and meaning.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Degenerate dimension?", a: `An identifier kept on the fact table with no table of its own, such as an order number.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Junk dimension?", a: `A table that groups several low-cardinality flags and codes into one dimension.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Role-playing dimension?", a: `One dimension used several times by a fact, such as <code>dim_date</code> as both order date and ship date.` },
+ { cat: "data-modelling", sub: "Glossary: Warehouse", q: "What is Data mart?", a: `A subject-focused slice of a warehouse, such as sales or finance.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is SCD (slowly changing dimension)?", a: `A dimension attribute that changes occasionally.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is SCD Type 0?", a: `Keep the original value and never change it.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is SCD Type 1?", a: `Overwrite the old value, so no history is kept.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is SCD Type 2?", a: `Add a new row per change with <code>valid_from</code>, <code>valid_to</code> and <code>is_current</code>, so history is complete.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is SCD Type 3?", a: `Add a column for the previous value, so history is limited to one step.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is Late-arriving fact or dimension?", a: `Data that shows up after the event or the related record. A placeholder row can be used until it arrives.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is CDC (change data capture)?", a: `Capturing inserts, updates and deletes from a source so they can be applied downstream.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is Watermark?", a: `A timestamp such as <code>updated_at</code> used to load only new or changed rows.` },
+ { cat: "data-modelling", sub: "Glossary: Handling change", q: "What is Idempotent load?", a: `A load that gives the same result if it is run more than once.` },
+ { cat: "data-modelling", sub: "Glossary: Physical design", q: "What is Index?", a: `A structure that lets the database find rows without scanning the whole table.` },
+ { cat: "data-modelling", sub: "Glossary: Physical design", q: "What is Partitioning?", a: `Splitting a large table, usually by date, to speed up queries and loads.` },
+ { cat: "data-modelling", sub: "Glossary: Physical design", q: "What is Clustering key?", a: `A column used to group related rows physically on large tables (for example in Snowflake).` },
+ { cat: "data-modelling", sub: "Glossary: Physical design", q: "What is Data type?", a: `The kind of value a column holds, such as <code>INT</code>, <code>DECIMAL</code> or <code>DATE</code>.` },
+ { cat: "data-modelling", sub: "Glossary: Physical design", q: "What is DDL?", a: `SQL that defines structure: <code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>.` },
+ { cat: "data-modelling", sub: "Glossary: Physical design", q: "What is Row store vs columnar store?", a: `Data stored by row for transactions, or by column for fast analytical scans.` },
+ { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is ETL vs ELT?", a: `ETL transforms data before loading it into the warehouse. ELT loads it first and transforms it inside the warehouse.` },
+ { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is Staging area?", a: `A temporary zone where raw source data lands before it is cleaned.` },
+ { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is Data lineage?", a: `The record of where data came from and how it was changed.` },
+ { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is Data dictionary?", a: `A catalogue describing each table and column.` },
+ { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is Data vault?", a: `A warehouse modelling style (hubs, links, satellites) built for auditability and many sources.` },
 ];
 
 const QUIZ = [
@@ -9007,7 +9930,7 @@ MODULES.forEach(m => {
   moduleGrid.appendChild(card);
 });
 
-const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", tokenization: "Tokenization", nlpcleaning: "Cleaning & Stop Words", stemlemma: "Stemming vs Lemmatization", posner: "POS & Named Entities", vectorize: "Text to Numbers", nlpexample: "One Example, Every Step", nlppipeline: "Pipeline & Interview", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
+const TAB_LABELS = { overview: "Overview", workflow: "Workflow", concepts: "Concepts", example: "Example", charts: "Charts", diagram: "Flowchart", filtering: "Filtering Charts", indexing: "Indexing Cheat Sheet", colrow: "Column & Row Filters", strdate: "String & Date Filters", numnull: "Numeric, Null & Multi", datetime: "Datetime", numeric: "Numeric", missing: "Missing Data", dummies: "Dummies", patterns: "Patterns", groups: "Groups & Lookarounds", functions: "Functions", cleaning: "Cleaning Text", correlation: "Correlation Chart", missingchart: "Missing Chart", cleancharts: "Cleaning Charts", fecharts: "Transform Charts", edacharts: "Exploration Chart", pandasio: "Pandas File I/O", chartstyles: "Chart Styles", controlflow: "Control Flow", commonerrors: "Common Errors", recipes: "Recipes", condlogic: "Conditional Logic", binning: "Binning", mergeconcat: "Merge vs Concat", identifiers: "Exclude Identifiers", dataprep: "Data Prep Steps", features: "Feature Engineering Steps", selection: "Feature Selection", scaling: "Feature Scaling", pipeline: "End-to-End Pipeline", interviewchurn: "Churn Example", interviewbnpl: "BNPL Example", interviewretail: "Retail Example", tokenization: "Tokenization", nlpcleaning: "Cleaning & Stop Words", stemlemma: "Stemming vs Lemmatization", posner: "POS & Named Entities", vectorize: "Text to Numbers", nlpexample: "One Example, Every Step", nlppipeline: "Pipeline & Interview", dmlevels: "Three Levels", dmer: "ER Diagrams & Keys", dmnorm: "Normalization", dmstar: "Star Schema", dmscd: "Slowly Changing Dimensions", dmphys: "Physical Design", dminterview: "Interview Approach", gbpivot: "GroupBy vs Pivot", dbconnect: "Connect & Query", tips: "Exam Tips" };
 
 const overlay = document.getElementById("modal-overlay");
 const modalTag = document.getElementById("modal-tag");
