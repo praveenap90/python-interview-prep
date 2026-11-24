@@ -1638,8 +1638,16 @@ flowchart TD
           <tr><td><strong>Smallest by a field</strong></td><td><pre>min(people, key=lambda p: p["age"])["name"]</pre></td><td><pre>'Ben'</pre></td><td>Same, for the smallest.</td></tr>
           <tr><td><strong>Sort by length</strong></td><td><pre>sorted(["pear", "fig", "banana"], key=lambda s: len(s))</pre></td><td><pre>['fig', 'pear', 'banana']</pre></td><td>The key can be any computed value.</td></tr>
           <tr><td><strong>Case-insensitive sort</strong></td><td><pre>sorted(["b", "A", "c"], key=lambda s: s.lower())</pre></td><td><pre>['A', 'b', 'c']</pre></td><td>Compares lowercase, keeps the original items.</td></tr>
-          <tr><td><strong>Sort by two fields</strong></td><td><pre>sorted([("Asha", 30), ("Ravi", 25), ("Ben", 30)], key=lambda p: (-p[1], p[0]))</pre></td><td><pre>[('Asha', 30), ('Ben', 30), ('Ravi', 25)]</pre></td><td>A tuple key: age descending, then name ascending.</td></tr>
+          <tr><td><strong>Sort by two fields</strong></td><td><pre>sorted([("Asha", 30), ("Ravi", 25), ("Ben", 30)], key=lambda p: (-p[1], p[0]))</pre></td><td><pre>[('Asha', 30), ('Ben', 30), ('Ravi', 25)]</pre></td><td>A tuple key: age descending, then name ascending. See the note below.</td></tr>
         </table>
+        <h4>Why a tuple key in "Sort by two fields"?</h4>
+        <p>A lambda can return only one value, so a tuple bundles the sort rules into one value. Python compares tuples item by item: the first items first, and the second items only when the first ones are equal.</p>
+        <p><strong>Why a tuple and not something else:</strong></p>
+        <ul>
+          <li>A tuple is the natural way to return &quot;several values as one&quot;.</li>
+          <li>A list would also work, but a tuple is the convention for a fixed set of sort rules.</li>
+          <li>The first item is the main rule and the second is the tie-breaker. To add a third rule, add a third item.</li>
+        </ul>
         <p><code>operator.itemgetter("age")</code> is a named alternative to <code>lambda p: p["age"]</code> and gives the same order.</p>
         <h4>5. Comprehension versus map and filter</h4>
         <p>Both give the same result. Most Python style guides prefer the comprehension when you would need a lambda, because it is easier to read and can include an <code>if</code> filter. <code>map</code> reads best when you already have a named function, such as <code>map(int, strings)</code> or <code>map(str.upper, words)</code>.</p>
