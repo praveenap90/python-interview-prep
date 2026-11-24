@@ -1341,15 +1341,31 @@ def predict(customer_features: dict) -&gt; float:
     icon: "🐍",
     title: "Python Fundamentals",
     tagline: "core Python for data work",
-    desc: "Data types, control flow, functions, comprehensions, and file I/O the way data roles actually use them.",
-    tags: ["comprehensions", "functions", "file I/O", "exceptions"],
+    desc: "Control flow, lambda, map and filter, modules and packages, the standard library and common errors, the way data roles use them. Data types, strings, functions and OOP are practiced in the flashcards. File handling has its own module.",
+    tags: ["control flow", "lambda", "modules", "standard library"],
     tabs: {
       overview: `
         <h4>What it is</h4>
         <p>The practical layer beneath every pipeline step: looping over records, transforming values, writing reusable functions, and choosing the right built-in data structure.</p>
         <h4>Why it matters</h4>
-        <p>Interviews rarely ask abstract CS-theory questions for data roles — they test whether you can read and manipulate data cleanly, since every pipeline step is fundamentally a data transformation.</p>`,
-      workflow: `
+        <p>Interviews rarely ask abstract CS-theory questions for data roles — they test whether you can read and manipulate data cleanly, since every pipeline step is fundamentally a data transformation.</p>
+        <h4>What is in this module</h4>
+        <ul>
+          <li><strong>Control Flow</strong>: if, loops, break and continue</li>
+          <li><strong>Lambda, map &amp; filter</strong>: small functions and the functional tools</li>
+          <li><strong>Modules &amp; packages</strong>: imports, <code>__init__.py</code> and project structure</li>
+          <li><strong>Standard library</strong>: datetime, math, json, collections, logging and more</li>
+          <li><strong>Common Errors</strong>: what each error means and how to fix it</li>
+        </ul>
+        <p>Files and folders, binary files, copying and pandas read/write are in the <strong>File Handling</strong> module. Data types, strings, functions and OOP are practiced in the flashcards.</p>
+        <h4>Concepts to understand</h4>
+        <ul>
+          <li><strong>Mutability</strong> — lists/dicts pass by reference; strings/tuples/ints don't</li>
+          <li><strong>Comprehensions</strong> — concise, often faster alternative to manual loops</li>
+          <li><strong>Exception handling</strong> — catch specific types, never a bare <code>except:</code></li>
+          <li><strong><code>*args</code>/<code>**kwargs</code></strong> — variable positional/keyword arguments</li>
+          <li><strong>File I/O</strong> — always use <code>with open(...) as f:</code>; the full guide is in the <strong>File Handling</strong> module</li>
+        </ul>
         <h4>Workflow</h4>
         <ul>
           <li>Understand the input data's shape and types before writing logic</li>
@@ -1367,16 +1383,54 @@ def predict(customer_features: dict) -&gt; float:
 cleaned = [
     {"name": r["name"].strip().title(), "age": clean_age(r["age"])}
     for r in records
-]</pre>`,
-      concepts: `
-        <h4>Concepts to understand</h4>
-        <ul>
-          <li><strong>Mutability</strong> — lists/dicts pass by reference; strings/tuples/ints don't</li>
-          <li><strong>Comprehensions</strong> — concise, often faster alternative to manual loops</li>
-          <li><strong>Exception handling</strong> — catch specific types, never a bare <code>except:</code></li>
-          <li><strong><code>*args</code>/<code>**kwargs</code></strong> — variable positional/keyword arguments</li>
-          <li><strong>File I/O</strong> — always use <code>with open(...) as f:</code></li>
-        </ul>`,
+]</pre>
+        <h4>Real-world example</h4>
+        <p>A vendor's daily CSV export has inconsistent column names and date formats week to week. A small script normalizes column names, tries multiple date formats with fallback parsing, and logs (rather than silently drops) rows that fail — all Fundamentals-level Python, exactly what shows up constantly in DA/DE roles.</p>
+        <h4>The actual cleaning script</h4>
+        <pre>from datetime import datetime
+
+DATE_FORMATS = ["%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y"]
+
+def parse_date(value):
+    for fmt in DATE_FORMATS:
+        try:
+            return datetime.strptime(value, fmt).date()
+        except (ValueError, TypeError):
+            continue
+    return None  # none of the known formats matched
+
+def clean_row(row):
+    row = {k.lower().replace(" ", "_"): v for k, v in row.items()}
+    row["order_date"] = parse_date(row.get("order_date"))
+    return row
+
+raw_rows = [{"Order Date": "2024-01-05"}, {"Order Date": "01/06/2024"}, {"Order Date": "not a date"}]
+cleaned, failed = [], []
+for r in raw_rows:
+    c = clean_row(r)
+    (failed if c["order_date"] is None else cleaned).append(c)
+
+print(f"Cleaned: {len(cleaned)}, Failed to parse: {len(failed)}")</pre>
+        <p><strong>Why this matters:</strong> the failed rows are tracked, not silently dropped — that distinction is exactly what interviewers are checking for when they ask "how would you clean this data."</p>
+        <h4>Common mistakes → exam tips</h4>
+        <ul class="tip-list">
+          <li>Mutable default arguments (<code>def f(x, acc=[])</code>) — created once, shared across every call</li>
+          <li>Verbose manual loops where a comprehension or built-in is clearer</li>
+          <li>Bare <code>except:</code> silently hiding real bugs</li>
+          <li>Hardcoding paths/credentials instead of variables or config</li>
+          <li>Not validating input shape/type before processing</li>
+        </ul>
+        <h4>Mutable default argument: the classic trap</h4>
+        <table style="table-layout:fixed; width:100%;">
+          <tr><th style="width:20%">Gotcha</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
+          <tr><td><strong>Mutable default argument</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">def add(x, bucket=[]):
+    bucket.append(x)
+    return bucket
+add(1)
+add(2)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[1, 2]</pre></td></tr>
+        </table>
+        <p>The default list is created once and shared by every call. Use <code>bucket=None</code> and create the list inside the function.</p>
+`,
       controlflow: `
         <h4>Control flow &amp; iteration concepts</h4>
         <table>
@@ -1523,6 +1577,7 @@ list(m)</pre></td><td><pre>map
           <tr><th>Concept</th><th>Definition</th><th>Sample code</th><th>Output</th></tr>
           <tr><td><strong>filter</strong></td><td>Keeps items for which the function returns True.</td><td><pre>list(filter(lambda x: x % 2 == 0, nums))</pre></td><td><pre>[2, 4, 6]</pre></td></tr>
           <tr><td><strong>reduce</strong></td><td>Folds a sequence into one value (import it from functools).</td><td><pre>reduce(lambda a, b: a + b, nums)</pre></td><td><pre>21</pre></td></tr>
+          <tr><td><strong>reduce</strong></td><td><code>reduce</code> is not a built-in in Python 3. It lives in <code>functools</code>.</td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a + b, [1, 2, 3])   # no import</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">NameError: name 'reduce' is not defined</pre></td></tr>
           <tr><td><strong>sum is simpler</strong></td><td>Prefer a built-in when one exists.</td><td><pre>sum(nums)</pre></td><td><pre>21</pre></td></tr>
         </table>
         <h4>map, filter and reduce together</h4>
@@ -1572,19 +1627,6 @@ flowchart TD
 </div></div>
         <pre style="margin-bottom:2px">reduce(lambda a, b: a + b, map(lambda x: x * 2, filter(lambda x: x % 2 == 0, nums)))</pre>
         <pre style="border-left:3px solid var(--ochre); margin-top:0">24</pre>
-        <h4>Functional version first, then the Pythonic one</h4>
-        <p>Interviewers often ask for the functional version first and then follow up with "how would you write this more Pythonically?" Having both ready is a strong answer.</p>
-        <p>Data used below: <code>nums = [1, 2, 3, 4, 5, 6]</code>.</p>
-        <table style="table-layout:fixed; width:100%;">
-          <tr><th style="width:12%">Task</th><th style="width:33%">Functional version</th><th style="width:25%">Pythonic version</th><th style="width:15%">Output (both)</th><th style="width:15%">Which to use</th></tr>
-          <tr><td><strong>Filter, map, reduce chain</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a + b, map(lambda x: x * 2, filter(lambda x: x % 2 == 0, nums)))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">sum(x * 2 for x in nums if x % 2 == 0)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">24</pre></td><td>Pythonic: one pass, no lambdas.</td></tr>
-          <tr><td><strong>Sum</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a + b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">sum(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">21</pre></td><td>Built-in.</td></tr>
-          <tr><td><strong>Product</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a * b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">math.prod(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">720</pre></td><td>Built-in.</td></tr>
-          <tr><td><strong>Minimum</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a if a &lt; b else b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">min(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">1</pre></td><td>Built-in.</td></tr>
-          <tr><td><strong>Maximum</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a if a &gt; b else b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">max(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">6</pre></td><td>Built-in.</td></tr>
-          <tr><td><strong>Custom fold: merge dicts</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: {**a, **b}, [{"a": 1}, {"b": 2}, {"a": 3}])</pre></td><td>no good comprehension equivalent</td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">{'a': 3, 'b': 2}</pre></td><td>Keep <code>reduce</code>.</td></tr>
-        </table>
-        <p><code>reduce</code> is the one with no good comprehension equivalent. For sums, products and min/max prefer the built-ins (<code>sum</code>, <code>math.prod</code>, <code>min</code>, <code>max</code>) and keep <code>reduce</code> for custom folds.</p>
         <h4>4. Lambda with sorted, max and min</h4>
         <p>The most common real use of a lambda is the <code>key</code> argument.</p>
         <p>Data used below: <code>people = [{"name": "Asha", "age": 31}, {"name": "Ben", "age": 25}, {"name": "Chen", "age": 40}]</code>.</p>
@@ -1610,6 +1652,19 @@ flowchart TD
           <tr><td><strong>Existing function: convert type</strong></td><td><pre>list(map(int, strings))</pre></td><td><pre>[int(s) for s in strings]</pre></td><td><pre>[1, 2, 3]</pre></td><td>Either: <code>map</code> is shorter with a named function</td></tr>
           <tr><td><strong>Existing function: method</strong></td><td><pre>list(map(str.upper, words))</pre></td><td><pre>[w.upper() for w in words]</pre></td><td><pre>['AB', 'CD']</pre></td><td>Either: <code>map</code> is fine with a named function</td></tr>
         </table>
+        <h4>5b. Interviews: the functional version first, then the Pythonic one</h4>
+        <p>Interviewers often ask for the functional version first and then follow up with "how would you write this more Pythonically?" Having both ready is a strong answer.</p>
+        <p>Data used below: <code>nums = [1, 2, 3, 4, 5, 6]</code>.</p>
+        <table style="table-layout:fixed; width:100%;">
+          <tr><th style="width:12%">Task</th><th style="width:33%">Functional version</th><th style="width:25%">Pythonic version</th><th style="width:15%">Output (both)</th><th style="width:15%">Which to use</th></tr>
+          <tr><td><strong>Filter, map, reduce chain</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a + b, map(lambda x: x * 2, filter(lambda x: x % 2 == 0, nums)))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">sum(x * 2 for x in nums if x % 2 == 0)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">24</pre></td><td>Pythonic: one pass, no lambdas.</td></tr>
+          <tr><td><strong>Sum</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a + b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">sum(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">21</pre></td><td>Built-in.</td></tr>
+          <tr><td><strong>Product</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a * b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">math.prod(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">720</pre></td><td>Built-in.</td></tr>
+          <tr><td><strong>Minimum</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a if a &lt; b else b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">min(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">1</pre></td><td>Built-in.</td></tr>
+          <tr><td><strong>Maximum</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: a if a &gt; b else b, nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">max(nums)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">6</pre></td><td>Built-in.</td></tr>
+          <tr><td><strong>Custom fold: merge dicts</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">reduce(lambda a, b: {**a, **b}, [{"a": 1}, {"b": 2}, {"a": 3}])</pre></td><td>no good comprehension equivalent</td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">{'a': 3, 'b': 2}</pre></td><td>Keep <code>reduce</code>.</td></tr>
+        </table>
+        <p><code>reduce</code> is the one with no good comprehension equivalent. For sums, products and min/max prefer the built-ins (<code>sum</code>, <code>math.prod</code>, <code>min</code>, <code>max</code>) and keep <code>reduce</code> for custom folds.</p>
         <h4>6. In pandas: Series.map, apply and lambda</h4>
         <p><code>Series.map</code> is not the built-in <code>map</code>: it accepts a dict, a Series or a function. With a dict, values that are not in the dict become <strong>NaN</strong>.</p>
         <p>Data used below: <code>s = pd.Series(["a", "b", "c", "a"])</code> and <code>df = pd.DataFrame({"price": [10, 20], "qty": [2, 3]})</code>.</p>
@@ -1677,15 +1732,13 @@ list(map(lambda x: x &gt; 3, nums))</pre></td><td><pre style="white-space:pre-wr
           <tr><td>Does PEP 8 like <code>square = lambda x: x * x</code>?</td><td>No. Write a <code>def</code> instead.</td></tr>
           <tr><td>How do you add conditional logic to a lambda?</td><td>Use a ternary: <code>lambda x: "even" if x % 2 == 0 else "odd"</code>.</td></tr>
         </table>
-        <h4>Common pitfalls</h4>
-        <table style="table-layout:fixed; overflow-wrap:anywhere;">
-          <tr><th style="width:55%">Pitfall</th><th style="width:45%">Fix</th></tr>
-          <tr><td>Printing a <code>map</code> or <code>filter</code> object and seeing <code>&lt;map object&gt;</code></td><td>Wrap in <code>list()</code>, or loop over it</td></tr>
-          <tr><td>Long, nested lambdas that are hard to read</td><td>Use a named <code>def</code></td></tr>
-          <tr><td>Late binding when creating lambdas in a loop</td><td>Bind with a default argument: <code>lambda i=i: i</code></td></tr>
-          <tr><td>Using <code>apply</code> with a lambda when a vectorized expression works</td><td>Vectorize, or use <code>Series.map</code> for lookups</td></tr>
-          <tr><td>Expecting <code>reduce</code> to be a built-in</td><td>Import it: <code>from functools import reduce</code></td></tr>
-        </table>
+        <h4>Style rules</h4>
+        <ul>
+          <li>Long, nested lambdas that are hard to read: use a named <code>def</code>.</li>
+          <li>Using <code>apply</code> with a lambda when a vectorized expression works: vectorize, or use <code>Series.map</code> for lookups.</li>
+          <li><code>reduce</code> is not a built-in: import it with <code>from functools import reduce</code>. The gotchas table above shows the error.</li>
+          <li>Printing a <code>map</code> or <code>filter</code> object, and late binding in loops, are covered in the gotchas table above.</li>
+        </ul>
         <h4>The spoken answer</h4>
         <blockquote style="border-left:4px solid var(--ochre); padding:6px 14px; margin:10px 0; font-style:italic;">A lambda is a small anonymous function with a single expression, which I use for short throwaway logic, most often as the key for sorted or max. Map applies a function to every item and filter keeps the items that pass, but both are lazy, so I wrap them in list. In plain Python I usually prefer a comprehension because it is easier to read. In pandas I try a vectorized expression first, use Series.map for lookups, and use apply with a lambda only when nothing else fits, since it runs Python code per row.</blockquote>
 `,
@@ -1795,10 +1848,9 @@ def _private():
           <tr><th style="width:22%">Term</th><th style="width:48%">Meaning</th><th style="width:30%">Example</th></tr>
           <tr><td><strong>Module</strong></td><td>A single <code>.py</code> file</td><td><code>math</code>, <code>text.py</code></td></tr>
           <tr><td><strong>Package</strong></td><td>A folder of modules, usually with an <code>__init__.py</code></td><td><code>mypkg/</code>, <code>pandas</code></td></tr>
-          <tr><td><strong>Sub-package</strong></td><td>A package inside a package</td><td><code>mypkg.cleaning</code>, <code>mypkg.stats</code></td></tr>
           <tr><td><strong>Library / distribution</strong></td><td>What you install with <code>pip</code>; contains one or more packages</td><td><code>pip install pandas</code></td></tr>
         </table>
-        <h4>2. What <code>__init__.py</code> does</h4>
+        <h4>2. <code>__init__.py</code>: what it does, and how to add a package with it</h4>
         <p>It marks a folder as a regular package and <strong>runs once, the first time the package is imported</strong>, no matter how many times you import it afterwards. Its names become the package's own names.</p>
         <pre style="margin-bottom:2px"># initdemo/__init__.py
 print("initdemo/__init__.py runs")
@@ -1816,7 +1868,7 @@ imported twice</pre>
           <tr><td><strong>With metadata</strong></td><td><code>__version__</code>, <code>__all__</code></td><td>You want to publish a version and control <code>import *</code></td></tr>
           <tr><td><strong>With setup code</strong></td><td>Logging config, registering plugins</td><td>Rarely. Heavy code here slows every import of the package</td></tr>
         </table>
-        <h4>3. Add a package by leveraging <code>__init__.py</code></h4>
+        <p><strong>Adding a package in four steps</strong></p>
         <p>Four steps. Each sub-package re-exports its own names, and the top-level <code>__init__.py</code> re-exports the ones users need.</p>
         <pre style="margin-bottom:2px"># 1. Create the folders:  mypkg/, mypkg/cleaning/, mypkg/stats/</pre>
         <pre style="margin-bottom:2px"># mypkg/cleaning/__init__.py
@@ -1837,7 +1889,7 @@ print(mypkg.mean([2, 4, 6]))</pre>
 hello
 4.0</pre>
         <p>The dot in <code>from .cleaning import clean_text</code> means "from this package", so the top-level file does not hard-code the package name.</p>
-        <h4>4. Ways to import (including sub-packages)</h4>
+        <h4>3. Ways to import (including sub-packages)</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:24%">Style</th><th style="width:48%">Sample code</th><th style="width:28%">Output</th></tr>
           <tr><td><strong>Whole package</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">import mypkg
@@ -1861,7 +1913,7 @@ print(mean([2, 4]), _private())</pre></td><td><pre style="white-space:pre-wrap; 
         <pre style="margin-bottom:2px">import mypkg.stats
 print(hasattr(mypkg.stats, 'basic'))   # True because stats/__init__.py imported .basic</pre>
         <pre style="border-left:3px solid var(--ochre); margin-top:0">True</pre>
-        <h4>5. Absolute vs relative imports</h4>
+        <h4>4. Absolute vs relative imports</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:24%">Kind</th><th style="width:46%">Example</th><th style="width:30%">Notes</th></tr>
           <tr><td><strong>Absolute</strong></td><td><code>from mypkg.cleaning.text import clean_text</code></td><td>Always works and is clear. Preferred.</td></tr>
@@ -1875,7 +1927,7 @@ print(hasattr(mypkg.stats, 'basic'))   # True because stats/__init__.py imported
         <pre style="margin-bottom:2px">python -m mypkg.tools   # run it as part of the package instead</pre>
         <pre style="border-left:3px solid var(--ochre); margin-top:0">tools __name__ = __main__
 run directly: 2.0</pre>
-        <h4>6. <code>__all__</code> and <code>from x import *</code></h4>
+        <h4>5. <code>__all__</code> and <code>from x import *</code></h4>
         <p><code>__all__</code> is the list of names that <code>from package import *</code> imports. Without it, <code>import *</code> brings in every name that does not start with an underscore.</p>
         <pre style="margin-bottom:2px">from mypkg import *   # mypkg/__init__.py has __all__ = ["clean_text", "mean"]
 print(sorted(n for n in dir() if not n.startswith('_')))</pre>
@@ -1884,7 +1936,7 @@ print(sorted(n for n in dir() if not n.startswith('_')))</pre>
 print('mean' in dir(), '_private' in dir())</pre>
         <pre style="border-left:3px solid var(--ochre); margin-top:0">True False</pre>
         <p>Avoid <code>import *</code> in normal code: it hides where names come from. Use it, if at all, for a package's public API.</p>
-        <h4>7. <code>if __name__ == "__main__":</code></h4>
+        <h4>6. <code>if __name__ == "__main__":</code></h4>
         <p>Every module has a <code>__name__</code>. It is <code>"__main__"</code> when the file is run directly and the module's dotted path when it is imported, so a guarded block runs only when the file is run.</p>
         <pre style="margin-bottom:2px"># mypkg/tools.py
 from .stats import mean
@@ -1897,7 +1949,7 @@ if __name__ == "__main__":
 run directly: 2.0</pre></td></tr>
           <tr><td><strong>Imported</strong></td><td><code>import mypkg.tools</code></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">tools __name__ = mypkg.tools</pre></td></tr>
         </table>
-        <h4>8. How Python finds modules: <code>sys.path</code></h4>
+        <h4>7. How Python finds modules: <code>sys.path</code></h4>
         <p><code>import mypkg</code> checks the already-imported modules, then searches the folders in <code>sys.path</code> in order: the script's folder first, then standard library and installed packages.</p>
         <pre style="margin-bottom:2px"># run from the folder that contains mypkg/
 import sys
@@ -1912,7 +1964,7 @@ import mypkg</pre>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:38%">Fix for ModuleNotFoundError</th><th style="width:62%">How</th></tr>
           <tr><td>Run from the project root</td><td><code>cd</code> to the folder that contains <code>mypkg/</code></td></tr>
-          <tr><td>Install the package in editable mode</td><td><code>pip install -e .</code> (needs a <code>pyproject.toml</code>, see section 10)</td></tr>
+          <tr><td>Install the package in editable mode</td><td><code>pip install -e .</code> (needs a <code>pyproject.toml</code>, see section 9)</td></tr>
           <tr><td>Add the folder to the path</td><td>Set <code>PYTHONPATH</code>, or <code>sys.path.append(...)</code> as a last resort</td></tr>
           <tr><td>Check the interpreter</td><td>In VS Code, select the interpreter that has the package installed</td></tr>
         </table>
@@ -1924,7 +1976,7 @@ print(a.X)
 print(bare.__file__)</pre>
         <pre style="border-left:3px solid var(--ochre); margin-top:0">1
 None</pre>
-        <h4>9. What happens on an import</h4>
+        <h4>8. What happens on an import</h4>
         <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
 flowchart TD
     A(["import mypkg"]):::a --&gt; B{"Already in&lt;br/&gt;sys.modules?"}:::b
@@ -1942,23 +1994,18 @@ flowchart TD
     classDef g fill:#fdcb6e,stroke:#b8860b,color:#222
     classDef r fill:#ff7675,stroke:#9b2121,color:#000
 </div></div>
-        <h4>10. Making the package installable</h4>
-        <p>A minimal <code>pyproject.toml</code> next to the <code>mypkg/</code> folder lets <code>pip</code> install it, so it can be imported from anywhere. This example is shown for reference and was not run here.</p>
+        <h4>9. Making the package installable (optional)</h4>
+        <p>A <code>pyproject.toml</code> next to the <code>mypkg/</code> folder lets <code>pip</code> install the package. This is rarely asked in interviews, and the example was not run here.</p>
         <pre style="margin-bottom:2px"># pyproject.toml
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
-
 [project]
 name = "mypkg"
-version = "0.1.0"
-
-[tool.setuptools.packages.find]
-include = ["mypkg*"]</pre>
+version = "0.1.0"</pre>
         <pre style="margin-bottom:2px"># from the folder that contains pyproject.toml
-pip install -e .      # editable: changes to the code take effect immediately
-pip install .         # normal install</pre>
-        <h4>11. Gotchas</h4>
+pip install -e .      # editable install</pre>
+        <h4>10. Gotchas</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:18%">Gotcha</th><th style="width:26%">What happens</th><th style="width:30%">Sample code</th><th style="width:26%">Output / fix</th></tr>
           <tr><td><strong>Circular import</strong></td><td>Two modules import each other at the top.</td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;"># circ/a.py: from circ.b import fb
@@ -2035,7 +2082,7 @@ flowchart LR
   class L1 g7x
 </div></div>
         <h4>1. array: compact typed arrays</h4>
-        <p>An <code>array</code> stores values of one numeric type, so it uses less memory than a list. For analysis work, <code>numpy</code> is the usual choice.</p>
+        <p>An <code>array</code> stores values of one numeric type, so it uses less memory than a list. For analysis work, <code>numpy</code> is the usual choice. In data roles <code>numpy</code> arrays are far more common, so treat <code>array</code> as background knowledge.</p>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>Create</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">array.array('i', [1, 2, 3])</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">array('i', [1, 2, 3])</pre></td></tr>
@@ -2062,21 +2109,18 @@ time.sleep(0.05)
 elapsed = time.perf_counter() - start
 0.04 &lt; elapsed &lt; 0.2</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">True</pre></td></tr>
         </table>
-        <h4>3. File operations</h4>
-        <p>File handling now has its own module: <strong>File Handling</strong>. It covers <code>open</code> and file modes, encodings, <code>pathlib</code>, <code>os</code>, <code>glob</code>, <code>shutil</code> and <code>tempfile</code>, with real outputs.</p>
-        <h4>4. os, sys and the environment</h4>
+        <h4>3. os, sys and the environment</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>Environment variable</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.environ.get('MY_VAR')</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'42'</pre></td></tr>
           <tr><td><strong>With a default</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.environ.get('NOPE', 'default')</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'default'</pre></td></tr>
           <tr><td><strong>Set a variable</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.environ['MODE'] = 'test'
 os.environ['MODE']</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'test'</pre></td></tr>
-          <tr><td><strong>Basename and folder</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.path.basename('/a/b/c.txt'), os.path.dirname('/a/b/c.txt')</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">('c.txt', '/a/b')</pre></td></tr>
           <tr><td><strong>Command line arguments</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">type(sys.argv).__name__</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'list'</pre></td></tr>
           <tr><td><strong>Python version tuple</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">sys.version_info[:2] &gt;= (3, 9)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">True</pre></td></tr>
           <tr><td><strong>Module search path</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">type(sys.path).__name__</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'list'</pre></td></tr>
         </table>
-        <h4>5. math, statistics, random and decimal</h4>
+        <h4>4. math, statistics, random and decimal</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>Square root</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">math.sqrt(16)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">4.0</pre></td></tr>
@@ -2099,7 +2143,7 @@ random.seed(42)
 b = [random.randint(1, 100) for _ in range(3)]
 print(a, a == b)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[82, 15, 4] True</pre></td></tr>
         </table>
-        <h4>6. Serialization: json, csv and pickle</h4>
+        <h4>5. Serialization: json, csv and pickle</h4>
         <p>Saving these formats to files and loading them back is covered in the <strong>File Handling</strong> module: csv and json in Read &amp; Write, pickle in Binary Files.</p>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
@@ -2130,7 +2174,7 @@ pickle.loads(pickle.dumps(obj))</pre></td><td><pre style="white-space:pre-wrap; 
           <tr><td><strong>CSV</strong></td><td>Flat tables</td><td>Every value is a string; no types</td></tr>
           <tr><td><strong>pickle</strong></td><td>Saving Python objects (models, dicts)</td><td>Python-only, and <strong>unsafe on untrusted data</strong></td></tr>
         </table>
-        <h4>7. collections, itertools, functools and copy</h4>
+        <h4>6. collections, itertools, functools and copy</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>Count items</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">Counter('banana').most_common(2)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[('a', 3), ('n', 2)]</pre></td></tr>
@@ -2163,7 +2207,7 @@ c = copy.deepcopy(a)
 a[0].append(9)
 c</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[[1], [2]]</pre></td></tr>
         </table>
-        <h4>8. logging</h4>
+        <h4>7. logging</h4>
         <p>Use <code>logging</code> instead of <code>print</code> for anything beyond a quick check: messages have levels, can go to a file, and can be switched off without editing code.</p>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
@@ -2199,11 +2243,6 @@ print(b, c)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhe
           <tr><td><strong>pickle</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">pickle.loads(pickle.dumps({'a': (1, 2)}))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">{'a': (1, 2)}</pre></td></tr>
           <tr><td><strong>csv values are strings</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">list(csv.DictReader(io.StringIO('n\\n5\\n')))[0]['n'] + '1'</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'51'</pre></td></tr>
           <tr><td><strong>Naive vs aware datetimes</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">datetime(2025, 1, 1) &lt; datetime(2025, 1, 2, tzinfo=timezone.utc)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">TypeError: can't compare offset-naive and offset-aware datetimes</pre></td></tr>
-          <tr><td><strong>Mutable default argument</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">def add(x, bucket=[]):
-    bucket.append(x)
-    return bucket
-add(1)
-add(2)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[1, 2]</pre></td></tr>
         </table>
         <p>Reasons: floats are binary approximations (use <code>isclose</code> or <code>Decimal</code>); <code>round</code> uses banker's rounding; JSON supports only basic types, turns keys into strings and tuples into lists; a shallow copy shares inner objects; pickle is Python-only and unsafe on untrusted data; CSV carries no types; naive and aware datetimes cannot be compared; mode <code>w</code> erases the file; always pass <code>encoding</code> for text files.</p>
         <h4>Spoken answer (30 seconds)</h4>
@@ -2298,44 +2337,7 @@ except FileNotFoundError:
 except (TypeError, ValueError) as e:
     print("Problem with the input:", e)</pre>
         <p>Catch the <strong>specific</strong> error you expect (such as <code>ValueError</code>), not a bare <code>except:</code>, so real bugs aren't hidden.</p>`,
-      example: `
-        <h4>Real-world example</h4>
-        <p>A vendor's daily CSV export has inconsistent column names and date formats week to week. A small script normalizes column names, tries multiple date formats with fallback parsing, and logs (rather than silently drops) rows that fail — all Fundamentals-level Python, exactly what shows up constantly in DA/DE roles.</p>
-        <h4>The actual cleaning script</h4>
-        <pre>from datetime import datetime
 
-DATE_FORMATS = ["%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y"]
-
-def parse_date(value):
-    for fmt in DATE_FORMATS:
-        try:
-            return datetime.strptime(value, fmt).date()
-        except (ValueError, TypeError):
-            continue
-    return None  # none of the known formats matched
-
-def clean_row(row):
-    row = {k.lower().replace(" ", "_"): v for k, v in row.items()}
-    row["order_date"] = parse_date(row.get("order_date"))
-    return row
-
-raw_rows = [{"Order Date": "2024-01-05"}, {"Order Date": "01/06/2024"}, {"Order Date": "not a date"}]
-cleaned, failed = [], []
-for r in raw_rows:
-    c = clean_row(r)
-    (failed if c["order_date"] is None else cleaned).append(c)
-
-print(f"Cleaned: {len(cleaned)}, Failed to parse: {len(failed)}")</pre>
-        <p><strong>Why this matters:</strong> the failed rows are tracked, not silently dropped — that distinction is exactly what interviewers are checking for when they ask "how would you clean this data."</p>`,
-      tips: `
-        <h4>Common mistakes → exam tips</h4>
-        <ul class="tip-list">
-          <li>Mutable default arguments (<code>def f(x, acc=[])</code>) — created once, shared across every call</li>
-          <li>Verbose manual loops where a comprehension or built-in is clearer</li>
-          <li>Bare <code>except:</code> silently hiding real bugs</li>
-          <li>Hardcoding paths/credentials instead of variables or config</li>
-          <li>Not validating input shape/type before processing</li>
-        </ul>`
     }
   },
   {
@@ -10338,7 +10340,6 @@ const FLASHCARDS = [
   { cat: "fundamentals", sub: "Functions & Scope", q: "What do *args and **kwargs mean?", a: "*args collects extra positional args into a tuple; **kwargs collects extra keyword args into a dict." },
   { cat: "fundamentals", sub: "Error Handling & Resource Management", q: "How would you safely convert mixed values to integers without crashing?", a: "Wrap the conversion in try/except (TypeError, ValueError), returning None on failure and separately tracking which rows failed." },
   { cat: "fundamentals", sub: "Error Handling & Resource Management", q: "Why use a context manager (with open(...) as f:) over manual open/close?", a: "It guarantees the file is closed even if an exception occurs — manual close() gets skipped if an error happens first." },
-  { cat: "fundamentals", sub: "Functions & Scope", q: "What's the difference between a function (def) and a lambda?", a: "A def function is named, reusable, can hold multiple statements, a docstring, and complex logic. A lambda is an anonymous, single-expression function with no statements — good for short, throwaway logic passed inline, e.g. sorted(data, key=lambda x: x['age'])." },
   { cat: "fundamentals", sub: "NumPy & Pandas Essentials", q: "Why can't plain Python lists handle large-scale data analysis well?", a: "Lists store each element as a separate, untyped Python object with per-object overhead, and operations require explicit Python-level loops (slow, no vectorization). Tools like NumPy arrays/pandas store data in contiguous, homogeneously-typed memory and run operations in vectorized C code — far faster and more memory-efficient at scale." },
   { cat: "fundamentals", sub: "NumPy & Pandas Essentials", q: "Explain the difference between apply(), map(), and vectorization in Pandas.", a: `<code>map()</code> works element-wise on a single Series. <code>apply()</code> is more flexible (can work row/column-wise across a DataFrame) but still loops in Python under the hood. Vectorized operations use pandas/NumPy's built-in C-level implementation across the whole array at once — no explicit loop at all.
 <pre>\# map() -- Series only, element-wise lookup/replace
@@ -10580,7 +10581,7 @@ def greet(name):
 print(greet("Laxmi"))
 \# &lt;b&gt;&lt;i&gt;Hello, Laxmi&lt;/i&gt;&lt;/b&gt;
 \# italic runs first (closest to the function), then bold wraps its result</pre>` },
-  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "Explain what Python modules are, common built-in modules, and how to import/use them.", a: `A module is just a <code>.py</code> file containing reusable functions, classes, and variables — <code>import</code> makes its contents available in another file without copy-pasting code.
+ { cat: "fundamentals", sub: "Modules & packages", q: "What is a module, and how is it different from a package?", a: `A <strong>module</strong> is a single <code>.py</code> file containing reusable functions, classes and variables; <code>import</code> makes its contents available in another file without copy-pasting code. A <strong>package</strong> is a folder of modules, normally with an <code>__init__.py</code>, and it can contain sub-packages. A library you install with pip contains one or more packages.
 <pre>import math
 import json
 from datetime import datetime
@@ -11573,7 +11574,7 @@ INSERT INTO dim_customer_scd ... VALUES (1,'Asha','Bengaluru','2025-03-01','9999
  { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is Data dictionary?", a: `A catalogue describing each table and column.` },
  { cat: "data-modelling", sub: "Glossary: Pipeline and process", q: "What is Data vault?", a: `A warehouse modelling style (hubs, links, satellites) built for auditability and many sources.` },
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "What is a lambda, and when do you use one?", a: `A lambda is an anonymous function with a single expression and an automatic return: <code>lambda x: x * x</code>. Use it for short throwaway logic passed inline, such as a <code>key</code> for sorting. For anything reused or longer, write a <code>def</code>.` },
- { cat: "fundamentals", sub: "Lambda, map & filter", q: "Lambda versus def: what are the limits of a lambda?", a: `A lambda holds one expression only: no statements, no assignments, no docstring, and it has no real name (it shows as <code>&lt;lambda&gt;</code> in tracebacks). Use <code>def</code> when you need more than a simple expression.` },
+ { cat: "fundamentals", sub: "Lambda, map & filter", q: "What is the difference between a function (def) and a lambda?", a: `A <code>def</code> function is named, reusable, and can hold multiple statements, a docstring and complex logic. A lambda is an anonymous, single-expression function: no statements, no assignments, no docstring, and it shows as <code>&lt;lambda&gt;</code> in tracebacks. Use a lambda for short throwaway logic passed inline, such as <code>sorted(data, key=lambda x: x['age'])</code>, and <code>def</code> for anything more.` },
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "What does map() return, and why do you need list()?", a: `<code>map(func, iterable)</code> returns a lazy map object (an iterator), not a list. Wrap it in <code>list()</code> to see the values.<pre>list(map(lambda x: x * 2, [1, 2, 3]))
 # [2, 4, 6]</pre>` },
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "Can map() take more than one iterable?", a: `Yes. The function receives one item from each iterable in step.<pre>list(map(lambda a, b: a + b, [1, 2, 3], [10, 20, 30]))
@@ -11583,7 +11584,7 @@ INSERT INTO dim_customer_scd ... VALUES (1,'Asha','Bengaluru','2025-03-01','9999
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "What does reduce() do, and where is it?", a: `<code>reduce</code> folds a sequence into one value by applying a two-argument function repeatedly. It lives in <code>functools</code>, so import it. For sums, maxima and similar, a built-in such as <code>sum()</code> is clearer.<pre>from functools import reduce
 reduce(lambda a, b: a + b, [1, 2, 3, 4, 5, 6])
 # 21</pre>` },
- { cat: "fundamentals", sub: "Lambda, map & filter", q: "map/filter or a list comprehension?", a: `They give the same result, but most Python code prefers the comprehension because it reads left to right. Use <code>map</code> when a named function already exists, such as <code>list(map(str.upper, words))</code>.<pre>[x * 2 for x in nums if x % 2 == 0]
+ { cat: "fundamentals", sub: "Lambda, map & filter", q: "map/filter or a list comprehension?", a: `They give the same result, but most Python code prefers the comprehension because it reads left to right and can include an <code>if</code> filter. Use <code>map</code> when a named function already exists, such as <code>list(map(int, strings))</code> or <code>list(map(str.upper, words))</code>. When you would need a lambda, prefer the comprehension.<pre>[x * 2 for x in nums if x % 2 == 0]
 # [4, 8, 12]</pre>` },
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "How do you sort a list of dictionaries by a key?", a: `Pass a lambda as the <code>key</code>. The same works for <code>max</code> and <code>min</code>.<pre>sorted(people, key=lambda p: p["age"])
 max(people, key=lambda p: p["age"])["name"]   # 'Chen'</pre>` },
@@ -11608,7 +11609,6 @@ list(m)   # []</pre>` },
 m = map(lambda x: x * k, [1, 2, 3])
 k = 10
 list(m)   # [10, 20, 30], not [2, 4, 6]</pre>Pass what you need as an argument instead: <code>lambda x, k=k: x * k</code>.` },
- { cat: "fundamentals", sub: "Lambda, map & filter", q: "When is map() better than a list comprehension?", a: `When you already have a named function: <code>map(int, strings)</code> or <code>map(str.upper, words)</code>. When you would need a lambda, a comprehension is usually easier to read and can include an <code>if</code> filter.` },
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "Does filter() return a list in Python 3?", a: `No. It returns a lazy iterator that can be consumed only once, so wrap it in <code>list()</code> to see the values.<pre>f = filter(lambda x: x > 3, [1, 2, 3, 4, 5, 6])
 list(f)   # [4, 5, 6]
 list(f)   # []</pre>` },
@@ -11625,7 +11625,6 @@ reduce(lambda a, b: a + b, map(lambda x: x * 2, filter(lambda x: x % 2 == 0, num
 # Pythonic
 sum(x * 2 for x in nums if x % 2 == 0)   # 24</pre>Having both ready is a strong answer.` },
  { cat: "fundamentals", sub: "Lambda, map & filter", q: "When should you still use reduce()?", a: `<code>reduce</code> has no good comprehension equivalent, so keep it for custom folds, such as merging dicts: <code>reduce(lambda a, b: {**a, **b}, dicts)</code>. For sums, products and min/max prefer the built-ins <code>sum</code>, <code>math.prod</code>, <code>min</code> and <code>max</code>.` },
- { cat: "fundamentals", sub: "Modules & packages", q: "What is the difference between a module and a package?", a: `A <strong>module</strong> is a single <code>.py</code> file. A <strong>package</strong> is a folder of modules, normally with an <code>__init__.py</code>. A package can contain sub-packages, and a library you install with pip contains one or more packages.` },
  { cat: "fundamentals", sub: "Modules & packages", q: "What does __init__.py do?", a: `It marks a folder as a regular package and runs <strong>once</strong>, the first time the package is imported. It is used to re-export names, set <code>__all__</code> and <code>__version__</code>, and occasionally for setup code. Keep it light, since it runs on every first import.` },
  { cat: "fundamentals", sub: "Modules & packages", q: "How do you add a package using __init__.py?", a: `Create the folder, add <code>__init__.py</code> files to each folder, and re-export the public names with relative imports.<pre># mypkg/__init__.py
 from .cleaning import clean_text
