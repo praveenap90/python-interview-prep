@@ -1377,109 +1377,6 @@ cleaned = [
           <li><strong><code>*args</code>/<code>**kwargs</code></strong> — variable positional/keyword arguments</li>
           <li><strong>File I/O</strong> — always use <code>with open(...) as f:</code></li>
         </ul>`,
-      pandasio: `
-        <h4>Importing and exporting data with pandas</h4>
-        <p style="margin-top:-4px;">Click ⤢ Expand to zoom and pan.</p>
-        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
-flowchart TD
-
-A["Pandas File IO"] --&gt; B{"Choose file type"}
-
-B --&gt; C["CSV"]
-B --&gt; D["Excel"]
-B --&gt; E["JSON"]
-B --&gt; F["Text"]
-
-%% ================= CSV =================
-
-C --&gt; C1["Import CSV&lt;br&gt;pd.read_csv file.csv&lt;br&gt;Params sep header usecols na_values"]
-C --&gt; C2["Export CSV&lt;br&gt;df.to_csv file.csv&lt;br&gt;Params index sep na_rep"]
-
-%% ================= EXCEL =================
-
-D --&gt; D1["Import Excel&lt;br&gt;pd.read_excel file.xlsx&lt;br&gt;Params sheet_name usecols skiprows"]
-D --&gt; D2["Export Excel&lt;br&gt;df.to_excel file.xlsx&lt;br&gt;Params sheet_name index"]
-
-%% ================= JSON =================
-
-E --&gt; E1["Import JSON&lt;br&gt;pd.read_json file.json&lt;br&gt;Params orient lines"]
-E --&gt; E2["Export JSON&lt;br&gt;df.to_json file.json&lt;br&gt;Params orient lines"]
-
-%% ================= TEXT =================
-
-F --&gt; F1["Import Text&lt;br&gt;pd.read_table file.txt&lt;br&gt;Params sep names encoding"]
-F --&gt; F2["Export Text&lt;br&gt;df.to_csv file.txt&lt;br&gt;Params sep header"]
-
-%% ================= COLORS =================
-
-classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
-classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
-
-classDef csv fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
-classDef excel fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
-classDef json fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
-classDef txt fill:#F8C471,stroke:#AF601A,stroke-width:2px,color:#000;
-
-class A head;
-class B decision;
-
-class C,C1,C2 csv;
-class D,D1,D2 excel;
-class E,E1,E2 json;
-class F,F1,F2 txt;
-</div></div>
-        <h4>Read and write functions</h4>
-        <table>
-          <tr><th>Format</th><th>Import</th><th>Export</th><th>Key parameters</th></tr>
-          <tr><td>CSV</td><td><code>pd.read_csv("file.csv")</code></td><td><code>df.to_csv("file.csv")</code></td><td><code>sep</code>, <code>header</code>, <code>usecols</code>, <code>na_values</code> / <code>index</code>, <code>sep</code>, <code>na_rep</code></td></tr>
-          <tr><td>Excel</td><td><code>pd.read_excel("file.xlsx")</code></td><td><code>df.to_excel("file.xlsx")</code></td><td><code>sheet_name</code>, <code>usecols</code>, <code>skiprows</code> / <code>sheet_name</code>, <code>index</code></td></tr>
-          <tr><td>JSON</td><td><code>pd.read_json("file.json")</code></td><td><code>df.to_json("file.json")</code></td><td><code>orient</code>, <code>lines</code></td></tr>
-          <tr><td>Text</td><td><code>pd.read_table("file.txt")</code></td><td><code>df.to_csv("file.txt", sep="\\t")</code></td><td><code>sep</code>, <code>names</code>, <code>encoding</code> / <code>sep</code>, <code>header</code></td></tr>
-        </table>
-        <h4>Examples (tested)</h4>
-        <pre>import pandas as pd
-
-df = pd.DataFrame({"id": [1, 2, 3],
-                   "name": ["Ana", "Ben", None],
-                   "score": [90.5, None, 70.0]})
-
-# ---- CSV ----
-df.to_csv("file.csv", index=False, na_rep="NA")      # index=False: don't write the row numbers
-pd.read_csv("file.csv", usecols=["id", "score"], na_values=["NA"])   # only these columns; "NA" -&gt; NaN
-pd.read_csv("file.csv", sep=",", header=0)           # header=0: first row holds column names
-
-# ---- Excel (needs the openpyxl package) ----
-df.to_excel("file.xlsx", sheet_name="Scores", index=False)
-pd.read_excel("file.xlsx", sheet_name="Scores", usecols="A:B")   # columns A to B only
-pd.read_excel("file.xlsx", sheet_name="Scores", skiprows=1)      # skip the first row
-
-# ---- JSON ----
-df.to_json("file.json", orient="records")
-# [{"id":1,"name":"Ana","score":90.5},{"id":2,"name":"Ben","score":null}, ...]
-pd.read_json("file.json", orient="records")
-
-df.to_json("file.jsonl", orient="records", lines=True)   # one JSON object per line
-pd.read_json("file.jsonl", lines=True)                   # read that format back
-
-# ---- Text (tab-separated) ----
-df.to_csv("file.txt", sep="\\t", header=True, index=False)
-pd.read_table("file.txt")                                # read_table defaults to sep="\\t"
-pd.read_table("file.txt", sep="\\t", names=["a", "b", "c"], header=0, encoding="utf-8")</pre>
-        <table>
-          <tr><th>Parameter</th><th>What it does</th></tr>
-          <tr><td><code>sep</code></td><td>Delimiter between fields (<code>','</code>, <code>'\\t'</code>, <code>';'</code>, <code>'|'</code>)</td></tr>
-          <tr><td><code>header</code></td><td>Which row holds column names (<code>None</code> if there is no header row)</td></tr>
-          <tr><td><code>names</code></td><td>Supply your own column names</td></tr>
-          <tr><td><code>usecols</code></td><td>Load only the listed columns (faster, less memory)</td></tr>
-          <tr><td><code>na_values</code> / <code>na_rep</code></td><td>Extra strings to read as NaN / what to write for NaN</td></tr>
-          <tr><td><code>skiprows</code></td><td>Number of rows to skip at the top</td></tr>
-          <tr><td><code>index</code></td><td>Write the row index as a column? Usually <code>False</code></td></tr>
-          <tr><td><code>sheet_name</code></td><td>Which Excel sheet to read or write</td></tr>
-          <tr><td><code>orient</code></td><td>JSON layout: <code>records</code>, <code>columns</code>, <code>index</code>, <code>split</code>, <code>values</code></td></tr>
-          <tr><td><code>lines</code></td><td>JSON Lines format: one record per line (good for large files)</td></tr>
-          <tr><td><code>encoding</code></td><td>Character encoding, such as <code>utf-8</code> or <code>latin-1</code></td></tr>
-        </table>
-        <p><strong>Tips:</strong> there is no <code>to_table</code>, so text files are written with <code>to_csv(sep=...)</code>. Always pass <code>index=False</code> when exporting unless the index carries meaning, otherwise reading the file back adds an extra <code>Unnamed: 0</code> column. If a CSV fails with a <code>UnicodeDecodeError</code>, try <code>encoding="latin-1"</code>. Excel needs <code>openpyxl</code> installed (<code>pip install openpyxl</code>).</p>`,
       controlflow: `
         <h4>Control flow &amp; iteration concepts</h4>
         <table>
@@ -2203,6 +2100,7 @@ b = [random.randint(1, 100) for _ in range(3)]
 print(a, a == b)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[82, 15, 4] True</pre></td></tr>
         </table>
         <h4>6. Serialization: json, csv and pickle</h4>
+        <p>Saving these formats to files and loading them back is covered in the <strong>File Handling</strong> module: csv and json in Read &amp; Write, pickle in Binary Files.</p>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>Python to JSON</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">json.dumps({'a': 1, 'b': [1, 2], 'c': None, 'd': True})</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'{"a": 1, "b": [1, 2], "c": null, "d": true}'</pre></td></tr>
@@ -2218,10 +2116,6 @@ print(a, a == b)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:a
           <tr><td><strong>Fix with default=str</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">json.dumps({'d': datetime(2025, 1, 1)}, default=str)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'{"d": "2025-01-01 00:00:00"}'</pre></td></tr>
           <tr><td><strong>Keys become strings</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">json.dumps({1: 'x'})</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'{"1": "x"}'</pre></td></tr>
           <tr><td><strong>Tuple becomes list</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">json.loads(json.dumps((1, 2)))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[1, 2]</pre></td></tr>
-          <tr><td><strong>Save and load a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('cfg.json', 'w') as f:
-    json.dump({'debug': True, 'n': 3}, f)
-with open('cfg.json') as f:
-    print(json.load(f))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">{'debug': True, 'n': 3}</pre></td></tr>
           <tr><td><strong>Read CSV as dicts</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">txt = 'name,age\\nAsha,31\\nBen,25\\n'
 list(csv.DictReader(io.StringIO(txt)))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[{'name': 'Asha', 'age': '31'}, {'name': 'Ben', 'age': '25'}]</pre></td></tr>
           <tr><td><strong>CSV quoting</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">buf = io.StringIO()
@@ -2305,12 +2199,6 @@ print(b, c)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhe
           <tr><td><strong>pickle</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">pickle.loads(pickle.dumps({'a': (1, 2)}))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">{'a': (1, 2)}</pre></td></tr>
           <tr><td><strong>csv values are strings</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">list(csv.DictReader(io.StringIO('n\\n5\\n')))[0]['n'] + '1'</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'51'</pre></td></tr>
           <tr><td><strong>Naive vs aware datetimes</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">datetime(2025, 1, 1) &lt; datetime(2025, 1, 2, tzinfo=timezone.utc)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">TypeError: can't compare offset-naive and offset-aware datetimes</pre></td></tr>
-          <tr><td><strong>w mode erases</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('t.txt', 'w') as f:
-    f.write('keep me')
-with open('t.txt', 'w') as f:
-    pass
-open('t.txt').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">''</pre></td></tr>
-          <tr><td><strong>Forgotten encoding</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">open('cafe.txt', encoding='latin-1').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'cafÃ©'</pre></td></tr>
           <tr><td><strong>Mutable default argument</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">def add(x, bucket=[]):
     bucket.append(x)
     return bucket
@@ -2455,8 +2343,8 @@ print(f"Cleaned: {len(cleaned)}, Failed to parse: {len(failed)}")</pre>
     icon: "📁",
     title: "File Handling",
     tagline: "open, pathlib, os and shutil",
-    desc: "Reading and writing text and binary files, file modes and encodings, building paths with pathlib, finding, copying, moving and deleting files, with real outputs.",
-    tags: ["open", "pathlib", "shutil", "encoding"],
+    desc: "Reading and writing text and binary files, file modes, seek and encodings, copying and merging files, pathlib and shutil, and pandas read and write for CSV, Excel and JSON, with real outputs.",
+    tags: ["open", "pathlib", "shutil", "pandas I/O"],
     tabs: {
       overview: `        <h4>File handling in Python</h4>
         <p>Reading, writing and organizing files is part of almost every data job: loading raw extracts, saving results, finding the latest export, cleaning up temporary files. This module covers <code>open</code>, <code>pathlib</code>, <code>os</code>, <code>glob</code> and <code>shutil</code>. Every output was produced by running the code.</p>
@@ -2504,15 +2392,18 @@ flowchart LR
 </div></div>
         <h4>File modes</h4>
         <table style="table-layout:fixed; width:100%;">
-          <tr><th style="width:16%">Mode</th><th style="width:44%">Meaning</th><th style="width:40%">If the file exists / is missing</th></tr>
-          <tr><td><code>r</code></td><td>Read (the default)</td><td>Error if the file is missing</td></tr>
-          <tr><td><code>w</code></td><td>Write, <strong>erases</strong> existing content</td><td>Creates the file if missing</td></tr>
-          <tr><td><code>a</code></td><td>Append at the end</td><td>Creates the file if missing</td></tr>
-          <tr><td><code>x</code></td><td>Create a new file only</td><td>Error if the file already exists</td></tr>
-          <tr><td><code>r+</code></td><td>Read and write, starting at the beginning</td><td>Error if the file is missing</td></tr>
-          <tr><td><code>b</code> suffix</td><td>Binary mode, for example <code>rb</code> or <code>wb</code>; works with bytes, not text</td><td>Same as the base mode</td></tr>
-          <tr><td><code>t</code> suffix</td><td>Text mode (the default), works with strings</td><td>Same as the base mode</td></tr>
+          <tr><th style="width:9%">Mode</th><th style="width:31%">Meaning</th><th style="width:20%">Existing content</th><th style="width:16%">If the file is missing</th><th style="width:24%">Use it for</th></tr>
+          <tr><td><code>r</code></td><td>Read (the default)</td><td>Kept, read-only</td><td>Error</td><td>Loading data</td></tr>
+          <tr><td><code>w</code></td><td>Write</td><td><strong>Erased</strong></td><td>Created</td><td>Regenerating a file</td></tr>
+          <tr><td><code>a</code></td><td>Append at the end</td><td>Kept</td><td>Created</td><td>Logs and running totals</td></tr>
+          <tr><td><code>x</code></td><td>Create a new file only</td><td>Not touched: <code>FileExistsError</code> if it exists</td><td>Created</td><td>Never overwriting by accident</td></tr>
+          <tr><td><code>r+</code></td><td>Read and write, starting at the beginning</td><td>Kept</td><td>Error</td><td>Changing the middle of a file</td></tr>
+          <tr><td><code>w+</code></td><td>Read and write</td><td><strong>Erased</strong></td><td>Created</td><td>Write, then read it back</td></tr>
+          <tr><td><code>a+</code></td><td>Read and write; starts at the end, and every write goes to the end</td><td>Kept</td><td>Created</td><td>Append and read</td></tr>
+          <tr><td><code>b</code> suffix</td><td>Binary mode, for example <code>rb</code> or <code>wb</code>: works with bytes, not text</td><td>Same as the base mode</td><td>Same as the base mode</td><td>Images, PDFs, zip files</td></tr>
+          <tr><td><code>t</code> suffix</td><td>Text mode (the default): works with strings</td><td>Same as the base mode</td><td>Same as the base mode</td><td>Text and CSV files</td></tr>
         </table>
+        <p>Examples: <strong>Writing Files</strong> covers <code>w</code>, <code>a</code> and <code>x</code>, <strong>Read &amp; Write</strong> covers <code>w+</code>, <code>r+</code>, <code>a+</code> and <code>seek</code>, and <strong>Binary Files</strong> covers <code>b</code>.</p>
         <h4>Why a with block?</h4>
         <p><code>with open(...) as f:</code> closes the file automatically, even when an error happens inside the block. Without it, a forgotten <code>close()</code> can leave data unwritten or the file locked.</p>
         <table style="table-layout:fixed; width:100%;">
@@ -2526,24 +2417,19 @@ f.close()
 f.closed</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">hi
 True</pre></td></tr>
         </table>
-        <h4>Spoken answer (30 seconds)</h4>
-        <p>&ldquo;I open files with <code>with open(path, mode, encoding='utf-8') as f</code> so they always close. I use <code>r</code> to read, <code>w</code> to write (which erases), <code>a</code> to append and <code>x</code> to avoid overwriting. For large files I loop over the file line by line. For paths and folders I use <code>pathlib</code>, and <code>shutil</code> to copy, move or delete. For tables I use pandas.&rdquo;</p>
 `,
       fhreadwrite: `        <h4>Reading and writing files</h4>
         <p>These examples run in order in an empty folder, so each one builds on the file made by the one before.</p>
         <p>Overwriting, appending, writing many lines and safe overwrites have their own tab: <strong>Writing Files</strong>.</p>
-        <h4>Write, append and read</h4>
+        <h4>Create a file and read it back</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:22%">Task</th><th style="width:44%">Sample code</th><th style="width:34%">Output</th></tr>
-          <tr><td><strong>Write text ('w')</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt', 'w', encoding='utf-8') as f:
+          <tr><td><strong>Create the sample file ('w')</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt', 'w', encoding='utf-8') as f:
     n = f.write('line one\\nline two\\n')
     print('characters written:', n)</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">characters written: 18</pre></td></tr>
-          <tr><td><strong>Write with print</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt', 'a', encoding='utf-8') as f:
+          <tr><td><strong>Add a third line</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt', 'a', encoding='utf-8') as f:
     print('line three', file=f)
 print(open('notes.txt').read().count('line'), 'lines in file')</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">3 lines in file</pre></td></tr>
-          <tr><td><strong>Write many lines</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('list.txt', 'w') as f:
-    f.writelines(['a\\n', 'b\\n', 'c\\n'])
-open('list.txt').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'a\\nb\\nc\\n'</pre></td></tr>
           <tr><td><strong>Read everything</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt') as f:
     text = f.read()
 text</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'line one\\nline two\\nline three\\n'</pre></td></tr>
@@ -2564,29 +2450,10 @@ first</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'
           <tr><td><strong>Read a few characters</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt') as f:
     chunk = f.read(8)
 chunk</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'line one'</pre></td></tr>
-          <tr><td><strong>Position in the file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt') as f:
-    f.read(4)
-    print(f.tell())
-    f.seek(0)
-    print(f.read(4))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">4
-line</pre></td></tr>
-          <tr><td><strong>Append ('a') keeps old content</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('notes.txt', 'a') as f:
-    f.write('line four\\n')
-len(open('notes.txt').readlines())</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">4</pre></td></tr>
-          <tr><td><strong>Read and write ('r+')</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('list.txt', 'r+') as f:
-    f.write('Z')
-    f.seek(0)
-    result = f.read()
-result</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'Z\\nb\\nc\\n'</pre></td></tr>
         </table>
         <h4>Example: write and read the same file (w+, r+, a+ and seek)</h4>
         <p>Modes with a <code>+</code> let one file object both write and read. The <strong>file position</strong> (the cursor) decides where the next read or write happens, and <code>seek()</code> moves it. The examples run in order.</p>
-        <table style="table-layout:fixed; width:100%;">
-          <tr><th style="width:10%">Mode</th><th style="width:16%">Reads and writes</th><th style="width:16%">Existing content</th><th style="width:38%">Starts at</th><th style="width:20%">File missing</th></tr>
-          <tr><td><code>w+</code></td><td>Both</td><td><strong>Erased</strong></td><td>Start (empty file)</td><td>Created</td></tr>
-          <tr><td><code>r+</code></td><td>Both</td><td>Kept</td><td>Start</td><td>Error</td></tr>
-          <tr><td><code>a+</code></td><td>Both</td><td>Kept</td><td>End; every write goes to the end</td><td>Created</td></tr>
-        </table>
+        <p>The mode table for <code>w+</code>, <code>r+</code> and <code>a+</code> is in the <strong>Overview</strong> tab.</p>
         <h4>w+: write, then go back and read</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:26%">Task</th><th style="width:44%">Sample code</th><th style="width:30%">Output</th></tr>
@@ -2743,7 +2610,7 @@ after adding: ['item 1', 'item 2', 'item 3', 'item 4']</pre></td></tr>
           <tr><td>In text mode, <code>tell()</code> is not a character count</td><td>With multi-byte characters or newline conversion it is an opaque position. Use it only to return to a place with <code>seek</code>.</td></tr>
           <tr><td>Seeking past the end and writing leaves a gap</td><td>The gap is filled with zero bytes (<code>b'\\x00'</code>).</td></tr>
         </table>
-        <h4>Text, encodings and binary</h4>
+        <h4>Text and encodings</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>Write UTF-8</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('cafe.txt', 'w', encoding='utf-8') as f:
@@ -2752,14 +2619,6 @@ open('cafe.txt', encoding='utf-8').read()</pre></td><td><pre style="white-space:
           <tr><td><strong>Wrong encoding garbles text</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">open('cafe.txt', encoding='latin-1').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'cafÃ©'</pre></td></tr>
           <tr><td><strong>Ignore bad characters</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">open('cafe.txt', encoding='ascii', errors='ignore').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'caf'</pre></td></tr>
           <tr><td><strong>Strict decoding fails</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">open('cafe.txt', encoding='ascii').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 3: ordinal not in range(128)</pre></td></tr>
-          <tr><td><strong>Write binary</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('data.bin', 'wb') as f:
-    f.write(bytes([0, 1, 255]))
-open('data.bin', 'rb').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">b'\\x00\\x01\\xff'</pre></td></tr>
-          <tr><td><strong>Read in chunks</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('data.bin', 'rb') as f:
-    chunks = []
-    while chunk := f.read(2):
-        chunks.append(chunk)
-chunks</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[b'\\x00\\x01', b'\\xff']</pre></td></tr>
         </table>
         <h4>Errors you will meet</h4>
         <table style="table-layout:fixed; width:100%;">
@@ -2933,12 +2792,7 @@ open('a.txt').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wr
     f.write('created\\n')
 open('b.txt').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">'created\\n'</pre></td></tr>
         </table>
-        <table style="table-layout:fixed; width:100%;">
-          <tr><th style="width:10%">Mode</th><th style="width:34%">Old content</th><th style="width:16%">File missing</th><th style="width:40%">Use it for</th></tr>
-          <tr><td><code>w</code></td><td><strong>Erased</strong></td><td>Created</td><td>Start fresh, such as regenerating a report</td></tr>
-          <tr><td><code>a</code></td><td><strong>Kept</strong>, new data added at the end</td><td>Created</td><td>Logs and running totals</td></tr>
-          <tr><td><code>x</code></td><td>Not touched: raises <code>FileExistsError</code></td><td>Created</td><td>Never overwrite by accident</td></tr>
-        </table>
+                <p>The full mode table, including what each mode does to existing content, is in the <strong>Overview</strong> tab.</p>
         <h4>Writing multiple lines</h4>
         <p>Every way below gives the same file, <code>'apple\\nbanana\\ncherry\\n'</code>, starting from <code>lines = ['apple', 'banana', 'cherry']</code>.</p>
         <table style="table-layout:fixed; width:100%;">
@@ -3040,6 +2894,14 @@ ba</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">byte
         <h4>2. Reading and writing binary files</h4>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
+          <tr><td><strong>Write binary</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('data.bin', 'wb') as f:
+    f.write(bytes([0, 1, 255]))
+open('data.bin', 'rb').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">b'\\x00\\x01\\xff'</pre></td></tr>
+          <tr><td><strong>Read in chunks</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('data.bin', 'rb') as f:
+    chunks = []
+    while chunk := f.read(2):
+        chunks.append(chunk)
+chunks</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">[b'\\x00\\x01', b'\\xff']</pre></td></tr>
           <tr><td><strong>File size in bytes</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.path.getsize('pixel.png')</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">69</pre></td></tr>
           <tr><td><strong>Read the header</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('pixel.png', 'rb') as f:
     head = f.read(8)
@@ -3124,8 +2986,6 @@ h.hexdigest()[:16]</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap
           <tr><td><strong>pickle round trip</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">pickle.loads(pickle.dumps({'a': (1, 2)}))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">{'a': (1, 2)}</pre></td></tr>
         </table>
         <p>Reasons: text mode tries to decode bytes as text; <code>wb</code> accepts only bytes-like objects; one character can take several bytes; <code>bytes</code> cannot be changed but <code>bytearray</code> can; indexing gives an integer while slicing gives bytes; never <code>read()</code> a huge binary file, read it in chunks; pickle is Python-only and unsafe on untrusted data; compare files by checksum, not by name or size.</p>
-        <h4>Spoken answer (30 seconds)</h4>
-        <p>&ldquo;For text I open files in <code>r</code> or <code>w</code> mode with an explicit encoding and work with strings. For images, PDFs and other non-text files I use <code>rb</code> and <code>wb</code> and work with bytes. I read large files in chunks, identify a file by its first bytes rather than its extension, and verify copies with a <code>hashlib</code> checksum. I use <code>struct</code> for fixed binary layouts, and I avoid unpickling data I do not trust.&rdquo;</p>
 `,
       fhcopy: `        <h4>Copying content from a source file to a destination file</h4>
         <p>Copying means reading from a <strong>source</strong> and writing to a <strong>destination</strong>. You can let <code>shutil</code> do it, or do it yourself when the content must change on the way. The examples run in order in an empty folder and every output was produced by running the code.</p>
@@ -3317,9 +3177,110 @@ open('t3.txt').read()</pre></td><td><pre style="white-space:pre-wrap; overflow-w
           <tr><td><strong>Copy a folder onto an existing folder</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">shutil.copytree('backup', 'backup_copy')</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">FileExistsError: [Errno 17] File exists: 'backup_copy'</pre></td></tr>
         </table>
         <p>Reasons: <code>shutil.copy</code> replaces an existing destination without asking; <code>copyfile</code> cannot copy into a folder; <code>copy</code> keeps permissions but not timestamps, which <code>copy2</code> keeps; opening a file for writing erases it, so never write to the file you are reading; set the encoding on both files when it matters; <code>copytree</code> refuses an existing destination folder.</p>
-        <h4>Spoken answer (30 seconds)</h4>
-        <p>&ldquo;To copy a file as it is, I use <code>shutil.copy</code>, or <code>copy2</code> when timestamps matter. To change the content on the way, I open the source for reading and the destination for writing in one <code>with</code> statement and loop over the lines. To merge files, I open the destination once and copy each source into it. I check whether the destination exists first, because <code>copy</code> overwrites silently, and I verify the result with <code>filecmp</code> or a checksum.&rdquo;</p>
 `,
+      pandasio: `
+        <h4>Importing and exporting data with pandas</h4>
+        <p style="margin-top:-4px;">Click ⤢ Expand to zoom and pan.</p>
+        <div class="mermaid-wrap"><button class="mermaid-expand-btn" onclick="openMermaidModal(this)" title="Expand &amp; zoom">⤢ Expand</button><div class="mermaid">
+flowchart TD
+
+A["Pandas File IO"] --&gt; B{"Choose file type"}
+
+B --&gt; C["CSV"]
+B --&gt; D["Excel"]
+B --&gt; E["JSON"]
+B --&gt; F["Text"]
+
+%% ================= CSV =================
+
+C --&gt; C1["Import CSV&lt;br&gt;pd.read_csv file.csv&lt;br&gt;Params sep header usecols na_values"]
+C --&gt; C2["Export CSV&lt;br&gt;df.to_csv file.csv&lt;br&gt;Params index sep na_rep"]
+
+%% ================= EXCEL =================
+
+D --&gt; D1["Import Excel&lt;br&gt;pd.read_excel file.xlsx&lt;br&gt;Params sheet_name usecols skiprows"]
+D --&gt; D2["Export Excel&lt;br&gt;df.to_excel file.xlsx&lt;br&gt;Params sheet_name index"]
+
+%% ================= JSON =================
+
+E --&gt; E1["Import JSON&lt;br&gt;pd.read_json file.json&lt;br&gt;Params orient lines"]
+E --&gt; E2["Export JSON&lt;br&gt;df.to_json file.json&lt;br&gt;Params orient lines"]
+
+%% ================= TEXT =================
+
+F --&gt; F1["Import Text&lt;br&gt;pd.read_table file.txt&lt;br&gt;Params sep names encoding"]
+F --&gt; F2["Export Text&lt;br&gt;df.to_csv file.txt&lt;br&gt;Params sep header"]
+
+%% ================= COLORS =================
+
+classDef head fill:#AED6F1,stroke:#1B4F72,stroke-width:2px,color:#000;
+classDef decision fill:#D7BDE2,stroke:#6C3483,stroke-width:2px,color:#000;
+
+classDef csv fill:#A9DFBF,stroke:#1E8449,stroke-width:2px,color:#000;
+classDef excel fill:#F9E79F,stroke:#B7950B,stroke-width:2px,color:#000;
+classDef json fill:#F5B7B1,stroke:#922B21,stroke-width:2px,color:#000;
+classDef txt fill:#F8C471,stroke:#AF601A,stroke-width:2px,color:#000;
+
+class A head;
+class B decision;
+
+class C,C1,C2 csv;
+class D,D1,D2 excel;
+class E,E1,E2 json;
+class F,F1,F2 txt;
+</div></div>
+        <h4>Read and write functions</h4>
+        <table>
+          <tr><th>Format</th><th>Import</th><th>Export</th><th>Key parameters</th></tr>
+          <tr><td>CSV</td><td><code>pd.read_csv("file.csv")</code></td><td><code>df.to_csv("file.csv")</code></td><td><code>sep</code>, <code>header</code>, <code>usecols</code>, <code>na_values</code> / <code>index</code>, <code>sep</code>, <code>na_rep</code></td></tr>
+          <tr><td>Excel</td><td><code>pd.read_excel("file.xlsx")</code></td><td><code>df.to_excel("file.xlsx")</code></td><td><code>sheet_name</code>, <code>usecols</code>, <code>skiprows</code> / <code>sheet_name</code>, <code>index</code></td></tr>
+          <tr><td>JSON</td><td><code>pd.read_json("file.json")</code></td><td><code>df.to_json("file.json")</code></td><td><code>orient</code>, <code>lines</code></td></tr>
+          <tr><td>Text</td><td><code>pd.read_table("file.txt")</code></td><td><code>df.to_csv("file.txt", sep="\\t")</code></td><td><code>sep</code>, <code>names</code>, <code>encoding</code> / <code>sep</code>, <code>header</code></td></tr>
+        </table>
+        <h4>Examples (tested)</h4>
+        <pre>import pandas as pd
+
+df = pd.DataFrame({"id": [1, 2, 3],
+                   "name": ["Ana", "Ben", None],
+                   "score": [90.5, None, 70.0]})
+
+# ---- CSV ----
+df.to_csv("file.csv", index=False, na_rep="NA")      # index=False: don't write the row numbers
+pd.read_csv("file.csv", usecols=["id", "score"], na_values=["NA"])   # only these columns; "NA" -&gt; NaN
+pd.read_csv("file.csv", sep=",", header=0)           # header=0: first row holds column names
+
+# ---- Excel (needs the openpyxl package) ----
+df.to_excel("file.xlsx", sheet_name="Scores", index=False)
+pd.read_excel("file.xlsx", sheet_name="Scores", usecols="A:B")   # columns A to B only
+pd.read_excel("file.xlsx", sheet_name="Scores", skiprows=1)      # skip the first row
+
+# ---- JSON ----
+df.to_json("file.json", orient="records")
+# [{"id":1,"name":"Ana","score":90.5},{"id":2,"name":"Ben","score":null}, ...]
+pd.read_json("file.json", orient="records")
+
+df.to_json("file.jsonl", orient="records", lines=True)   # one JSON object per line
+pd.read_json("file.jsonl", lines=True)                   # read that format back
+
+# ---- Text (tab-separated) ----
+df.to_csv("file.txt", sep="\\t", header=True, index=False)
+pd.read_table("file.txt")                                # read_table defaults to sep="\\t"
+pd.read_table("file.txt", sep="\\t", names=["a", "b", "c"], header=0, encoding="utf-8")</pre>
+        <table>
+          <tr><th>Parameter</th><th>What it does</th></tr>
+          <tr><td><code>sep</code></td><td>Delimiter between fields (<code>','</code>, <code>'\\t'</code>, <code>';'</code>, <code>'|'</code>)</td></tr>
+          <tr><td><code>header</code></td><td>Which row holds column names (<code>None</code> if there is no header row)</td></tr>
+          <tr><td><code>names</code></td><td>Supply your own column names</td></tr>
+          <tr><td><code>usecols</code></td><td>Load only the listed columns (faster, less memory)</td></tr>
+          <tr><td><code>na_values</code> / <code>na_rep</code></td><td>Extra strings to read as NaN / what to write for NaN</td></tr>
+          <tr><td><code>skiprows</code></td><td>Number of rows to skip at the top</td></tr>
+          <tr><td><code>index</code></td><td>Write the row index as a column? Usually <code>False</code></td></tr>
+          <tr><td><code>sheet_name</code></td><td>Which Excel sheet to read or write</td></tr>
+          <tr><td><code>orient</code></td><td>JSON layout: <code>records</code>, <code>columns</code>, <code>index</code>, <code>split</code>, <code>values</code></td></tr>
+          <tr><td><code>lines</code></td><td>JSON Lines format: one record per line (good for large files)</td></tr>
+          <tr><td><code>encoding</code></td><td>Character encoding, such as <code>utf-8</code> or <code>latin-1</code></td></tr>
+        </table>
+        <p><strong>Tips:</strong> there is no <code>to_table</code>, so text files are written with <code>to_csv(sep=...)</code>. Always pass <code>index=False</code> when exporting unless the index carries meaning, otherwise reading the file back adds an extra <code>Unnamed: 0</code> column. If a CSV fails with a <code>UnicodeDecodeError</code>, try <code>encoding="latin-1"</code>. Excel needs <code>openpyxl</code> installed (<code>pip install openpyxl</code>).</p>`,
       fhfolders: `        <h4>Folders, paths and file management</h4>
         <p><code>pathlib.Path</code> is the modern way to build and inspect paths, and it uses <code>/</code> to join parts. <code>os</code>, <code>glob</code> and <code>shutil</code> list, copy, move and delete. The examples run in order in a new empty folder.</p>
         <h4>Build and inspect paths</h4>
@@ -3368,19 +3329,16 @@ data/sales [] ['feb.csv', 'jan.csv']
 data/q1 [] ['mar.csv']</pre></td></tr>
           <tr><td><strong>Count files by pattern</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">len(list(Path('data').rglob('*.csv')))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">3</pre></td></tr>
         </table>
-        <h4>Copy, move, rename and delete</h4>
+        <h4>Move, rename and delete</h4>
+        <p>To copy a file or a folder, see the <strong>Copying Files</strong> tab.</p>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Task</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
-          <tr><td><strong>Copy a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">shutil.copy('data/sales/jan.csv', 'data/jan_backup.csv')
-sorted(os.listdir('data'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['jan_backup.csv', 'q1', 'sales']</pre></td></tr>
-          <tr><td><strong>Move a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">shutil.move('data/jan_backup.csv', 'data/sales/jan_old.csv')
-sorted(os.listdir('data/sales'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['feb.csv', 'jan.csv', 'jan_old.csv']</pre></td></tr>
-          <tr><td><strong>Rename a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.rename('data/sales/jan_old.csv', 'data/sales/jan_2024.csv')
-sorted(os.listdir('data/sales'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['feb.csv', 'jan.csv', 'jan_2024.csv']</pre></td></tr>
-          <tr><td><strong>Copy a folder</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">shutil.copytree('data/sales', 'data/sales_copy')
-sorted(os.listdir('data/sales_copy'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['feb.csv', 'jan.csv', 'jan_2024.csv']</pre></td></tr>
-          <tr><td><strong>Delete a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.remove('data/sales/jan_2024.csv')
-sorted(os.listdir('data/sales'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['feb.csv', 'jan.csv']</pre></td></tr>
+          <tr><td><strong>Move a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">shutil.move('data/sales/feb.csv', 'data/feb_moved.csv')
+sorted(os.listdir('data'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['feb_moved.csv', 'q1', 'sales']</pre></td></tr>
+          <tr><td><strong>Rename a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.rename('data/feb_moved.csv', 'data/feb_2024.csv')
+sorted(os.listdir('data'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['feb_2024.csv', 'q1', 'sales']</pre></td></tr>
+          <tr><td><strong>Delete a file</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">os.remove('data/feb_2024.csv')
+sorted(os.listdir('data'))</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">['q1', 'sales']</pre></td></tr>
           <tr><td><strong>rmdir needs an empty folder</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">try:
     os.rmdir('data/q1')
 except OSError as e:
@@ -3398,6 +3356,7 @@ print(inside, os.path.isdir(d))</pre></td><td><pre style="white-space:pre-wrap; 
         <p>Deleting is permanent: <code>os.remove</code> and <code>shutil.rmtree</code> do not use a recycle bin. Check the path first, and try the code on a copy.</p>
 `,
       fhinterview: `        <h4>Common interview gotchas</h4>
+        <p>File errors such as <code>FileNotFoundError</code> and <code>FileExistsError</code> are in the <strong>Read &amp; Write</strong> tab. Gotchas specific to binary files and to copying are in the <strong>Binary Files</strong> and <strong>Copying Files</strong> tabs.</p>
         <table style="table-layout:fixed; width:100%;">
           <tr><th style="width:20%">Gotcha</th><th style="width:46%">Sample code</th><th style="width:34%">Output</th></tr>
           <tr><td><strong>w mode erases</strong></td><td><pre style="white-space:pre-wrap; overflow-wrap:anywhere;">with open('t.txt', 'w') as f:
@@ -3440,8 +3399,10 @@ Path('d1').mkdir()</pre></td><td><pre style="white-space:pre-wrap; overflow-wrap
           <tr><td>How do you find all CSV files in sub-folders?</td><td><code>Path('data').rglob('*.csv')</code></td></tr>
           <tr><td>How do you delete a folder with files in it?</td><td><code>shutil.rmtree(path)</code>; <code>os.rmdir</code> works only on empty folders.</td></tr>
         </table>
-        <h4>Spoken answer (30 seconds)</h4>
-        <p>&ldquo;I always use <code>with open</code> with an explicit encoding so the file closes and text is read correctly. I know <code>w</code> erases, <code>a</code> appends and <code>x</code> refuses to overwrite. Large files I iterate line by line. For paths I use <code>pathlib</code>, for finding files <code>rglob</code>, and for copying, moving and deleting <code>shutil</code>, taking care because deletion is permanent.&rdquo;</p>
+        <h4>Spoken answers (30 seconds)</h4>
+        <p><strong>File handling in general.</strong> &ldquo;I always use <code>with open</code> with an explicit encoding so the file closes and text is read correctly. I know <code>w</code> erases, <code>a</code> appends and <code>x</code> refuses to overwrite. Large files I iterate line by line. For paths I use <code>pathlib</code>, for finding files <code>rglob</code>, and for copying, moving and deleting <code>shutil</code>, taking care because deletion is permanent. For tables I use pandas, with <code>read_csv</code> and <code>to_csv</code>.&rdquo;</p>
+        <p><strong>Binary files.</strong> &ldquo;For text I open files in <code>r</code> or <code>w</code> mode with an explicit encoding and work with strings. For images, PDFs and other non-text files I use <code>rb</code> and <code>wb</code> and work with bytes. I read large files in chunks, identify a file by its first bytes rather than its extension, and verify copies with a <code>hashlib</code> checksum. I use <code>struct</code> for fixed binary layouts, and I avoid unpickling data I do not trust.&rdquo;</p>
+        <p><strong>Copying files.</strong> &ldquo;To copy a file as it is, I use <code>shutil.copy</code>, or <code>copy2</code> when timestamps matter. To change the content on the way, I open the source for reading and the destination for writing in one <code>with</code> statement and loop over the lines. To merge files, I open the destination once and copy each source into it. I check whether the destination exists first, because <code>copy</code> overwrites silently, and I verify the result with <code>filecmp</code> or a checksum.&rdquo;</p>
 `
     }
   },
@@ -10389,7 +10350,7 @@ df["full_name"] = df.apply(lambda r: f"{r['first']} {r['last']}", axis=1)
 \# Vectorized -- fastest, no explicit loop at all
 df["total"] = df["price"] * df["quantity"]</pre>
 <div class="fb-explain">Rule of thumb: reach for a vectorized expression first, use <code>map()</code> for simple Series-level lookups, and only reach for <code>apply()</code> when the logic genuinely can't be vectorized (e.g. complex row-wise conditionals) — it's the slowest of the three for large data since it still runs a Python-level loop per row.</div>` },
-  { cat: "fundamentals", sub: "NumPy & Pandas Essentials", q: "How would you read a large CSV file in Python efficiently?", a: `<pre>import pandas as pd
+  { cat: "file-handling", sub: "Pandas file I/O", q: "How would you read a large CSV file in Python efficiently?", a: `<pre>import pandas as pd
 
 \# 1. Only read needed columns, use smaller dtypes to cut memory use
 df = pd.read_csv(
@@ -10454,7 +10415,7 @@ print(merged)  \# "Data Engineer Prep"</pre>` },
 <pre>nums = [10, 20, 30, 20]
 del nums[1]        \# removes by index -&gt; [10, 30, 20]
 nums.remove(20)     \# removes first matching value -&gt; [10, 30]</pre>` },
-  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "How do you display the contents of a text file in reverse order?", a: `Read all lines into a list, then iterate over <code>reversed()</code>.
+  { cat: "file-handling", sub: "File handling", q: "How do you display the contents of a text file in reverse order?", a: `Read all lines into a list, then iterate over <code>reversed()</code>.
 <pre>with open("file.txt") as f:
     lines = f.readlines()
 
@@ -10500,7 +10461,7 @@ n = 3
 top_n_idx = np.argpartition(arr, -n)[-n:]
 print(top_n_idx, arr[top_n_idx])</pre>
 <div class="fb-explain"><code>argpartition</code> only guarantees the top N are in the last N positions (unordered) — cheaper than a full sort when you don't need them ranked.</div>` },
-  { cat: "fundamentals", sub: "NumPy & Pandas Essentials", q: "You've uploaded a dataset as CSV on Google Spreadsheet and shared it publicly. How can you access this in Python?", a: `Publish the sheet as CSV (File → Share → Publish to web → CSV) or build the export URL directly, then read it straight into pandas — no auth needed for a publicly shared sheet.
+  { cat: "file-handling", sub: "Pandas file I/O", q: "You've uploaded a dataset as CSV on Google Spreadsheet and shared it publicly. How can you access this in Python?", a: `Publish the sheet as CSV (File → Share → Publish to web → CSV) or build the export URL directly, then read it straight into pandas — no auth needed for a publicly shared sheet.
 <pre>import pandas as pd
 
 sheet_id = "YOUR_SHEET_ID"
@@ -10791,7 +10752,7 @@ cfg = Config()
 cfg.debug = True
 cfg.max_retries = 3</pre>
 <div class="fb-explain">Useful as a placeholder while designing a class hierarchy before filling in behavior, or as a lightweight attribute container/namespace object when you don't need any methods at all — you can still attach attributes to an instance of it freely.</div>` },
-  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "How do you store a list of objects to a file with pickle, then read them back?", a: `<code>pickle.dump()</code> serializes any Python object (including custom class instances) to a binary file; <code>pickle.load()</code> reverses it.
+  { cat: "file-handling", sub: "File handling", q: "How do you store a list of objects to a file with pickle, then read them back?", a: `<code>pickle.dump()</code> serializes any Python object (including custom class instances) to a binary file; <code>pickle.load()</code> reverses it.
 <pre>\# save_objects.py
 import pickle
 
@@ -10813,7 +10774,7 @@ with open("people.pkl", "rb") as f:
 for p in loaded_people:
     print(p.name, p.age)</pre>
 <div class="fb-explain">Files must be opened in binary mode (<code>"wb"</code>/<code>"rb"</code>) since pickle writes bytes, not text. Only unpickle files from sources you trust — malicious pickle data can execute arbitrary code when loaded.</div>` },
-  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "How do you delete a file in Python using the os module, with error handling?", a: `<code>os.remove(path)</code> deletes the file; wrap it in <code>try</code>/<code>except</code> to handle the file not existing or lacking permission.
+  { cat: "file-handling", sub: "File handling", q: "How do you delete a file in Python using the os module, with error handling?", a: `<code>os.remove(path)</code> deletes the file; wrap it in <code>try</code>/<code>except</code> to handle the file not existing or lacking permission.
 <pre>import os
 
 def delete_file(path):
@@ -11041,7 +11002,7 @@ def outer_closure(x):
 f = outer_closure(5)
 print(f())   \# 10 -- 'x' is remembered even though outer_closure already returned</pre>
 <div class="fb-explain"><code>outer_no_closure</code>'s inner function never reaches outside itself, so it's just a nested function. <code>outer_closure</code>'s inner function captures <code>x</code> and outlives the call that created it — that's a true closure.</div>` },
-  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "How do you download and save an image from a URL using Python?", a: `<pre>import requests
+  { cat: "file-handling", sub: "File handling", q: "How do you download and save an image from a URL using Python?", a: `<pre>import requests
 
 url = "https://example.com/image.jpg"
 response = requests.get(url)
@@ -11081,7 +11042,7 @@ s.remove(99)    \# KeyError: 99</pre>
 for i in range(1, rows + 1):
     print(" " * (rows - i) + "*" * (2 * i - 1))</pre>
 <div class="fb-explain">Leading spaces shrink while the asterisk count grows by 2 each row (odd numbers: 1, 3, 5, 7, 9) — that combination is what centers the triangle.</div>` },
-  { cat: "fundamentals", sub: "Modules, Tools & I/O", q: "You have an 8GB file. How do you read and process it without running out of memory?", a: `Iterate the file line-by-line (or in fixed-size chunks) instead of loading it all at once — both keep memory usage constant regardless of file size.
+  { cat: "file-handling", sub: "File handling", q: "You have an 8GB file. How do you read and process it without running out of memory?", a: `Iterate the file line-by-line (or in fixed-size chunks) instead of loading it all at once — both keep memory usage constant regardless of file size.
 <pre>\# Line by line -- constant memory regardless of file size
 with open("huge_file.txt") as f:
     for line in f:
